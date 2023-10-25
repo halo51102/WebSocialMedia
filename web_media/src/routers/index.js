@@ -5,15 +5,21 @@ import Profile from '../pages/profile';
 import Upload from '../pages/Upload';
 import Search from '../pages/Search';
 import Chat from '../pages/Chat';
+import Login from '../pages/login/Login';
+import Register from '../pages/register/Register';
 
 //Public routers
 const publicRouters = [
-    { path: '/', component: Home },
+    { path: '/', component: Login, layout: null },
+    { path: '/home', component: Home},
     { path: '/watch', component: Watch },
     { path: '/profile', component: Profile },
     { path: '/search', component: Search, layout: null },
     { path: '/chat', component: Chat },
     { path: '/upload', component: Upload, layout: HeaderOnly },
+    { path: '/login', component: Login, layout: null },
+    { path: '/register', component: Register, layout: null },
+
 
 ]
 
