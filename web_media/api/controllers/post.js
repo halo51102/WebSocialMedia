@@ -34,7 +34,7 @@ export const addPost=(req,res)=>{
       req.body.desc,
       req.body.img,
       moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-      userInfo.id,
+      userInfo.id
     ]
 
     db.query(q, [values], (err, data) => {
