@@ -1,8 +1,8 @@
 import express from 'express'
-import {  } from '../controllers/post.js'
+import { addPost,getPosts } from '../controllers/post.js'
 const routes=express.Router()
 
-routes.get("",)
-
+routes.get("/",getPosts)
+routes.post("/",addPost)
 
 export default routes
