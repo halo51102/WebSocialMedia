@@ -23,8 +23,8 @@ const Post = ({ post }) => {
   const queryClient = useQueryClient()
 
   const mutation = useMutation((liked) => {
-    if (liked) return makeRequest.delete("/likes?postId=", post.id);
-    return makeRequest.post("/likes", post.id);
+    if (liked) return makeRequest.delete("/likes?postId="+ post.id);
+    return makeRequest.post("/likes", {postId:post.id});
   },
     {
       onSuccess: () => {
@@ -64,7 +64,8 @@ const Post = ({ post }) => {
           <div className="item">
             {isLoading ? (
               "loading"
-            ) : data.includes(currentUser.id) ? (
+            ) :
+            error? "error": data.includes(currentUser.id) ? (
               <FavoriteOutlinedIcon style={{ color: "red" }} onClick={handleLike} />) : (<FavoriteBorderOutlinedIcon onClick={handleLike} />)}
             {data?.length} Likes
           </div>
