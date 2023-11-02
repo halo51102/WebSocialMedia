@@ -8,12 +8,16 @@ import { Link } from "react-router-dom";
 import Comments from "../comments/Comments";
 import { useState } from "react";
 import moment from "moment"
+import { useQuery } from "@tanstack/react-query";
+import { makeRequest } from "../../axios";
 
 const Post = ({ post }) => {
   const [commentOpen, setCommentOpen] = useState(false);
 
-  //TEMPORARY
-  const liked = false;
+  const{isLoading,error,data}=useQuery(["likes",post.id],()=>
+  makeRequest.get("./like?postId="+post.id).then((res)=>{
+    return res.data
+  }))
 
   return (
     <div className="post">
@@ -39,8 +43,8 @@ const Post = ({ post }) => {
         </div>
         <div className="info">
           <div className="item">
-            {liked ? <FavoriteOutlinedIcon /> : <FavoriteBorderOutlinedIcon />}
-            12 Likes
+            {/*liked ? <FavoriteOutlinedIcon style={{color:"red"}} /> : <FavoriteBorderOutlinedIcon />*/}
+            {data.length} Likes
           </div>
           <div className="item" onClick={() => setCommentOpen(!commentOpen)}>
             <TextsmsOutlinedIcon />
