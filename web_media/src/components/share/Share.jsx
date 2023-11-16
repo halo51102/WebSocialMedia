@@ -69,16 +69,16 @@ const Share = () => {
             <label htmlFor="file">
               <div className="item">
                 <img src={Image} alt="" />
-                <span>Add Image</span>
+                <span>Images</span>
               </div>
             </label>
             <div className="item">
               <img src={Map} alt="" />
-              <span>Add Place</span>
+              <span>Location</span>
             </div>
             <div className="item">
               <img src={Friend} alt="" />
-              <span>Tag Friends</span>
+              <span>Tag</span>
             </div>
           </div>
           <div className="right">
