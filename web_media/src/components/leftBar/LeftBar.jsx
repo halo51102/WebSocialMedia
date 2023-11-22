@@ -7,10 +7,30 @@ import Videos from "../../assets/9.png";
 import Messages from "../../assets/10.png";
 import { AuthContext } from "../../context/authContext";
 import { useContext } from "react";
+import axios from "axios"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 
 const LeftBar = () => {
 
   const { currentUser } = useContext(AuthContext);
+
+  const [err, setErr] = useState(null)
+
+  const navigate = useNavigate()
+
+  const handleClick = async (e) => {
+    e.preventDefault()
+
+    try {
+      await axios.post("http://localhost:8800/api/auth/logout")
+      localStorage.removeItem('user');
+      navigate("/login")
+    } catch (err) {
+      setErr(err.response.data)
+    }
+  }
 
   return (
     <div className="leftBar">
@@ -56,6 +76,8 @@ const LeftBar = () => {
         <div className="menu">
           <span>Others</span>
         </div>
+        {err && err}
+        <button onClick={handleClick}>LogOut</button>
       </div>
     </div>
   );
