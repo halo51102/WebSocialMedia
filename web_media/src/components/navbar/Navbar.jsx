@@ -43,10 +43,9 @@ const Navbar = () => {
         <Link to={profile}>
           <div className="user">
             <img
-              src={currentUser.profilePic}
+              src={"/upload/" + currentUser.profilePic}
               alt=""
             />
-            <span>{currentUser.name}</span>
           </div>
         </Link>
       </div>
