@@ -7,6 +7,7 @@ import Search from '../pages/Search';
 import Chat from '../pages/Chat';
 import Login from '../pages/login/Login';
 import Register from '../pages/register/Register';
+import Friend from '../pages/friend/Friend';
 
 //Public routers
 const publicRouters = [
@@ -19,6 +20,7 @@ const publicRouters = [
     { path: '/upload', component: Upload, layout: HeaderOnly },
     { path: '/login', component: Login, layout: null },
     { path: '/register', component: Register, layout: null },
+    { path: '/friend', component: Friend, layout: null },
 
 
 ]
