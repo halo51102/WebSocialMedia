@@ -2,9 +2,13 @@ import "./searchResults.scss";
 
 export const SearchResults = ({ results }) => {
     console.log(results)
+    let empty = []
     return (
         <div className="results">
-            {results.map((result) => 
+
+            {(results !== empty)
+                ?
+                results.map((result) =>
                 (<div className="result" key={result.id}>
                     <div className="info">
                         <img
@@ -13,7 +17,11 @@ export const SearchResults = ({ results }) => {
                         <span>{result.username}</span>
                     </div>
                 </div>)
-            )}
+                )
+
+                :
+                <div className="result"><span>Không có kết quả</span></div>
+            }
         </div>
     );
 };

@@ -32,7 +32,9 @@ const Navbar = () => {
           return (
             value &&
             user &&
-            user.name.toLowerCase().includes(value)
+            user.name &&
+            user.name.toLowerCase().includes(value) &&
+            user.username.toLowerCase().includes(value)
           );
         });
         setResults(results);
@@ -69,8 +71,8 @@ const Navbar = () => {
         ) : (
           <DarkModeOutlinedIcon onClick={toggle} />
         )}
-        <PersonOutlinedIcon />
-        <EmailOutlinedIcon />
+        <Link to="/friend" ><PersonOutlinedIcon /></Link>
+        <Link to="/chat" ><EmailOutlinedIcon /></Link>
         <NotificationsOutlinedIcon />
         <Link to={profile}>
           <div className="user">
