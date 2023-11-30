@@ -16,13 +16,14 @@ import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 import { AuthContext } from "./context/authContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import Friend from "./pages/friend/Friend";
 function App() {
   const { currentUser } = useContext(AuthContext);
 
   const { darkMode } = useContext(DarkModeContext);
 
   const queryClient = new QueryClient()
-  
+
   const Layout = () => {
     return (
       <QueryClientProvider client={queryClient}>
@@ -64,6 +65,10 @@ function App() {
         {
           path: "/profile/:id",
           element: <Profile />,
+        },
+        {
+          path: "/friend",
+          element: <Friend />,
         },
       ],
     },

@@ -9,7 +9,7 @@ import { AuthContext } from "../../context/authContext";
 import { useContext } from "react";
 import axios from "axios"
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 const LeftBar = () => {
@@ -44,8 +44,13 @@ const LeftBar = () => {
             <span>{currentUser.name}</span>
           </div>
           <div className="item">
-            <img src={Friends} alt="" />
-            <span>Friends</span>
+            <Link
+              to="/friend"
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <img src={Friends} alt="" />
+              <span>Friends</span>
+            </Link>
           </div>
           <div className="item">
             <img src={Groups} alt="" />
