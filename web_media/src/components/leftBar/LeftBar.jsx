@@ -32,6 +32,7 @@ const LeftBar = () => {
     }
   }
 
+  let group="/group"
   return (
     <div className="leftBar">
       <div className="container">
@@ -54,7 +55,9 @@ const LeftBar = () => {
           </div>
           <div className="item">
             <img src={Groups} alt="" />
-            <span>Groups</span>
+            <Link to="/group/all">
+            <span>Group</span>
+           </Link>
           </div>
           <div className="item">
             <img src={Watch} alt="" />

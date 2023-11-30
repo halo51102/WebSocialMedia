@@ -6,6 +6,7 @@ import postRoutes from './routes/posts.js'
 import commentRoutes from './routes/comments.js'
 import likeRoutes from './routes/likes.js'
 import relationshipRoutes from './routes/relationships.js'
+import groupRoutes from './routes/groups.js'
 import storyRoutes from './routes/stories.js'
 import cors from "cors"
 import multer from "multer"
@@ -45,6 +46,7 @@ app.use("/api/likes", likeRoutes)
 app.use("/api/relationships", relationshipRoutes)
 app.use("/api/stories", storyRoutes)
 
+app.use("/api/groups",groupRoutes)
 app.listen(8800, () => {
     console.log("API working")
 })
