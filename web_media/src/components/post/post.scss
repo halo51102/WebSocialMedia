@@ -41,6 +41,17 @@
             }
           }
         }
+
+        button {
+          position:relative;
+          top: 30px;
+          right: 0;
+          border: none;
+          background-color: #f0544f;
+          padding: 5px;
+          cursor: pointer;
+          color: white;
+        }
       }
 
       .content {

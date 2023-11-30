@@ -63,7 +63,6 @@ const Update = ({ setOpenUpdate, user }) => {
     return (
       <div className="update">
         <div className="wrapper">
-          {/* <h1>Update Your Profile</h1> */}
           <form>
             <div className="files">
               <label htmlFor="cover">
@@ -114,13 +113,6 @@ const Update = ({ setOpenUpdate, user }) => {
               name="email"
               onChange={handleChange}
             />
-            <label>Password</label>
-            <input
-              type="text"
-              value={texts.password}
-              name="password"
-              onChange={handleChange}
-            />
             <label>Name</label>
             <input
               type="text"
@@ -145,7 +137,7 @@ const Update = ({ setOpenUpdate, user }) => {
             <button onClick={handleClick}>Update</button>
           </form>
           <button className="close" onClick={() => setOpenUpdate(false)}>
-            close
+            X
           </button>
         </div>
       </div>
