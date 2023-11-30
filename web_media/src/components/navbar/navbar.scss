@@ -3,7 +3,6 @@
 .navbar {
   @include themify($themes) {
     display: flex;
-    align-items: center;
     justify-content: space-between;
     padding: 10px 20px;
     height: 50px;
@@ -11,42 +10,61 @@
     position: sticky;
     top: 0;
     background-color: themed("bg");
-    color:themed("textColor");
+    color: themed("textColor");
     z-index: 999;
 
     .left {
       display: flex;
-      align-items: center;
       gap: 30px;
+      height: 100%;
 
       span {
         font-weight: bold;
         font-size: 20px;
         color: themed("logo");
+        
       }
 
-      .search {
+      .search-container {
+        margin-top: 0px;
         display: flex;
-        align-items: center;
-        gap: 20px;
-        border: 1px solid themed("border");
-        border-radius: 5px;
-        padding: 5px;
-        margin-left: 20px;
+        flex-direction: column;
+        align-items: flex-end;
+        min-width: 200px;
+        max-height: 300px;
+        height: fit-content;
 
-        input {
+        .search {
+          height: 2.5rem;
           border: none;
-          width: 500px;
-          background-color: transparent;
-          color: themed("textColor");
+          border-radius: 10px;
+          padding: 0 15px;
+          box-shadow: 0px 0px 3px #ddd;
+          background-color: white;
+          display: flex;
+          align-items: center;
+          margin-left: 30px;
 
-          @include mobile{
-            display: none;
+          input {
+            border: none;
+            width: 500px;
+            background-color: transparent;
+            color: themed("textColor");
+
+            @include mobile {
+              display: none;
+            }
+
+            @include tablet {
+              width: 200px;
+            }
+
+            &:focus {
+              outline: none;
+              border-color: transparent;
+            }
           }
 
-          @include tablet{
-            width: 200px;
-          }
         }
       }
     }
@@ -56,7 +74,7 @@
       align-items: center;
       gap: 20px;
 
-      @include mobile{
+      @include mobile {
         display: none;
       }
 
@@ -66,7 +84,7 @@
         gap: 10px;
         font-weight: 500;
 
-        @include tablet{
+        @include tablet {
           display: none;
         }
 

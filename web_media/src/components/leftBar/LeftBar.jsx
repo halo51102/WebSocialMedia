@@ -45,6 +45,7 @@ const LeftBar = () => {
           </div>
           <div className="item">
             <Link
+              className="link"
               to="/friend"
               style={{ textDecoration: "none", color: "inherit" }}
             >
