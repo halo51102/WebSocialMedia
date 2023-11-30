@@ -10,6 +10,7 @@ import { useContext } from "react";
 import axios from "axios"
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 const LeftBar = () => {
@@ -32,6 +33,7 @@ const LeftBar = () => {
     }
   }
 
+  let group="/group"
   return (
     <div className="leftBar">
       <div className="container">
@@ -49,7 +51,9 @@ const LeftBar = () => {
           </div>
           <div className="item">
             <img src={Groups} alt="" />
-            <span>Groups</span>
+            <Link to="/group/all">
+            <span>Group</span>
+           </Link>
           </div>
           <div className="item">
             <img src={Watch} alt="" />
