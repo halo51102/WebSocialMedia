@@ -2,6 +2,8 @@ import { HeaderOnly } from '../components/Layout';
 import Home from '../pages/Home';
 import Watch from '../pages/Watch';
 import Profile from '../pages/profile';
+import Group from '../pages/group';
+import AllGroup from '../pages/allGroup';
 import Upload from '../pages/Upload';
 import Search from '../pages/Search';
 import Chat from '../pages/Chat';
@@ -20,6 +22,8 @@ const publicRouters = [
     { path: '/upload', component: Upload, layout: HeaderOnly },
     { path: '/login', component: Login, layout: null },
     { path: '/register', component: Register, layout: null },
+    { path: '/group/all', component: AllGroup},
+    { path: '/group', component: Group},    
     { path: '/friend', component: Friend, layout: null },
 
 

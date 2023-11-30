@@ -10,7 +10,9 @@ import Navbar from "./components/navbar/Navbar";
 import LeftBar from "./components/leftBar/LeftBar";
 import RightBar from "./components/rightBar/RightBar";
 import Home from "./pages/home/Home";
+import Group from "./pages/group/Group"
 import Profile from "./pages/profile/Profile";
+import AllGroup from "./pages/allGroup/AllGroup"
 import "./style.scss";
 import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
@@ -65,6 +67,13 @@ function App() {
         {
           path: "/profile/:id",
           element: <Profile />,
+        },{
+          path: "/group/all",
+          element: <AllGroup />,
+        },
+        {
+          path: "/group/:id",
+          element: <Group />,
         },
         {
           path: "/friend",

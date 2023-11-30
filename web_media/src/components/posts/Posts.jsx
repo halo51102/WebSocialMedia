@@ -21,4 +21,5 @@ const Posts = ({ userId }) => {
   );
 };
 
+
 export default Posts;
