@@ -52,6 +52,8 @@ const Post = ({ post }) => {
     deletePostMutation.mutate(post.id)
   }
 
+  let profile = "/profile/" + post.userId;
+
   return (
     <div className="post">
       <div className="container">
@@ -60,7 +62,7 @@ const Post = ({ post }) => {
             <img src={"/upload/" + post.profilePic} alt="" />
             <div className="details">
               <Link
-                to={`/profile/${post.userId}`}
+                to={profile}
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 <span className="name">{post.name}</span>
@@ -69,7 +71,7 @@ const Post = ({ post }) => {
             </div>
           </div>
           <MoreHorizIcon onClick={() => setMenuOpen(!menuOpen)} />
-          {menuOpen && <button onClick={handleDelete}>Delete</button>}
+          {menuOpen && post.userId === currentUser.id && <button onClick={handleDelete}>Delete</button>}
         </div>
         <div className="content">
           <p>{post.desc}</p>
