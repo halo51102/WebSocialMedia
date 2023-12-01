@@ -23,15 +23,14 @@ const AllGroup = () => {
       return res.data;
     })
   );
-  console.log(data)
-
+console.log("All G "+data)
   return (
     <div className="posts">
       {error
         ? "Something went wrong!"
         : isLoading
         ? "loading"
-        : data.map((group) => <AGroup groupId={group} key={group.id}  />)}
+        : <AGroup groupId={data.id} />}
     </div>
   );
 };

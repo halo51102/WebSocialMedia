@@ -16,7 +16,6 @@ const [desc,setDesc]=useState("")
     return res.data;
   })
 );
-
   return (
     <div className="comments">
       {error
