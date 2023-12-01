@@ -23,8 +23,8 @@ const Friend = () => {
                         ? "Something went wrong!"
                         : isLoading
                             ? "loading"
-                            : data.map((friend) =>
-                            (<div className="user" key={friend.id}>
+                            : data.map((friend, id) =>
+                            (<div className="user" key={id}>
                                 <div className="userInfo">
                                     <img
                                         src={"/upload/" + friend.profilePic}
