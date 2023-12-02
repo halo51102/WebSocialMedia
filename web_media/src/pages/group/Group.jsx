@@ -23,16 +23,15 @@ const Group = () => {
   const groupId = parseInt(useLocation().pathname.split("/")[2])
 
   const queryClient = useQueryClient()
-  const { isLoading, error, data } = useQuery(["groups"], () =>
-    makeRequest.get("/groups?id=" + groupId).then((res) => {
-      return res.data[0]
+  const { isLoading, error, data } = useQuery(["profilegroup"], () =>
+    makeRequest.get("/groups/" + groupId).then((res) => {
+      return res.data
     }))
 
 
   const handleFollow = () => {
     
   }
-
   return (
     <div className="profile">
       {isLoading ? "loading" : <>

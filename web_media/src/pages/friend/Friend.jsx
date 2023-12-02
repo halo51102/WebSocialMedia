@@ -13,7 +13,7 @@ const Friend = () => {
         })
     );
 
-    console.log();
+    console.log(data);
 
     return (
         <div className="friends">

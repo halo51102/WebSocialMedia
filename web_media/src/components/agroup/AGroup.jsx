@@ -1,19 +1,28 @@
 import { useContext, useState } from "react";
 import "./agroup.scss";
 import { AuthContext } from "../../context/authContext";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery,useQueryClient} from "@tanstack/react-query";
+import { useEffect } from 'react';
 import { makeRequest } from "../../axios";
-import moment from "moment"
 import { Link } from "react-router-dom";
 const AGroup = ({ groupId }) => {
-  const [desc, setDesc] = useState("")
-  const { currentUser } = useContext(AuthContext);
-  const { isLoading, error, data } = useQuery(["groups"], () =>
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // Update 'agroup' value in the query cache when 'groupId' changes
+    queryClient.setQueryData(['agroup'], groupId);
+  }, [groupId, queryClient]);
+
+  const { isLoading, error, data } = useQuery(['agroup'], () =>
     makeRequest.get("/groups/" + groupId).then((res) => {
-      return res.data[0];
+      return res.data;
     })
   );
-  console.log(data[0].id)
+  console.log("ll")
+  console.log(groupId)
+  console.log(data)
+  console.log("jj")
   return (
     <div className="comments">
       {error
@@ -22,10 +31,10 @@ const AGroup = ({ groupId }) => {
           ? "loading"
           :(
             <div className="comment">
-              <img src={data[0].profilePic} alt="" />
+              <img src={data.profilePic} alt="" />
               <div className="info">
-                <Link to={`/group/${data[0].id}`}>
-                  <span>{data[0].name}</span>
+                <Link to={`/group/${data.id}`}>
+                  <span>{data.name}</span>
                 </Link>
               </div>
             </div>
