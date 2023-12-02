@@ -30,7 +30,7 @@ console.log("All G "+data)
         ? "Something went wrong!"
         : isLoading
         ? "loading"
-        : <AGroup groupId={data.id} />}
+        : data.map((agroup)=><AGroup groupId={agroup.id}/>)}
     </div>
   );
 };

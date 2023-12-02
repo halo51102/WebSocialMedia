@@ -27,7 +27,6 @@ const Group = () => {
     makeRequest.get("/groups?id=" + groupId).then((res) => {
       return res.data[0]
     }))
-    console.log(data.id)
 
 
   const handleFollow = () => {
