@@ -46,7 +46,6 @@
         flex-direction: column;
         gap: 3px;
         align-items: flex-start;
-
         span {
           font-weight: 500;
         }
@@ -55,7 +54,17 @@
           color:themed("textColorSoft")
         }
       }
-
+      .desc {
+        flex:5;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        align-items: flex-start;
+        span {
+          font-weight: 500;
+        }
+      }
       .date{
         flex:1;
         align-self: center;
