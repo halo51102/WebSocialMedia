@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
-import { useContext, useState } from "react";
+import { useContext} from "react";
 import { AuthContext } from "../../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
 import "./friend.scss"
@@ -14,14 +14,10 @@ const Friend = () => {
         })
     );
 
-<<<<<<< HEAD
-    console.log(data);
-=======
     const navigate = useNavigate();
 
 
     console.log();
->>>>>>> main
 
     return (
         <div className="friends">
