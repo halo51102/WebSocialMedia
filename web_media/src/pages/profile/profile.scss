@@ -3,6 +3,7 @@
 .profile {
   @include themify($themes) {
     background-color: themed("bgSoft");
+    padding: 0px 20px;
 
     .images {
       width: 100%;
@@ -27,14 +28,15 @@
         top: 200px;
       }
     }
+
     .profileContainer {
       padding: 20px 70px;
 
-      @include mobile{
+      @include mobile {
         padding: 10px;
       }
 
-      @include tablet{
+      @include tablet {
         padding: 20px;
       }
 
@@ -52,7 +54,7 @@
         justify-content: space-between;
         margin-bottom: 20px;
 
-        @include mobile{
+        @include mobile {
           flex-direction: column;
           height: 30vh;
           padding: 20px;
@@ -64,11 +66,11 @@
           display: flex;
           gap: 10px;
 
-          @include tablet{
+          @include tablet {
             flex-wrap: wrap;
           }
 
-          a{
+          a {
             color: themed("textColorSoft");
           }
         }
@@ -102,6 +104,7 @@
               }
             }
           }
+
           button {
             border: none;
             background-color: #5271ff;
