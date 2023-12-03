@@ -27,7 +27,7 @@ const Comments = ({ postId }) => {
     })
     
   const handleClick = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     mutation.mutate({ desc, postId })
     setDesc("")
   }

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
+import { Link, useNavigate } from "react-router-dom";
 import "./friend.scss"
 
 const Friend = () => {
@@ -13,7 +14,14 @@ const Friend = () => {
         })
     );
 
+<<<<<<< HEAD
     console.log(data);
+=======
+    const navigate = useNavigate();
+
+
+    console.log();
+>>>>>>> main
 
     return (
         <div className="friends">
@@ -24,18 +32,28 @@ const Friend = () => {
                         : isLoading
                             ? "loading"
                             : data.map((friend, id) =>
-                            (<div className="user" key={id}>
-                                <div className="userInfo">
-                                    <img
-                                        src={"/upload/" + friend.profilePic}
-                                        alt=""
-                                    />
-                                    <span>{friend.username}</span>
+                            (<Link
+                                style={{ textDecoration: "none" }}
+                                to={"/profile/" + friend.id}
+                                onClick={() => {
+                                    navigate("/profile/" + friend.id, { replace: true });
+                                    window.location.reload();
+                                }}
+                            >
+                                <div className="user" key={id}>
+                                    <div className="userInfo">
+                                        <img
+                                            src={"/upload/" + friend.profilePic}
+                                            alt=""
+                                        />
+                                        <span>{friend.username}</span>
+                                    </div>
+                                    <div className="buttons">
+                                        <button>Unfriend</button>
+                                    </div>
                                 </div>
-                                <div className="buttons">
-                                    <button>Unfriend</button>
-                                </div>
-                            </div>))
+                            </Link>
+                            ))
                     }
                 </div>
             </div>

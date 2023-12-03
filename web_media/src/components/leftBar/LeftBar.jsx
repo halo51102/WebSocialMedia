@@ -32,18 +32,26 @@ const LeftBar = () => {
     }
   }
 
-  let group="/group"
+  let group = "/group"
   return (
     <div className="leftBar">
       <div className="container">
         <div className="menu">
-          <div className="user">
-            <img
-              src={"/upload/" + currentUser.profilePic}
-              alt=""
-            />
-            <span>{currentUser.name}</span>
-          </div>
+          <Link
+            to={"/profile/" + currentUser.id}
+            style={{ textDecoration: "none", marginTop: "13px", color: "inherit" }}
+            onClick={() => {
+              navigate("/profile/" + currentUser.id, { replace: true });
+              window.location.reload();
+            }}>
+            <div className="user">
+              <img
+                src={"/upload/" + currentUser.profilePic}
+                alt=""
+              />
+              <span>{currentUser.name}</span>
+            </div>
+          </Link>
           <div className="item">
             <Link
               className="link"
@@ -56,9 +64,11 @@ const LeftBar = () => {
           </div>
           <div className="item">
             <img src={Groups} alt="" />
-            <Link to="/group/all">
-            <span>Group</span>
-           </Link>
+            <Link
+              to="/group/all"
+              style={{ textDecoration: "none", color: "inherit" }}>
+              <span>Group</span>
+            </Link>
           </div>
           <div className="item">
             <img src={Watch} alt="" />

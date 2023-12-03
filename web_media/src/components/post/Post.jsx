@@ -11,9 +11,11 @@ import moment from "moment"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import { AuthContext } from "../../context/authContext";
-const Post = ({ post }) => {
+
+
+const Post = ({ post, isCommentOpen, openComment, closeComment  }) => {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [commentOpen, setCommentOpen] = useState(false)
+  // const [commentOpen, setCommentOpen] = useState(null)
   const { currentUser } = useContext(AuthContext)
 
   const { isLoading, error, data } = useQuery(["likes", post.id], () =>
@@ -52,6 +54,14 @@ const Post = ({ post }) => {
     deletePostMutation.mutate(post.id)
   }
 
+  const handleToggleComment = () => {
+    if (isCommentOpen) {
+      closeComment();
+    } else {
+      openComment(post.id);
+    }
+  };
+
   let profile = "/profile/" + post.userId;
 
   return (
@@ -86,7 +96,7 @@ const Post = ({ post }) => {
                 <FavoriteOutlinedIcon style={{ color: "red" }} onClick={handleLike} />) : (<FavoriteBorderOutlinedIcon onClick={handleLike} />)}
             {data?.length} Likes
           </div>
-          <div className="item" onClick={() => setCommentOpen(!commentOpen)}>
+          <div className="item" onClick={handleToggleComment}>
             <TextsmsOutlinedIcon />
             See Comments
           </div>
@@ -95,7 +105,7 @@ const Post = ({ post }) => {
             Share
           </div>
         </div>
-        {commentOpen && <Comments postId={post.id} />}
+        {isCommentOpen && <Comments postId={post.id} />}
       </div>
     </div>
   );
