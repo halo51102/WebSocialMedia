@@ -7,7 +7,7 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { AuthContext } from "../../context/authContext";
@@ -19,6 +19,8 @@ const Navbar = () => {
 
   const { toggle, darkMode } = useContext(DarkModeContext);
   const { currentUser } = useContext(AuthContext);
+
+  const navigate = useNavigate();
 
   let id = (String)(currentUser.id)
   let profile = "/profile/" + id
@@ -71,10 +73,15 @@ const Navbar = () => {
         ) : (
           <DarkModeOutlinedIcon onClick={toggle} />
         )}
-        <Link to="/friend" ><PersonOutlinedIcon /></Link>
-        <Link to="/chat" ><EmailOutlinedIcon /></Link>
+        <Link to="/friend" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}><PersonOutlinedIcon /></Link>
+        <Link to="#" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}><EmailOutlinedIcon /></Link>
         <NotificationsOutlinedIcon />
-        <Link to={profile}>
+        <Link
+          to={profile}
+          onClick={() => {
+            navigate("/profile/" + currentUser.id, { replace: true });
+            window.location.reload();
+          }}>
           <div className="user">
             <img
               src={"/upload/" + currentUser.profilePic}
