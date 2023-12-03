@@ -14,10 +14,14 @@ const Friend = () => {
         })
     );
 
+<<<<<<< HEAD
+    console.log(data);
+=======
     const navigate = useNavigate();
 
 
     console.log();
+>>>>>>> main
 
     return (
         <div className="friends">

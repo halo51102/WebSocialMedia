@@ -9,7 +9,7 @@ export const getGroup = (req, res) => {
 
     db.query(q, [groupId], (err, data) => {
         if (err) return res.status(500).json(err)
-        return res.json(data)
+        return res.json(data[0])
     })
 }
 
