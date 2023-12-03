@@ -14,12 +14,19 @@ import Group from "./pages/group/Group"
 import Profile from "./pages/profile/Profile";
 import AllGroup from "./pages/allGroup/AllGroup"
 import "./style.scss";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 import { AuthContext } from "./context/authContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import Friend from "./pages/friend/Friend";
+import { io } from "socket.io-client";
+
 function App() {
+
+  useEffect(() => {
+    const socket = io("http://localhost:5000");
+  }, [])
+
   const { currentUser } = useContext(AuthContext);
 
   const { darkMode } = useContext(DarkModeContext);
@@ -67,7 +74,7 @@ function App() {
         {
           path: "/profile/:id",
           element: <Profile />,
-        },{
+        }, {
           path: "/group/all",
           element: <AllGroup />,
         },
