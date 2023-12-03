@@ -21,34 +21,37 @@ const Group = () => {
 
 
   const handleFollow = () => {
-    
+
   }
   console.log("a")
   console.log(data?.coverPic)
   return (
-    <div className="profile">
+    <div className="profilegroup">
       {isLoading ? "loading" : <>
         <div className="images">
           <img
-            src={"/upload/"+data.coverPic}
+            src={"/upload/" + data.coverPic}
             alt=""
             className="cover"
           />
           <img
-            src={"/upload/"+data.profilePic}
+            src={"/upload/" + data.profilePic}
             alt=""
             className="profilePic"
           />
         </div>
         <div className="profileContainer">
-        <div className="center">
-            <span>{data.name}</span>
+          <div className="center">
+            <div className="info">
+              <span>{data.name}</span>
+              <span style={{fontSize:"12px"}}>{data.desc}</span>
+            </div>
             <button onClick={handleFollow}>Join In</button>
           </div>
-          </div>
-          <Share />
-          <PostsInGroup groupId={data.id} />
-       
+        </div>
+        <Share />
+        <PostsInGroup groupId={data.id} />
+
       </>}
     </div>
   );

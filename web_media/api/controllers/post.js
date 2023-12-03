@@ -64,6 +64,26 @@ export const deletePost = (req, res) => {
     });
   });
 };
+
+export const deletePostInGroup = (req, res) => {
+  ///posts/:id?userid=
+
+  ///sáng code l
+  const token = req.cookies.accessToken;
+  if (!token) return res.status(401).json("Not logged in!");
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!");
+    const admin="admin"
+    const q =
+      "delete from posts where ?=(select position from membergroups where userId=? AND groupId=?) AND id=?";
+    db.query(q, [admin, userInfo.id, req.params.groupId,req.params.id], (err, data) => {
+      if (err) return res.status(500).json(err);
+      if(data.affectedRows>0) return res.status(200).json("Post has been deleted.");
+      return res.status(403).json("You can delete only your post")
+    });
+  });
+};
+
 export const getPostsInGroup=(req,res)=>{
 
     const token=req.cookies.accessToken
