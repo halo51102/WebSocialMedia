@@ -5,7 +5,7 @@ import "./home.scss"
 import { useContext } from "react"
 import { AuthContext } from "../../context/authContext"
 
-const Home = () => {
+const Home = ({socket, user}) => {
   const { currentUser } = useContext(AuthContext)
   return (
     <div className="home">
