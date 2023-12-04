@@ -20,12 +20,9 @@ import { AuthContext } from "./context/authContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import Friend from "./pages/friend/Friend";
 import { io } from "socket.io-client";
+import { useState } from "react";
 
 function App() {
-
-  useEffect(() => {
-    const socket = io("http://localhost:5000");
-  }, [])
 
   const { currentUser } = useContext(AuthContext);
 
@@ -33,11 +30,23 @@ function App() {
 
   const queryClient = new QueryClient()
 
+  const [user, setUser] = useState("");
+  const [socket, setSocket] = useState(null);
+
+  useEffect(() => {
+    setSocket(io("http://localhost:5000"));
+  }, [])
+
+  useEffect(() => {
+    if (socket)
+      socket?.emit("newUser", user);
+  }, [socket, user]);
+
   const Layout = () => {
     return (
       <QueryClientProvider client={queryClient}>
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
-          <Navbar />
+          <Navbar socket={socket} />
           <div style={{ display: "flex" }}>
             <LeftBar />
             <div style={{ flex: 6 }}>
@@ -51,6 +60,14 @@ function App() {
   };
 
   const ProtectedRoute = ({ children }) => {
+    useEffect(() => {
+      if (currentUser) {
+        setUser(currentUser.username);
+      } else {
+        setUser("");
+      }
+    }, [currentUser]);
+
     if (!currentUser) {
       return <Navigate to="/login" />;
     }
@@ -69,7 +86,7 @@ function App() {
       children: [
         {
           path: "/",
-          element: <Home />,
+          element: <Home socket={socket} user={user} />,
         },
         {
           path: "/profile/:id",
@@ -97,6 +114,11 @@ function App() {
       element: <Register />,
     },
   ]);
+
+  // window.addEventListener('beforeunload', function() {
+  //   localStorage.clear();
+  // });
+  console.log(socket)
 
   return (
     <div>

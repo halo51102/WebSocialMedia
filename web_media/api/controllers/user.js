@@ -1,5 +1,6 @@
 import { db } from "../connect.js"
 import bcrypt from "bcryptjs"
+import exp from "constants"
 import jwt from "jsonwebtoken"
 
 export const getUser = (req, res) => {
@@ -10,6 +11,15 @@ export const getUser = (req, res) => {
         if (err) return res.status(500).json(err)
         const { password, ...info } = data[0]
         return res.json(info)
+    })
+}
+
+export const getUserByPostId = (req, res) => {
+    const q = "SELECT distinct username from users as u join posts as p on(p.userId=u.id) where p.id=?"
+
+    db.query(q, [req.params.postId], (err, data) => {
+        if (err) return res.status(500).json(err)
+        return res.json(data.map(user=>user.username))
     })
 }
 
@@ -40,7 +50,7 @@ export const updateUser = (req, res) => {
             }
         );
     });
-}; 
+};
 
 export const getAllUsers = (req, res) => {
     const q = "SELECT * FROM users"
@@ -50,3 +60,4 @@ export const getAllUsers = (req, res) => {
         return res.json(data)
     })
 }
+

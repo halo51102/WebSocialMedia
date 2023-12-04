@@ -38,10 +38,9 @@ const Profile = () => {
 
 
   const handleFollow = () => {
-    mutation.mutate(relationshipData.some(item=>item.id===currentUser.id))
+    mutation.mutate(relationshipData.some(item => item.id === currentUser.id))
   }
-console.log(relationshipData)
-console.log("an")
+
 
   return (
     <div className="profile">
@@ -77,7 +76,7 @@ console.log("an")
               </div>
               {rIsLoading ? ("loading")
                 : userId === currentUser.id ? (<button onClick={() => setOpenUpdate(true)}>update</button>)
-                  : (<button onClick={handleFollow}>{relationshipData.some(item=>item.id===currentUser.id) ? "Following" : "Follow"}</button>)}
+                  : (<button onClick={handleFollow}>{relationshipData.some(item => item.id === currentUser.id) ? "Following" : "Follow"}</button>)}
             </div>
             <div className="right">
               <MoreVertIcon />

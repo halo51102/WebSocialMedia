@@ -13,7 +13,6 @@ const Share = () => {
   const [file, setFile] = useState(null)
   const [desc, setDesc] = useState("")
   const groupId=parseInt(useLocation().pathname.split("/")[2])
-  console.log(groupId)
   const upload = async () => {
     try {
       const formData = new FormData()

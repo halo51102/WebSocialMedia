@@ -12,8 +12,10 @@ export const getPosts = (req, res) => {
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!")
 
-    const q = userId !== "undefined" ? `SELECT p.*,u.id AS userId,name,profilePic FROM posts AS p JOIN users AS u ON(u.id=p.userId) WHERE p.userId=? ORDER BY p.createdAt DESC`
-      : `SELECT p.*,u.id AS userId,name,profilePic FROM posts AS p JOIN users AS u ON(u.id=p.userId)
+    const q = userId !== "undefined" ? 
+    `select p.*, u.username, u.name, r.* from posts as p join users as u on(p.userId=u.id) left join relationships as r
+    on (u.id=r.followedUserId) where r.followerUserId=?;`
+      : `SELECT p.*,u.id AS userId,name,username,profilePic FROM posts AS p JOIN users AS u ON(u.id=p.userId)
     LEFT JOIN relationships AS r ON (p.userId=r.followedUserId) WHERE r.followerUserId=? OR p.userId=?
     ORDER BY p.createdAt DESC`
 

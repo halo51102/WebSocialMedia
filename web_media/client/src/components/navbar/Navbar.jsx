@@ -8,25 +8,33 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect} from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { AuthContext } from "../../context/authContext";
 import { SearchResults } from "../searchResults/SearchResults";
 
-const Navbar = () => {
+const Navbar = ({socket}) => {
+  const [notifications, setNotifications] = useState([]);
   const [results, setResults] = useState([]);
   const [input, setInput] = useState("");
 
   const { toggle, darkMode } = useContext(DarkModeContext);
   const { currentUser } = useContext(AuthContext);
 
-  const navigate = useNavigate();
-
   let id = (String)(currentUser.id)
   let profile = "/profile/" + id
 
+  const navigate = useNavigate();
 
-  const fetchData = (value) => {
+  useEffect(() => {
+    socket?.on("getNotification", (data) => {
+      setNotifications((prev) => [...prev, data]);
+    });
+  }, [socket]);
+
+  console.log(notifications)
+  
+    const fetchData = (value) => {
     fetch("http://localhost:8800/api/users")
       .then((response) => response.json())
       .then((json) => {
@@ -46,6 +54,21 @@ const Navbar = () => {
   const handleChange = (value) => {
     setInput(value);
     fetchData(value);
+  };
+
+  const displayNotification = ({ senderName, type }) => {
+    let action;
+
+    if (type === 1) {
+      action = "liked";
+    } else if (type === 2) {
+      action = "disliked";
+    } else {
+      action = "shared";
+    }
+    return (
+      <span className="notification">{`${senderName} ${action} your post.`}</span>
+    );
   };
 
   return (
@@ -89,6 +112,9 @@ const Navbar = () => {
             />
           </div>
         </Link>
+        <div className="notifications">
+          {notifications.map((noti) => displayNotification(noti))}
+        </div>
       </div>
     </div>
   );
