@@ -127,6 +127,29 @@ io.on("connection", (socket) => {
     
   });
 
+  // need discussion
+  socket.on("newUser", (username) => {
+    addUser(username, socket.id);
+  });
+
+  socket.on("sendNotification", ({ senderName, receiverName, type }) => {
+    const receiver = getUser(receiverName);
+    io.to(receiver?.socketId).emit("getNotification", {
+      senderName,
+      type,
+    });
+  });
+
+  socket.on("sendText", ({ senderName, receiverName, text }) => {
+    const receiver = getUser(receiverName);
+    io.to(receiver.socketId).emit("getText", {
+      senderName,
+      text,
+    });
+  });
+  // need discussion
+
+
   //when disconnect
   socket.on("disconnect", () => {
     console.log("a user disconnected!");
