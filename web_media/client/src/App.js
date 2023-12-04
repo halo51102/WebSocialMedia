@@ -13,6 +13,7 @@ import Home from "./pages/home/Home";
 import Group from "./pages/group/Group"
 import Profile from "./pages/profile/Profile";
 import AllGroup from "./pages/allGroup/AllGroup"
+import Messenger from "./pages/messenger/messenger"
 import "./style.scss";
 import { useContext, useEffect } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
@@ -34,7 +35,7 @@ function App() {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    setSocket(io("http://localhost:5000"));
+    setSocket(io("http://localhost:8900"));
   }, [])
 
   useEffect(() => {
@@ -112,6 +113,14 @@ function App() {
     {
       path: "/register",
       element: <Register />,
+    },
+    {
+      path: "/messenger",
+      element: (
+        <ProtectedRoute>
+          <Messenger socket={socket}/>
+        </ProtectedRoute>
+      ),
     },
   ]);
 
