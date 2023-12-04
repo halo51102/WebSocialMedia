@@ -1,0 +1,45 @@
+@import "../../style.scss";
+
+.results {
+    @include themify($themes) {
+        width: 95%;
+        background-color: themed("bg");
+        display: flex;
+        flex-direction: column;
+        // box-shadow: 0px 0px 8px #ddd;
+        border-radius: 10px;
+        margin-top: 1rem;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .result {
+        padding: 10px 20px;
+        display: flex;
+
+
+        .info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+
+            img {
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            span{
+                font-size: 15px;
+                font-weight: normal;
+            }
+        }
+
+        &:hover {
+            background-color: #4939df73;
+        }
+    }
+
+}

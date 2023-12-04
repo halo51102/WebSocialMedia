@@ -7,16 +7,16 @@ export const db=mysql.createConnection({
     database:"socialmedia",
     multipleStatements: true
 })
-db.connect(function(err){
-    if(err){
-        console.error("Error connecting: "+err.stack)
+db.connect(function (err) {
+    if (err) {
+        console.error("Error connecting: " + err.stack)
         return
     }
-    console.log("Connected as id"+ db.threadId)
+    console.log("Connected as id" + db.threadId)
 })
-db.query("SELECT * from users",function(error,result,fields){
-    if(error) throw error
-    result.forEach(result=>{
+db.query("SELECT * from users", function (error, result, fields) {
+    if (error) throw error
+    result.forEach(result => {
         console.log(result)
     })
 })
