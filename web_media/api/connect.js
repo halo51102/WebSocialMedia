@@ -4,7 +4,8 @@ export const db=mysql.createConnection({
     host:"localhost",
     user:"root",
     password:"root123",
-    database:"socialmedia"
+    database:"socialmedia",
+    multipleStatements: true
 })
 db.connect(function(err){
     if(err){
