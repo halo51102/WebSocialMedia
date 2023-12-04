@@ -70,7 +70,7 @@ export const getMemberGroup = (req, res) => {
     const q = `SELECT m.*, u.id AS userId, name, profilePic FROM membergroups AS m JOIN users AS u ON (u.id = m.userId)
     WHERE m.groupId = ?`
 
-    db.query(q, [req.query.groupId], (err, data) => {
+    db.query(q, [req.params.groupId], (err, data) => {
         if (err) return res.status(500).json(err)
         return res.status(200).json(data)
     })
@@ -86,7 +86,7 @@ export const joinGroup = (req, res) => {
         const q =
             "INSERT INTO membergroups (`groupId`,`userId`,`position`,`createdJion`) VALUES (?)";
         const values = [
-            req.body.groupId,
+            req.params.groupId,
             userInfo.id,
             "member",
             moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")
@@ -107,9 +107,9 @@ export const outGroup = (req, res) => {
         if (err) return res.status(403).json("Token is not valid!")
 
         const q =
-            "DELETE FROM groups WHERE `userId` = ? AND `groupId` = ?";
+            "DELETE FROM membergroups WHERE `userId` = ? AND `groupId` = ?";
 
-        db.query(q, [userInfo.id, req.query.groupId], (err, data) => {
+        db.query(q, [userInfo.id, req.params.groupId], (err, data) => {
             if (err) return res.status(500).json(err)
             return res.status(200).json("You out group.")
         })
