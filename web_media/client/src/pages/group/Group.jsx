@@ -19,12 +19,31 @@ const Group = () => {
       return res.data
     }))
 
+  const { isLoading: mIsLoading, data: memberData } = useQuery(["membersgroup"], () =>
+    makeRequest.get("/groups/" + groupId + "/members").then((res) => {
+      return res.data
+    }))
 
-  const handleFollow = () => {
+  const mutation = useMutation((joined) => {
+    if (joined) return makeRequest.delete("/groups/" + groupId + "/members");
+    return makeRequest.post("/groups/" + groupId + "/members");
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["membersgroup"])
+      }
+    }
+  );
+
+
+  const handleJoinin = () => {
+    mutation.mutate(memberData.some(member => member.userId === currentUser.id))
+  }
+  const handleUpdate = () => {
 
   }
   console.log("a")
-  console.log(data?.coverPic)
+  console.log(memberData)
   return (
     <div className="profilegroup">
       {isLoading ? "loading" : <>
@@ -44,12 +63,15 @@ const Group = () => {
           <div className="center">
             <div className="info">
               <span>{data.name}</span>
-              <span style={{fontSize:"12px"}}>{data.desc}</span>
+              <span style={{ fontSize: "12px" }}>{data.desc}</span>
             </div>
-            <button onClick={handleFollow}>Join In</button>
+            {mIsLoading ? ("loading")
+              : memberData.some(member => member.userId === currentUser.id && member.position === "admin") ? (<button onClick={handleUpdate}>update</button>)
+                : <button onClick={handleJoinin}>{memberData.some(member => member.userId === currentUser.id) ? "Out group" : "Join in"}</button>
+            }
           </div>
         </div>
-        <Share />
+        <Share/>
         <PostsInGroup groupId={data.id} />
 
       </>}

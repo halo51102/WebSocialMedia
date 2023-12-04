@@ -7,11 +7,13 @@ import { AuthContext } from "../../context/authContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { makeRequest } from "../../axios";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 const Share = () => {
 
   const [file, setFile] = useState(null)
   const [desc, setDesc] = useState("")
-
+  const groupId=parseInt(useLocation().pathname.split("/")[2])
+  console.log(groupId)
   const upload = async () => {
     try {
       const formData = new FormData()
@@ -39,7 +41,7 @@ const Share = () => {
     e.preventDefault()
     let imgUrl = ""
     if (file) imgUrl = await upload()
-    mutation.mutate({ desc, img: imgUrl })
+    mutation.mutate({ desc, img: imgUrl, group:groupId })
     setDesc("")
     setFile(null)
   }
