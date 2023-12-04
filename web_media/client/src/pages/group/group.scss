@@ -39,11 +39,16 @@
       }
       .center{
         display: flex;
+        // padding-left: 200px;
 
         .info{
           display: flex;
           flex-direction: column;
           gap: 7px;
+          span {
+            font-weight: 500;
+            color: themed("textColor");
+          }
         }
       }
       button{

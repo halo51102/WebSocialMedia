@@ -13,6 +13,37 @@ export const getGroup = (req, res) => {
     })
 }
 
+export const getGroupJoinedIn=(req, res) => {
+    const token = req.cookies.accessToken
+    if (!token) return res.status(401).json("Not logged in!")
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!")
+    const q = "SELECT p.* FROM publicgroups as p JOIN membergroups as m ON (p.id=m.groupId) WHERE m.userId=?"
+
+    db.query(q, [userInfo.id], (err, data) => {
+        if (err) return res.status(500).json(err)
+        return res.json(data)
+    })
+})
+}
+
+export const getGroupNoJoin=(req, res) => {
+    const token = req.cookies.accessToken
+    if (!token) return res.status(401).json("Not logged in!")
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!")
+    const q = "SELECT p.* FROM publicgroups as p JOIN membergroups as m ON (p.id=m.groupId) WHERE m.userId!=?"
+
+    db.query(q, [userInfo.id], (err, data) => {
+        if (err) return res.status(500).json(err)
+        return res.json(data)
+    })
+})
+}
+
+
 export const getAllGroup=(req,res)=>{
     const q="SELECT * FROM publicgroups"
     db.query(q,(err,data)=>{
@@ -68,9 +99,9 @@ export const deleteGroup = (req, res) => {
 
 export const getMemberGroup = (req, res) => {
     const q = `SELECT m.*, u.id AS userId, name, profilePic FROM membergroups AS m JOIN users AS u ON (u.id = m.userId)
-    WHERE m.groupId = ?`
+    WHERE m.groupId = ? AND m.position=?`
 
-    db.query(q, [req.params.groupId], (err, data) => {
+    db.query(q, [req.params.groupId,"member"], (err, data) => {
         if (err) return res.status(500).json(err)
         return res.status(200).json(data)
     })
@@ -114,4 +145,50 @@ export const outGroup = (req, res) => {
             return res.status(200).json("You out group.")
         })
     })
+}
+
+export const kichMember =(req,res)=>{
+    const token = req.cookies.accessToken;
+  if (!token) return res.status(401).json("Not logged in!");
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!");
+    const admin="admin"
+    const q =
+      "delete from membergroups where userId=? AND groupId=?";
+    db.query(q, [req.params.userId,req.params.groupId], (err, data) => {
+      if (err) return res.status(500).json(err);
+      if(data.affectedRows>0) return res.status(200).json("Member has been deleted.");
+      return res.status(403).json("Member hasn't joined in group")
+    });
+  });
+}
+
+export const updateInfoGroup=(req,res)=>{
+    const token = req.cookies.accessToken;
+    if (!token) return res.status(401).json("Not authenticated!");
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!");
+        const q =
+            "UPDATE publicgroups SET `name`=?,`desc`=?,`coverPic`=?,`profilePic`=? WHERE id=? AND ?=(select position from membergroups where userId=? AND groupId=?) ";
+
+        db.query(
+            q,
+            [
+                req.body.name,
+                req.body.desc,
+                req.body.coverPic,
+                req.body.profilePic,
+                req.body.id,
+                "admin",
+                userInfo.id,
+                req.body.id
+            ],
+            (err, data) => {
+                if (err) res.status(500).json(err);
+                if (data.affectedRows > 0) return res.json("Updated!");
+                return res.status(403).json("You can create group!");
+            }
+        );
+    });
 }

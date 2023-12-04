@@ -100,7 +100,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment }) => {
           </div>
           <MoreHorizIcon onClick={() => setMenuOpen(!menuOpen)} />
           {menuOpen && post.userId === currentUser.id && <button onClick={handleDelete}>Delete</button>}
-          {menuOpen && gData.some(member => member.position === "admin"&& member.userId===currentUser.id && member.groupId===post.groupId)&& post.userId!==currentUser.id && <button onClick={handleDeleteG}>DeleteG</button>}
+          {menuOpen && gData.some(member => member.position === "admin"&& member.userId===currentUser.id && member.groupId===post.groupId)&& post.userId!==currentUser.id && <button onClick={handleDeleteG}>Delete Post of member</button>}
         </div>
 
         <div className="content">
