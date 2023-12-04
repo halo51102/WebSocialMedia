@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import { useState } from "react";
 
-const Posts = ({ userId }) => {
+const Posts = ({ userId, socket, user }) => {
 
   const [commentOpen, setCommentOpen] = useState(null);
 
@@ -13,6 +13,7 @@ const Posts = ({ userId }) => {
       return res.data;
     })
   );
+
   return (
     <div className="posts">
       {error
@@ -26,6 +27,8 @@ const Posts = ({ userId }) => {
               isCommentOpen={commentOpen === post.id}
               openComment={() => setCommentOpen(post.id)}
               closeComment={() => setCommentOpen(null)}
+              socket={socket}
+              user={user}
             />)}
     </div>
   );
