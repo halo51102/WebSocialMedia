@@ -10,7 +10,7 @@
     background-color: themed("bg");
     color: themed("textColor");
 
-    @include mobile{
+    @include mobile {
       display: none;
     }
 
@@ -61,8 +61,8 @@
           display: flex;
           align-items: center;
           gap: 10px;
-          
-          .link{
+
+          .link {
             display: flex;
             align-items: center;
             gap: 10px;
@@ -79,15 +79,17 @@
       }
 
       button {
-        width: 80%;
+        width: 10%;
         padding: 10px;
         border: none;
         background-color: rebeccapurple;
         color: white;
         font-weight: bold;
         cursor: pointer;
-        position: absolute;
-        bottom: 20px;
+        position: fixed;
+        bottom: 10px;
+        left: 60px;
+        border-radius: 20px;
       }
 
     }

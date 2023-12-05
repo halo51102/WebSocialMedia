@@ -1,8 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,700;1,300&display=swap');
 
-body{
-  font-family: Arial, Helvetica, sans-serif;
-}
+
 
 $themes: (
   light: (
@@ -54,5 +52,12 @@ $themes: (
 @mixin tablet {
   @media (max-width: 960px) {
     @content;
+  }
+}
+
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  @include themify($themes) {
+    background-color: themed("bgSoft");
   }
 }

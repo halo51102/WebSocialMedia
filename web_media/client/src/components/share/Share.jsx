@@ -8,11 +8,21 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { makeRequest } from "../../axios";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+
 const Share = () => {
 
   const [file, setFile] = useState(null)
   const [desc, setDesc] = useState("")
   const groupId=parseInt(useLocation().pathname.split("/")[2])
+  const { currentUser } = useContext(AuthContext)
+  const queryClient = useQueryClient()
+
+  const { isLoading, error, data: findUser } = useQuery(["user"], () =>
+  makeRequest.get("/users/find/" + currentUser.id).then((res) => {
+    return res.data
+  }))
+
   const upload = async () => {
     try {
       const formData = new FormData()
@@ -23,10 +33,6 @@ const Share = () => {
       console.log(err)
     }
   }
-
-
-  const { currentUser } = useContext(AuthContext)
-  const queryClient = useQueryClient()
 
   const mutation = useMutation((newPost) => {
     return makeRequest.post("/posts", newPost)
@@ -51,10 +57,10 @@ const Share = () => {
         <div className="top">
           <div className="left">
             <img
-              src={"/upload/" + currentUser.profilePic}
+              src={"/upload/" + findUser?.profilePic}
               alt=""
             />
-            <input type="text" placeholder={`What's on your mind ${currentUser.name}?`}
+            <input type="text" placeholder={`What's on your mind ${findUser?.name}?`}
               onChange={(e) => setDesc(e.target.value)}
               value={desc} />
           </div>

@@ -39,7 +39,7 @@
 
         .search {
           height: 2.5rem;
-          border: 1px solid rgba(15, 0, 228, 0.377);
+          border: 1px solid themed("logo");
           border-radius: 10px;
           padding: 0 15px;
           // box-shadow: 0px 0px 3px #ddd;
@@ -86,7 +86,7 @@
         display: flex;
         flex-direction: column;
         position: absolute;
-        right: 0;
+        right: 0px;
         max-height: 100px;
         width: 200px;
         top: 50px;
@@ -94,7 +94,8 @@
         z-index: 10000;
         background-color: themed("bg");
         padding: 20px;
-        box-shadow: 0px 5px 10px #9c9c9c;
+        border: 4px double themed("bgSoft");
+        border-radius: 20px;
         gap: 10px;
       }
 
@@ -113,6 +114,8 @@
           height: 50px;
           border-radius: 50%;
           object-fit: cover;
+          border: 3px outset themed("bgSoft");
+
         }
       }
     }
