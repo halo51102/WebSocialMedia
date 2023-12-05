@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./register.scss";
 import { useState } from "react";
 import axios from "axios"
@@ -11,6 +11,8 @@ const Register = () => {
     name: "",
   })
 
+  const navigate = useNavigate()
+
   const [err, setErr] = useState(null)
 
   const handleChange = (e) => {
@@ -22,6 +24,8 @@ const Register = () => {
 
     try {
       await axios.post("http://localhost:8800/api/auth/register", inputs)
+      alert("Đăng ký tài khoản '" + inputs.username + "' thành công!")
+      navigate("/login")
     } catch (err) {
       setErr(err.response.data)
     }

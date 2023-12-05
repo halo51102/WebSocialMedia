@@ -49,7 +49,7 @@ function App() {
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
           <Navbar socket={socket} />
           <div style={{ display: "flex" }}>
-            <LeftBar socket={socket}/>
+            <LeftBar socket={socket} />
             <div style={{ flex: 6 }}>
               <Outlet />
             </div>
@@ -91,14 +91,14 @@ function App() {
         },
         {
           path: "/profile/:id",
-          element: <Profile />,
+          element: <Profile socket={socket} user={user} />,
         }, {
           path: "/group/all",
           element: <AllGroup />,
         },
         {
           path: "/group/:id",
-          element: <Group socket={socket} user={user}/>,
+          element: <Group socket={socket} user={user} />,
         },
         {
           path: "/friend",
@@ -118,16 +118,14 @@ function App() {
       path: "/messenger",
       element: (
         <ProtectedRoute>
-          <Messenger socket={socket}/>
+          <Messenger socket={socket} />
         </ProtectedRoute>
       ),
     },
   ]);
 
-  // window.addEventListener('beforeunload', function() {
-  //   localStorage.clear();
-  // });
   console.log(socket)
+  console.log("App "+user)
 
   return (
     <div>
