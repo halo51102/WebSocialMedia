@@ -5,6 +5,8 @@ import userRoutes from './routes/users.js'
 import postRoutes from './routes/posts.js'
 import commentRoutes from './routes/comments.js'
 import likeRoutes from './routes/likes.js'
+import conversationRoutes from './routes/conversations.js'
+import messageRoutes from './routes/messages.js'
 import relationshipRoutes from './routes/relationships.js'
 import groupRoutes from './routes/groups.js'
 import storyRoutes from './routes/stories.js'
@@ -38,6 +40,13 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
     res.status(200).json(file.filename)
 })
 
+app.use("/api/auth",authRoutes)
+app.use("/api/users",userRoutes)
+app.use("/api/posts",postRoutes)
+app.use("/api/comments",commentRoutes)
+app.use("/api/likes",likeRoutes)
+app.use("/api/conversations",conversationRoutes)
+app.use("/api/messages",messageRoutes)
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
