@@ -32,23 +32,23 @@
         margin-bottom: 20px;
         background-color: themed("bg");
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
 
         .buttons {
           display: flex;
           align-items: center;
           gap: 10px;
-  
+
           button {
             border: none;
             padding: 5px;
             color: white;
             cursor: pointer;
-  
+
             &:first-child {
               background-color: #5271ff;
             }
-  
+
             &:last-child {
               background-color: #f0544f;
             }
@@ -100,7 +100,7 @@
         }
       }
 
-      
+
     }
   }
 }

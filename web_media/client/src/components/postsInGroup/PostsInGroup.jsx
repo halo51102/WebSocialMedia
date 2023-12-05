@@ -12,8 +12,6 @@ const PostsInGroup = ({groupId,socket,user}) => {
         return res.data;
       })
     );
-    console.log(data)
-    console.log("id là "+ groupId)
   
     return (
       <div className="posts">

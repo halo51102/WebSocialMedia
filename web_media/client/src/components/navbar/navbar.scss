@@ -88,15 +88,18 @@
         position: absolute;
         right: 0px;
         max-height: 100px;
-        width: 200px;
+        width: 250px;
         top: 50px;
         overflow-y: scroll;
         z-index: 10000;
         background-color: themed("bg");
-        padding: 20px;
         border: 4px double themed("bgSoft");
         border-radius: 20px;
-        gap: 10px;
+
+        .notification{
+          border-bottom: 3px solid themed("bgSoft");
+          padding: 10px 20px;
+        }
       }
 
       .user {

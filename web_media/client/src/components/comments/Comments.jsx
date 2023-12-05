@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import moment from "moment"
 
-const Comments = ({ postId }) => {
+const Comments = ({ postId, socket, user, post }) => {
   const [desc, setDesc] = useState("")
 
   const { currentUser } = useContext(AuthContext);
@@ -30,7 +30,16 @@ const Comments = ({ postId }) => {
     e.preventDefault();
     mutation.mutate({ desc, postId })
     setDesc("")
+    handleNotification(3);
   }
+
+  const handleNotification = (type) => {
+    socket?.emit("sendNotification", {
+      senderName: user,
+      receiverName: post.username,
+      type,
+    });
+  };
 
   return (
     <div className="comments">

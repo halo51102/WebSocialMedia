@@ -11,7 +11,7 @@ import { AuthContext } from "../../context/authContext";
 import Update from "../../components/update/Update";
 import { useEffect } from "react";
 
-const Profile = () => {
+const Profile = ({socket, user}) => {
   const [openUpdate, setOpenUpdate] = useState(false);
   const { currentUser } = useContext(AuthContext)
   const userId = parseInt(useLocation().pathname.split("/")[2])
@@ -31,7 +31,7 @@ const Profile = () => {
     makeRequest.get("/relationships?followedUserId=" + userId).then((res) => {
       return res.data
     }))
-console.log(data)
+
   const mutation = useMutation((following) => {
     if (following) return makeRequest.delete("/relationships?userId=" + userId);
     return makeRequest.post("/relationships", { userId });
@@ -90,7 +90,7 @@ console.log(data)
               <MoreVertIcon />
             </div>
           </div>
-          <Posts userId={userId} whichPage={"profile"} />
+          <Posts userId={userId} whichPage={"profile"} socket={socket} user={user} />
         </div>
       </>}
       {openUpdate && <Update setOpenUpdate={setOpenUpdate} user={data} />}

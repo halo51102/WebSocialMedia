@@ -31,7 +31,7 @@ const Friend = () => {
                             ? "loading"
                             : data.map((friend, id) =>
                                 <div className="item-container">
-                                    (<Link
+                                    <Link
                                         style={{ textDecoration: "none" }}
                                         to={"/profile/" + friend.id}
                                     >
@@ -45,13 +45,10 @@ const Friend = () => {
                                             </div>
                                         </div>
                                     </Link>
-                                    )
+                                    
                                 </div>
                             )
                     }
-                    <div className="buttons">
-                        <button>Unfriend</button>
-                    </div>
                 </div>
             </div>
 

@@ -21,7 +21,6 @@ const Posts = ({ userId, socket, user, whichPage }) => {
       return res.data;
     })
   );
-  console.log(pData)
 
   return (
     <div className="posts">
@@ -39,6 +38,7 @@ const Posts = ({ userId, socket, user, whichPage }) => {
                 closeComment={() => setCommentOpen(null)}
                 socket={socket}
                 user={user}
+                whichPage={whichPage}
               />)
             : pData?.map((post) =>
               <Post
@@ -49,6 +49,7 @@ const Posts = ({ userId, socket, user, whichPage }) => {
                 closeComment={() => setCommentOpen(null)}
                 socket={socket}
                 user={user}
+                whichPage={whichPage}
               />)
       }
     </div>

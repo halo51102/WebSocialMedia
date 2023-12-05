@@ -44,8 +44,6 @@ const Group = ({socket}) => {
     mutation.mutate(memberData.some(member => member.userId === currentUser.id))
   }
 
-  console.log("a")
-  console.log(memberData)
   return (
     <div className="profilegroup">
       {isLoading ? "loading" : <>
