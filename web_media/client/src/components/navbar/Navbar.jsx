@@ -8,12 +8,14 @@ import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { Link, useNavigate } from "react-router-dom";
-import { useContext, useState, useEffect} from "react";
+import { useContext, useState, useEffect } from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { AuthContext } from "../../context/authContext";
 import { SearchResults } from "../searchResults/SearchResults";
+import { useQuery } from "@tanstack/react-query";
+import { makeRequest } from "../../axios";
 
-const Navbar = ({socket}) => {
+const Navbar = ({ socket }) => {
   const [notifications, setNotifications] = useState([]);
   const [results, setResults] = useState([]);
   const [input, setInput] = useState("");
@@ -26,6 +28,11 @@ const Navbar = ({socket}) => {
 
   const navigate = useNavigate();
 
+  const { isLoading, error, data: findUser } = useQuery(["users"], () =>
+    makeRequest.get("/users/find/" + currentUser.id).then((res) => {
+      return res.data
+    }))
+
   useEffect(() => {
     socket?.on("getNotification", (data) => {
       setNotifications((prev) => [...prev, data]);
@@ -33,8 +40,8 @@ const Navbar = ({socket}) => {
   }, [socket]);
 
   console.log(notifications)
-  
-    const fetchData = (value) => {
+
+  const fetchData = (value) => {
     fetch("http://localhost:8800/api/users")
       .then((response) => response.json())
       .then((json) => {
@@ -71,6 +78,7 @@ const Navbar = ({socket}) => {
     );
   };
 
+
   return (
     <div className="navbar">
       <div className="left">
@@ -101,10 +109,11 @@ const Navbar = ({socket}) => {
         <NotificationsOutlinedIcon />
         <Link
           to={profile}
-          onClick={() => {
-            navigate("/profile/" + currentUser.id, { replace: true });
-            window.location.reload();
-          }}>
+        // onClick={() => {
+        //   navigate("/profile/" + currentUser.id, { replace: true });
+        //   window.location.reload();
+        // }}
+        >
           <div className="user">
             <img
               src={"/upload/" + currentUser.profilePic}

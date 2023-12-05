@@ -12,16 +12,17 @@ export const SearchResults = ({ results }) => {
 
             {(results !== empty)
                 ?
-                results.map((result) =>
+                results.map((result, id) =>
                 (<Link
                     to={"/profile/" + result.id}
-                    onClick={() => {
-                        navigate("/profile/" + result.id, { replace: true });
-                        window.location.reload();
-                    }}
+                    // onClick={() => {
+                    //     navigate("/profile/" + result.id, { replace: true });
+                    //     window.location.reload();
+                    // }}
                     style={{ textDecoration: "none", color: "inherit" }}
                 >
-                    <div className="result" key={result.id} >
+                    {console.log(result.id)}
+                    <div className="result" key={id} >
                         <div className="info">
                             <img
                                 src={"/upload/" + result.profilePic}

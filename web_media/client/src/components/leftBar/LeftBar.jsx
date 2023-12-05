@@ -6,10 +6,12 @@ import Gallery from "../../assets/8.png";
 import Videos from "../../assets/9.png";
 import Messages from "../../assets/10.png";
 import { AuthContext } from "../../context/authContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import axios from "axios"
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { makeRequest } from "../../axios";
+
 
 
 const LeftBar = () => {
@@ -18,7 +20,9 @@ const LeftBar = () => {
 
   const [err, setErr] = useState(null)
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  let group = "/group"
 
   const handleClick = async (e) => {
     e.preventDefault()
@@ -32,7 +36,11 @@ const LeftBar = () => {
     }
   }
 
-  let group = "/group"
+  const { isLoading, error, data: findUser } = useQuery(["user"], () =>
+    makeRequest.get("/users/find/" + currentUser.id).then((res) => {
+      return res.data
+    }))
+
   return (
     <div className="leftBar">
       <div className="container">
@@ -40,16 +48,17 @@ const LeftBar = () => {
           <Link
             to={"/profile/" + currentUser.id}
             style={{ textDecoration: "none", marginTop: "13px", color: "inherit" }}
-            onClick={() => {
-              navigate("/profile/" + currentUser.id, { replace: true });
-              window.location.reload();
-            }}>
+            // onClick={() => {
+            //   navigate("/profile/" + currentUser.id, { replace: true });
+            //   window.location.reload();
+            // }}
+          >
             <div className="user">
               <img
-                src={"/upload/" + currentUser.profilePic}
+                src={"/upload/" + findUser?.profilePic}
                 alt=""
               />
-              <span>{currentUser.name}</span>
+              <span>{findUser?.name}</span>
             </div>
           </Link>
           <div className="item">
@@ -59,7 +68,7 @@ const LeftBar = () => {
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <img src={Friends} alt="" />
-              <span>Friends</span>
+              <span>Follower</span>
             </Link>
           </div>
           <div className="item">

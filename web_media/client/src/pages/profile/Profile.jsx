@@ -9,6 +9,7 @@ import { useLocation } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
 import Update from "../../components/update/Update";
+import { useEffect } from "react";
 
 const Profile = () => {
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -16,10 +17,16 @@ const Profile = () => {
   const userId = parseInt(useLocation().pathname.split("/")[2])
 
   const queryClient = useQueryClient()
-  const { isLoading, error, data } = useQuery(["user"], () =>
+
+  const { isLoading, error, data } = useQuery(["user",userId], () =>
     makeRequest.get("/users/find/" + userId).then((res) => {
       return res.data
     }))
+
+  // useEffect(() => {
+  //   queryClient.invalidateQueries(["user", userId]);
+  // }, [queryClient, userId]);
+  
   const { isLoading: rIsLoading, data: relationshipData } = useQuery(["relationship"], () =>
     makeRequest.get("/relationships?followedUserId=" + userId).then((res) => {
       return res.data
@@ -38,6 +45,7 @@ const Profile = () => {
 
 
   const handleFollow = () => {
+    // console.log("here")
     mutation.mutate(relationshipData.some(item => item.id === currentUser.id))
   }
 
@@ -82,7 +90,7 @@ const Profile = () => {
               <MoreVertIcon />
             </div>
           </div>
-          <Posts userId={userId} />
+          <Posts userId={userId} whichPage={"profile"} />
         </div>
       </>}
       {openUpdate && <Update setOpenUpdate={setOpenUpdate} user={data} />}

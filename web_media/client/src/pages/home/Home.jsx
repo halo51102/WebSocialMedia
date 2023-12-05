@@ -11,7 +11,7 @@ const Home = ({socket, user}) => {
     <div className="home">
       <Stories />
       <Share />
-      <Posts userId={currentUser.id} socket={socket} user={user} />
+      <Posts userId={currentUser.id} socket={socket} user={user} whichPage={"home"}/>
     </div>
   )
 }
