@@ -49,7 +49,7 @@ function App() {
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
           <Navbar socket={socket} />
           <div style={{ display: "flex" }}>
-            <LeftBar />
+            <LeftBar socket={socket}/>
             <div style={{ flex: 6 }}>
               <Outlet />
             </div>
@@ -98,7 +98,7 @@ function App() {
         },
         {
           path: "/group/:id",
-          element: <Group />,
+          element: <Group socket={socket} user={user}/>,
         },
         {
           path: "/friend",

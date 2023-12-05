@@ -31,7 +31,7 @@ const Profile = () => {
     makeRequest.get("/relationships?followedUserId=" + userId).then((res) => {
       return res.data
     }))
-
+console.log(data)
   const mutation = useMutation((following) => {
     if (following) return makeRequest.delete("/relationships?userId=" + userId);
     return makeRequest.post("/relationships", { userId });

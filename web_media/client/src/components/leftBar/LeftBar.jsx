@@ -14,7 +14,7 @@ import { makeRequest } from "../../axios";
 
 
 
-const LeftBar = () => {
+const LeftBar = ({socket}) => {
 
   const { currentUser } = useContext(AuthContext);
 

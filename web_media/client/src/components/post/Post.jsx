@@ -28,7 +28,6 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
     makeRequest.get("/likes?postId=" + post.id).then((res) => {
       return res.data
     }))
-
   const { isLoading: pIdLoading, error: pError, data: pData } = useQuery(["users"], () =>
     makeRequest.get("/users/findByPost/" + post.id).then((res) => {
       return res.data
@@ -53,6 +52,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["posts"])
+        queryClient.invalidateQueries(["postsInGroup"])
       }
     }
   );
@@ -73,6 +73,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["posts"])
+        queryClient.invalidateQueries(["postsInGroup"])
       }
     }
   );
@@ -95,6 +96,8 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
 
   const handleLike = () => {
     const liked = data.includes(currentUser.id);
+    
+console.log(post.id)
     mutation.mutate(liked);
     // findUserByPostMutation.mutate(post.id);
 
