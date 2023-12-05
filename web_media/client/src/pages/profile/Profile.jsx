@@ -84,7 +84,7 @@ const Profile = ({socket, user}) => {
               </div>
               {rIsLoading ? ("loading")
                 : userId === currentUser.id ? (<button onClick={() => setOpenUpdate(true)}>update</button>)
-                  : (<button onClick={handleFollow}>{relationshipData.some(item => item.id === currentUser.id) ? "Following" : "Follow"}</button>)}
+                  : (<button onClick={handleFollow}>{relationshipData.some(item => item.id === currentUser.id) ? "Unfollow" : "Follow"}</button>)}
             </div>
             <div className="right">
               <MoreVertIcon />
