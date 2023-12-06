@@ -22,11 +22,10 @@ const addUser = (userId, socketId) => {
 
 const removeUser = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
-  onlineUsers = onlineUsers.filter((user) => user.socketId !== socketId);
 };
 
 const removeUserByUserName = (username) => {
-  users = users.filter((user) => user.userId !== username);
+  onlineUsers = onlineUsers.filter((user) => user.userId !== username);
 };
 
 const getUser = (userId) => {
