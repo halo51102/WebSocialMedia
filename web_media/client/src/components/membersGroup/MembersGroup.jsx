@@ -59,7 +59,7 @@ const CreateGroup = ({ setOpenMember, groupId }) => {
                                         </div>
                                     </div>
                                 </Link>
-                                {data.some(member => member.position === "admin"&& member.userId===currentUser.id && member.groupId===groupId) &&<button onClick={()=>handleDelete(member.userId)} >- Delete</button>}
+                                {data.some(member => member.position === "admin"&& member.userId===currentUser.id && member.groupId===groupId)&& member.position!=="admin" &&<button onClick={()=>handleDelete(member.userId)} >- Delete</button>}
                             </div>
                         )
 

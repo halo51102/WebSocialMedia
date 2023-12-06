@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { makeRequest } from "../../axios";
 import { AuthContext } from "../../context/authContext";
 import "./rightBar.scss";
-
+import { Link } from "react-router-dom";
 const RightBar = ({ socket, user }) => {
   const { currentUser } = useContext(AuthContext)
   const [onlineUser, setOnlineUser] = useState([]);
@@ -38,19 +38,18 @@ const RightBar = ({ socket, user }) => {
   const handleFollow = (userId) => {
     mutation.mutate(!relationshipData?.some(item => item.id === userId && item.id === currentUser.id) && userId)
   }
-  console.log(relationshipData)
-
+console.log(relationshipData)
 
   return (
     <div className="rightBar">
       <div className="container">
         <div className="item">
           <span>Suggestions For You</span>
-
-          {sgId ? "loading"
-            : sgdata.map((usersg) => {
-              (relationshipData?.some(item => (item.id !== usersg.id && usersg.id !== currentUser.id))) ?
-                <div className="user">
+          (
+          {sgdata?.map((usersg)=> 
+              (!relationshipData?.some(item => item.id === usersg.id))&&(currentUser.id !== usersg.id)&&
+                <div className="user" >
+                  <Link to={"/profile/"+usersg.id} style={{ textDecoration: "none", color: "inherit" }}>
                   <div className="userInfo">
                     <img
                       src={"/upload/" + usersg.profilePic}
@@ -58,14 +57,14 @@ const RightBar = ({ socket, user }) => {
                     />
                     <span>{usersg.name} </span>
                   </div>
+                  </Link>
                   <div className="buttons">
-                    {!relationshipData?.some(item => item.followedUserId === usersg.followedUserId && item.followerUserId === currentUser.id) && <button onClick={() => handleFollow(usersg.id)}>Follow</button>}
+                    {!relationshipData?.some(item => item.id === usersg.id) && <button onClick={() => handleFollow(usersg.id)}>Follow</button>}
 
                   </div>
                 </div>
-                : <div></div>
-            }
-            )}
+            
+            )})
 
 
 
