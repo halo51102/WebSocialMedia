@@ -36,7 +36,7 @@ const RightBar = ({ socket, user }) => {
     }
   );
   const handleFollow = (userId) => {
-    mutation.mutate(!relationshipData.some(item => item.id === userId && item.id === currentUser.id) && userId)
+    mutation.mutate(!relationshipData?.some(item => item.id === userId && item.id === currentUser.id) && userId)
   }
   console.log(relationshipData)
 
@@ -49,7 +49,7 @@ const RightBar = ({ socket, user }) => {
 
           {sgId ? "loading"
             : sgdata.map((usersg) => {
-              (relationshipData.some(item => (item.id !== usersg.id && usersg.id !== currentUser.id))) ?
+              (relationshipData?.some(item => (item.id !== usersg.id && usersg.id !== currentUser.id))) ?
                 <div className="user">
                   <div className="userInfo">
                     <img
@@ -59,7 +59,7 @@ const RightBar = ({ socket, user }) => {
                     <span>{usersg.name} </span>
                   </div>
                   <div className="buttons">
-                    {!relationshipData.some(item => item.followedUserId === usersg.followedUserId && item.followerUserId === currentUser.id) && <button onClick={() => handleFollow(usersg.id)}>Follow</button>}
+                    {!relationshipData?.some(item => item.followedUserId === usersg.followedUserId && item.followerUserId === currentUser.id) && <button onClick={() => handleFollow(usersg.id)}>Follow</button>}
 
                   </div>
                 </div>
@@ -130,7 +130,7 @@ const RightBar = ({ socket, user }) => {
                 src={"/upload/" + user.profilePic}
                 alt=""
               />
-              {onlineUser.some(data => data.userId === user.username) && <div className="online" />}
+              {onlineUser?.some(data => data.userId === user.username) && <div className="online" />}
               <span>{user.name}</span>
             </div>
           </div>)
