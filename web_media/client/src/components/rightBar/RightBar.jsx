@@ -40,20 +40,6 @@ const RightBar = ({ socket, user }) => {
   }
   console.log(relationshipData)
 
-  const handleOnlineUser = (user) => {
-    if (onlineUser.some(data => data.userId === user.username))
-      return
-    (<div className="user">
-      <div className="userInfo">
-        <img
-          src={"/upload" + user.profilePic}
-          alt=""
-        />
-        <div className="online" />
-        <span>{user.name}</span>
-      </div>
-    </div>)
-  }
 
   return (
     <div className="rightBar">
@@ -137,17 +123,17 @@ const RightBar = ({ socket, user }) => {
         </div> */}
         <div className="item">
           <span>Online Following</span>
-          {relationshipData?.map((user) => onlineUser.some(data => data.userId === user.username) &&
-            (<div className="user">
-              <div className="userInfo">
-                <img
-                  src={"/upload/" + user.profilePic}
-                  alt=""
-                />
-                <div className="online" />
-                <span>{user.name}</span>
-              </div>
-            </div>)
+          {relationshipData?.map((user) =>
+          (<div className="user">
+            <div className="userInfo">
+              <img
+                src={"/upload/" + user.profilePic}
+                alt=""
+              />
+              {onlineUser.some(data => data.userId === user.username) && <div className="online" />}
+              <span>{user.name}</span>
+            </div>
+          </div>)
           )}
         </div>
       </div>
