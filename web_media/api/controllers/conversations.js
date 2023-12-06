@@ -11,10 +11,26 @@ export const createConversation = (req,res)=>{
     db.query(q1, [values], (err, data) => {
         if (err) return res.status(500).json(err)
         const conversationId = data.insertId
-        db.query(q2, [[[conversationId, req.body.senderId], [conversationId, req.body.receiverId]]], (err2, data2) => {
-            if (err2) return res.status(500).json(err2)
-            return res.status(200).json({"conversationId": conversationId})
+        // db.query(q2, [[[conversationId, req.body.senderId], [conversationId, req.body.receiverId]]], (err2, data2) => {
+        //     if (err2) return res.status(500).json(err2)
+        //     return res.status(200).json({"conversationId": conversationId})
+        // })
+        // Check if receiverId is an array or single value
+        let receiverIds = Array.isArray(req.body.receiverId) ? req.body.receiverId : [req.body.receiverId];
+
+        // Prepare the values for multiple inserts
+        receiverIds.forEach((r, i) => {
+            receiverIds[i] = [conversationId, r]
         })
+        console.log(receiverIds)
+        const valuesForInsert = [...receiverIds, [conversationId, req.body.senderId]];
+
+        const q2 = "INSERT INTO conversation_members(`conversationId`, `userId`) VALUES ?";
+        db.query(q2, [valuesForInsert], (err2, data2) => {
+            if (err2) return res.status(500).json(err2);
+
+            return res.status(200).json({ "conversationId": conversationId });
+        });
     })
     
 }

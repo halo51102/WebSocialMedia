@@ -74,7 +74,9 @@ export default function Topbar() {
           <span className="topbarUsername">{currentUser.name}</span>
           <img
             src={
-              "/upload/" + profilePic
+              profilePic
+              ? "/upload/" + profilePic
+              : "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
             }
             alt=""
             className="topbarImg"
