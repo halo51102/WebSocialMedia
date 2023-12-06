@@ -5,23 +5,26 @@ import Watch from "../../assets/4.png";
 import Gallery from "../../assets/8.png";
 import Videos from "../../assets/9.png";
 import Messages from "../../assets/10.png";
+import Home from "../../assets/home.png";
+import Alt from "../../assets/alt.png"
 import { AuthContext } from "../../context/authContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import axios from "axios"
-import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-
-const LeftBar = () => {
+const LeftBar = ({ socket, user }) => {
 
   const { currentUser } = useContext(AuthContext);
 
   const [err, setErr] = useState(null)
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  let group = "/group"
 
   const handleClick = async (e) => {
     e.preventDefault()
+    socket?.emit("removeUser", user);
 
     try {
       await axios.post("http://localhost:8800/api/auth/logout")
@@ -32,24 +35,20 @@ const LeftBar = () => {
     }
   }
 
-  let group = "/group"
   return (
     <div className="leftBar">
       <div className="container">
         <div className="menu">
           <Link
-            to={"/profile/" + currentUser.id}
+            to={"/"}
             style={{ textDecoration: "none", marginTop: "13px", color: "inherit" }}
-            onClick={() => {
-              navigate("/profile/" + currentUser.id, { replace: true });
-              window.location.reload();
-            }}>
+          >
             <div className="user">
               <img
-                src={"/upload/" + currentUser.profilePic}
-                alt=""
+                src={Home}
+                alt={Alt}
               />
-              <span>{currentUser.name}</span>
+              <span>Home</span>
             </div>
           </Link>
           <div className="item">
@@ -59,7 +58,7 @@ const LeftBar = () => {
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <img src={Friends} alt="" />
-              <span>Friends</span>
+              <span>Follower</span>
             </Link>
           </div>
           <div className="item">
@@ -88,7 +87,11 @@ const LeftBar = () => {
           </div>
           <div className="item">
             <img src={Messages} alt="" />
-            <span>Messages</span>
+            <Link
+              to='/messenger'
+              style={{ textDecoration: "none", color: "inherit" }}>
+              <span>Messages</span>
+            </Link>
           </div>
         </div>
         <hr />

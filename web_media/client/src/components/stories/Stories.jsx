@@ -19,6 +19,11 @@ const Stories = () => {
     })
   );
 
+  const { isLoading: fUserLoading, error: fUserError, data: findUser } = useQuery(["user"], () =>
+    makeRequest.get("/users/find/" + currentUser.id).then((res) => {
+      return res.data
+    }))
+
   const queryClient = useQueryClient()
 
   const mutation = useMutation((newStory) => {
@@ -43,8 +48,8 @@ const Stories = () => {
   return (
     <div className="stories">
       <div className="story">
-        <img src={"/upload/" + currentUser.profilePic} alt="" />
-        <span>{currentUser.name}</span>
+        <img src={"/upload/" + findUser?.profilePic} alt="" />
+        <span>{findUser?.name}</span>
         <button onClick={() => setOpenCreate(true)}>+</button>
       </div>
       {openCreate && <CreateStory setOpenCreate={setOpenCreate} />}

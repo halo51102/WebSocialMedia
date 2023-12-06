@@ -99,9 +99,9 @@ export const deleteGroup = (req, res) => {
 
 export const getMemberGroup = (req, res) => {
     const q = `SELECT m.*, u.id AS userId, name, profilePic FROM membergroups AS m JOIN users AS u ON (u.id = m.userId)
-    WHERE m.groupId = ? AND m.position=?`
+    WHERE m.groupId = ?`
 
-    db.query(q, [req.params.groupId,"member"], (err, data) => {
+    db.query(q, [req.params.groupId], (err, data) => {
         if (err) return res.status(500).json(err)
         return res.status(200).json(data)
     })

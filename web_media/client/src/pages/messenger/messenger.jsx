@@ -10,6 +10,7 @@ import Conversation from "../../components/conversations/Conversation";
 import GroupByMessages from "../../components/groupMessage/GroupMessage";
 import CreateConversationForm from "../../components/createConversationForm/CreateConversationForm";
 import { io } from "socket.io-client";
+import Navbar from "../../components/navbar/Navbar";
 
 export default function Messenger({ socket }) {
   console.log("SOCKET: " + socket)

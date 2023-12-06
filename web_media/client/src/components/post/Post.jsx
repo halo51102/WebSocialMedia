@@ -13,7 +13,7 @@ import { makeRequest } from "../../axios";
 import { AuthContext } from "../../context/authContext";
 
 
-const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) => {
+const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
 
   const [menuOpen, setMenuOpen] = useState(false)
   // const [commentOpen, setCommentOpen] = useState(null)
@@ -53,18 +53,10 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["posts"])
+        queryClient.invalidateQueries(["postsInGroup"])
       }
     }
   );
-
-  const findUserByPostMutation = useMutation((postId) => {
-    return makeRequest.get("/users/findByPost/" + postId);
-  },
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["users"])
-      }
-    })
 
   const deletePostMutationG = useMutation(() => {
     console.log(post.id + "" + post.groupId)
@@ -73,6 +65,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["posts"])
+        queryClient.invalidateQueries(["postsInGroup"])
       }
     }
   );
@@ -94,21 +87,24 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
   };
 
   const handleLike = () => {
-    const liked = data.includes(currentUser.id);
+    const liked = data.includes(currentUser.id)
     mutation.mutate(liked);
-    // findUserByPostMutation.mutate(post.id);
 
-    if (liked) {
-      // Nếu đã thích, gửi socket thông báo unlike
-      handleNotification(2);
-    } else {
-      // Nếu chưa thích, gửi socket thông báo like
-      handleNotification(1);
+    if (currentUser.id !== post.id) {
+      if (liked) {
+        // Nếu đã thích, gửi socket thông báo unlike
+        handleNotification(2);
+
+      } else {
+        // Nếu chưa thích, gửi socket thông báo like
+        handleNotification(1);
+
+      }
     }
   }
 
   const handleNotification = (type) => {
-    socket.emit("sendNotification", {
+    socket?.emit("sendNotification", {
       senderName: user,
       receiverName: post.username,
       type,
@@ -117,7 +113,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
 
   let profile = "/profile/" + post.userId;
 
-  console.log(post.username)
+  console.log(socket)
 
   return (
     <div className="post">
@@ -171,7 +167,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user }) 
             Share
           </div>
         </div>
-        {isCommentOpen && <Comments postId={post.id} />}
+        {isCommentOpen && <Comments postId={post.id} socket={socket} user={user} post={post} />}
       </div>
     </div>
   );

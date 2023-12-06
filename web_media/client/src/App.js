@@ -43,17 +43,22 @@ function App() {
       socket?.emit("newUser", user);
   }, [socket, user]);
 
+  useEffect(() => {
+    if (socket)
+      socket?.emit("addUser", user);
+  }, [socket, user]);
+
   const Layout = () => {
     return (
       <QueryClientProvider client={queryClient}>
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
           <Navbar socket={socket} />
           <div style={{ display: "flex" }}>
-            <LeftBar />
+            <LeftBar socket={socket} user={user} />
             <div style={{ flex: 6 }}>
               <Outlet />
             </div>
-            <RightBar />
+            <RightBar socket={socket} user={user} />
           </div>
         </div>
       </QueryClientProvider>
@@ -91,14 +96,14 @@ function App() {
         },
         {
           path: "/profile/:id",
-          element: <Profile />,
+          element: <Profile socket={socket} user={user} />,
         }, {
           path: "/group/all",
           element: <AllGroup />,
         },
         {
           path: "/group/:id",
-          element: <Group />,
+          element: <Group socket={socket} user={user} />,
         },
         {
           path: "/friend",
@@ -118,16 +123,11 @@ function App() {
       path: "/messenger",
       element: (
         <ProtectedRoute>
-          <Messenger socket={socket}/>
+          <Messenger socket={socket} />
         </ProtectedRoute>
       ),
     },
   ]);
-
-  // window.addEventListener('beforeunload', function() {
-  //   localStorage.clear();
-  // });
-  console.log(socket)
 
   return (
     <div>

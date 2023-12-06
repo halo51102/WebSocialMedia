@@ -55,11 +55,11 @@ const CreateGroup = ({ setOpenCreate }) => {
     return (
         <div className="create">
             <div className="wrapper">
-                <h1>Add your story</h1>
+                <h1>Create New Group</h1>
                 <form>
                     <div className="files">
                         <label htmlFor="image">
-                            <span>Image</span>
+                            <span>Image Profile</span>
                             <div className="imgContainer">
                                 <img
                                     src={img ? URL.createObjectURL(img) : "No image"}
@@ -75,7 +75,7 @@ const CreateGroup = ({ setOpenCreate }) => {
                             onChange={(e) => setImgPic(e.target.files[0])}
                         />
                         <label htmlFor="cover">
-                            <span>Image</span>
+                            <span>Image Cover</span>
                             <div className="imgContainer">
                                 <img
                                     src={imgCover ? URL.createObjectURL(imgCover) : "No image"}

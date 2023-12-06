@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
-import { useContext} from "react";
+import { useContext } from "react";
 import { AuthContext } from "../../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
 import "./friend.scss"
@@ -16,8 +16,10 @@ const Friend = () => {
 
     const navigate = useNavigate();
 
+    let empty = []
 
-    console.log();
+
+    console.log(data);
 
     return (
         <div className="friends">
@@ -28,28 +30,24 @@ const Friend = () => {
                         : isLoading
                             ? "loading"
                             : data.map((friend, id) =>
-                            (<Link
-                                style={{ textDecoration: "none" }}
-                                to={"/profile/" + friend.id}
-                                onClick={() => {
-                                    navigate("/profile/" + friend.id, { replace: true });
-                                    window.location.reload();
-                                }}
-                            >
-                                <div className="user" key={id}>
-                                    <div className="userInfo">
-                                        <img
-                                            src={"/upload/" + friend.profilePic}
-                                            alt=""
-                                        />
-                                        <span>{friend.username}</span>
-                                    </div>
-                                    <div className="buttons">
-                                        <button>Unfriend</button>
-                                    </div>
+                                <div className="item-container">
+                                    <Link
+                                        style={{ textDecoration: "none" }}
+                                        to={"/profile/" + friend.id}
+                                    >
+                                        <div className="user" key={id}>
+                                            <div className="userInfo">
+                                                <img
+                                                    src={"/upload/" + friend.profilePic}
+                                                    alt=""
+                                                />
+                                                <span>{friend.name}</span>
+                                            </div>
+                                        </div>
+                                    </Link>
+                                    
                                 </div>
-                            </Link>
-                            ))
+                            )
                     }
                 </div>
             </div>

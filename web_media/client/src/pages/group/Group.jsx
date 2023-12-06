@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { style } from "@mui/system";
 import MembersGroup from "../../components/membersGroup/MembersGroup"
 
-const Group = () => {
+const Group = ({socket}) => {
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openMember, setOpenMember] = useState(false);
   const { currentUser } = useContext(AuthContext)
@@ -44,8 +44,6 @@ const Group = () => {
     mutation.mutate(memberData.some(member => member.userId === currentUser.id))
   }
 
-  console.log("a")
-  console.log(memberData)
   return (
     <div className="profilegroup">
       {isLoading ? "loading" : <>
@@ -77,7 +75,7 @@ const Group = () => {
           </div>
         </div>
         <Share/>
-        <PostsInGroup groupId={data.id} />
+        <PostsInGroup groupId={data.id} socket={socket} />
       </>}
       {openUpdate && <UpdateGroup setOpenUpdate={setOpenUpdate} group={data} />}
       {openMember && <MembersGroup setOpenMember={setOpenMember} groupId={groupId} />}
