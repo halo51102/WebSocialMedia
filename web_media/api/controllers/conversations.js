@@ -22,7 +22,7 @@ export const createConversation = (req,res)=>{
 export const getUserConversations = (req,res)=>{
     try {
         const userId = req.params.userId
-        const q = "SELECT * FROM conversation_members cm INNER JOIN conversations c ON cm.conversationId = c.id WHERE conversationId IN (SELECT conversationId FROM conversation_members cm WHERE cm.userId = 5)"
+        const q = "SELECT * FROM conversation_members cm INNER JOIN conversations c ON cm.conversationId = c.id WHERE conversationId IN (SELECT conversationId FROM conversation_members cm WHERE cm.userId = ?)"
         db.query(q, [userId], (err, data) => {
             if (err) return res.status(500).json(err)
             if(data.length===0) return res.status(404).json("User not found!")
