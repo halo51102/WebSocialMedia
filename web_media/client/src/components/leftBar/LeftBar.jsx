@@ -5,16 +5,14 @@ import Watch from "../../assets/4.png";
 import Gallery from "../../assets/8.png";
 import Videos from "../../assets/9.png";
 import Messages from "../../assets/10.png";
+import Home from "../../assets/home.png";
+import Alt from "../../assets/alt.png"
 import { AuthContext } from "../../context/authContext";
 import { useContext, useState } from "react";
 import axios from "axios"
 import { Link, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { makeRequest } from "../../axios";
 
-
-
-const LeftBar = ({socket}) => {
+const LeftBar = ({ socket, user }) => {
 
   const { currentUser } = useContext(AuthContext);
 
@@ -26,6 +24,7 @@ const LeftBar = ({socket}) => {
 
   const handleClick = async (e) => {
     e.preventDefault()
+    socket?.emit("removeUser", user);
 
     try {
       await axios.post("http://localhost:8800/api/auth/logout")
@@ -36,29 +35,20 @@ const LeftBar = ({socket}) => {
     }
   }
 
-  const { isLoading, error, data: findUser } = useQuery(["user"], () =>
-    makeRequest.get("/users/find/" + currentUser.id).then((res) => {
-      return res.data
-    }))
-
   return (
     <div className="leftBar">
       <div className="container">
         <div className="menu">
           <Link
-            to={"/profile/" + currentUser.id}
+            to={"/"}
             style={{ textDecoration: "none", marginTop: "13px", color: "inherit" }}
-            // onClick={() => {
-            //   navigate("/profile/" + currentUser.id, { replace: true });
-            //   window.location.reload();
-            // }}
           >
             <div className="user">
               <img
-                src={"/upload/" + findUser?.profilePic}
-                alt=""
+                src={Home}
+                alt={Alt}
               />
-              <span>{findUser?.name}</span>
+              <span>Home</span>
             </div>
           </Link>
           <div className="item">
@@ -97,7 +87,11 @@ const LeftBar = ({socket}) => {
           </div>
           <div className="item">
             <img src={Messages} alt="" />
-            <span>Messages</span>
+            <Link
+              to='/messenger'
+              style={{ textDecoration: "none", color: "inherit" }}>
+              <span>Messages</span>
+            </Link>
           </div>
         </div>
         <hr />

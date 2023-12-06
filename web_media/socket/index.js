@@ -3,7 +3,7 @@ const { getVideoMetadata } = require('./services/oembed');
 const stream = require('stream');
 const fs = require('fs');
 
-const {uploadLocalFile, uploadImageToS3} = require('./s3.config')
+const { uploadLocalFile, uploadImageToS3 } = require('./s3.config')
 
 
 const io = require("socket.io")(8900, {
@@ -23,16 +23,21 @@ const removeUser = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
 };
 
+const removeUserByUserName = (username) => {
+  users = users.filter((user) => user.userId !== username);
+};
+
 const getUser = (userId) => {
   return users.find((user) => user.userId === userId);
 };
+
 
 const handleUploadLocalFile = async (file, fileName, mimeType) => {
   const data = new FormData();
   data.append("file", file);
   // Upload the image to S3
   console.log("socket file: ", file)
-  
+
   const bufferStream = new stream.PassThrough();
   bufferStream.end(file);
   fileName = Date.now().toString() + '-' + fileName;
@@ -48,8 +53,13 @@ io.on("connection", (socket) => {
   //take userId and socketId from user
   socket.on("addUser", (userId) => {
     addUser(userId, socket.id);
+    console.log(users)
     io.emit("getUsers", users);
   });
+
+  socket.on("removeUser", (username) => {
+    removeUserByUserName(username);
+  })
 
   //send and get message
   socket.on("sendMessage", async ({ senderId, receiverId, text, type, file, fileName, mimeType }) => {
@@ -76,7 +86,7 @@ io.on("connection", (socket) => {
         const mimeType = "image/jpeg"
         const file_url = await uploadImageToS3(bufferStream, fileName, mimeType)
         console.log(file_url)
-        
+
         const title = videoMetadata.title
         io.to(getUser(senderId).socketId).emit("getMetadata", {
           title,
@@ -95,12 +105,12 @@ io.on("connection", (socket) => {
         console.log(err);
       }
     }
-    else if (type === "image" || type === "audio" || type === "video"){
+    else if (type === "image" || type === "audio" || type === "video") {
       url = await handleUploadLocalFile(file, fileName, mimeType)
       console.log(url)
       const title = null
       const file_url = url
-      
+
       if (user !== undefined) {
         io.to(user.socketId).emit("getMessage", {
           senderId,
@@ -124,7 +134,7 @@ io.on("connection", (socket) => {
         });
       }
     }
-    
+
   });
 
   // need discussion
