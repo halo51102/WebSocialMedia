@@ -8,6 +8,7 @@ import Message from "../../components/messsagev2/Message";
 import Conversation from "../../components/conversations/Conversation";
 // import TestMessage from "../../components/testMessage/TestMessage";
 import GroupByMessages from "../../components/groupMessage/GroupMessage";
+import CreateConversationForm from "../../components/createConversationForm/CreateConversationForm";
 import { io } from "socket.io-client";
 
 export default function Messenger({ socket }) {
@@ -229,7 +230,9 @@ export default function Messenger({ socket }) {
             </div> */}
             <div className="messenger">
                 <dir className="chatMenu">
-                    <dir className="chatMenuWrapper">
+                  <dir className="chatMenuWrapper">
+                    <CreateConversationForm setNewConversation={ setNewConversation } />
+                    <input placeholder="Search for friends" className="chatMenuInput" />
                     {conversations.map((c) => (
                     <div onClick={() => setCurrentChat(c)}>
                         <Conversation conversation={c} currentUser={currentUser} />
@@ -251,7 +254,7 @@ export default function Messenger({ socket }) {
                                   }
                                 </div> */}
                                 <div className="message">
-                                  <GroupByMessages messages={messages} currentUser={currentUser} handleEmotionSelect={handleEmotionSelect} />
+                                  <GroupByMessages messages={messages} currentUser={currentUser} handleEmotionSelect={handleEmotionSelect} socket={socket} />
                                 </div>
                                 {/* <div className="messageContainer" ref={scrollRef}>
                                   <Message testManual={null}/>

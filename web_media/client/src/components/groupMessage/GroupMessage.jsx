@@ -1,7 +1,7 @@
 import React from "react";
 import Message from "../../components/messsagev2/Message";
 import { useEffect, useRef } from "react";
-const GroupByMessages = ({ messages, currentUser, handleEmotionSelect }) => {
+const GroupByMessages = ({ messages, currentUser, handleEmotionSelect, socket }) => {
     const scrollRef = useRef();
     useEffect(() => {
         scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -17,14 +17,14 @@ const GroupByMessages = ({ messages, currentUser, handleEmotionSelect }) => {
       if (currMessage.senderId === currentUser.id) {
           senderMessages.push(
             <div className="message-sent" ref={scrollRef}>
-                  <Message message={currMessage} own={true} testManual={false} index={i} handleEmotionSelect={handleEmotionSelect} />
+                  <Message message={currMessage} own={true} testManual={false} index={i} handleEmotionSelect={handleEmotionSelect} socket={socket} />
             </div>
         )
         let j = i + 1
         while (j < messages.length && messages[j].senderId === currentUser.id) { 
             senderMessages.push(
             <div className="message-sent" ref={scrollRef}>
-                    <Message message={messages[j]} own={true} testManual={false} index={j} handleEmotionSelect={handleEmotionSelect} />
+                    <Message message={messages[j]} own={true} testManual={false} index={j} handleEmotionSelect={handleEmotionSelect} socket={socket} />
             </div>
           )
           j = j + 1
@@ -41,7 +41,7 @@ const GroupByMessages = ({ messages, currentUser, handleEmotionSelect }) => {
       } else {
           receiverMessages.push(
         <div className="message-received" ref={scrollRef}>
-                  <Message message={currMessage} own={false} testManual={false} index={i} handleEmotionSelect={handleEmotionSelect} />
+                  <Message message={currMessage} own={false} testManual={false} index={i} handleEmotionSelect={handleEmotionSelect} socket={socket} />
                   </div>
         )
         let j = i + 1
@@ -49,7 +49,7 @@ const GroupByMessages = ({ messages, currentUser, handleEmotionSelect }) => {
         while (j < messages.length && messages[j].senderId !== currentUser.id) { 
             receiverMessages.push(
                 <div className="message-received" ref={scrollRef}>
-                    <Message message={messages[j]} own={false} testManual={false} index={j} handleEmotionSelect={handleEmotionSelect} />
+                    <Message message={messages[j]} own={false} testManual={false} index={j} handleEmotionSelect={handleEmotionSelect} socket={socket} />
                     </div>
           )
           j = j + 1
