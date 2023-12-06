@@ -42,7 +42,7 @@
 
 .chatMessageInput {
     flex-shrink: 0;
-    width: 83%;
+    width: 75%;
     height: 90px;
     padding: 10px;
     border-radius: 18px;
