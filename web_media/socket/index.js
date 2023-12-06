@@ -70,8 +70,7 @@ io.on("connection", (socket) => {
     removeUserByUserName(username);
   })
 
-  //send and get message
-  socket.on("sendMessage", async ({ messageId, senderId, receiverId, text, type, file, fileName, mimeType }) => {
+  socket.on("sendMetadata", async ({ senderId, receiverId, text, type, file, fileName, mimeType }) => {
     const user = getUser(receiverId);
     if (type === "video_link") {
       try {
@@ -101,6 +100,55 @@ io.on("connection", (socket) => {
           title,
           file_url
         });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    else if (type === "image" || type === "audio" || type === "video") {
+      url = await handleUploadLocalFile(file, fileName, mimeType)
+      console.log(url)
+      const title = null
+      const file_url = url
+
+      if (user !== undefined) {
+        io.to(getUser(senderId).socketId).emit("getMetadata", {
+          title,
+          file_url
+        });
+      }
+    }
+  });
+  //send and get message
+  socket.on("sendMessage", async ({ messageId, senderId, receiverId, text, type, file, fileName, mimeType, title, file_url }) => {
+    const user = getUser(receiverId);
+    if (type === "video_link") {
+      try {
+        // const res = await getVideoMetadata(text);
+        // console.log("abcxyz" + res)
+        // videoMetadata = res;
+        // const thumbnail_res = await axios.get(videoMetadata.file_url, { responseType: 'arraybuffer' });
+        // const buffer = Buffer.from(thumbnail_res.data, 'binary');
+        // console.log(buffer)
+        // const bufferStream = new stream.PassThrough();
+        // bufferStream.end(buffer);
+
+        // // const writableStream = fs.createWriteStream('output_image.jpg');
+        // // bufferStream.pipe(writableStream);
+        // // writableStream.on('finish', () => {
+        // //   console.log('Buffer data written to file successfully.');
+        // // });
+
+        // // file_url = await handleUploadImage(bufferStream)
+        // const fileName = Date.now().toString() + `.jpeg`;
+        // const mimeType = "image/jpeg"
+        // const file_url = await uploadImageToS3(bufferStream, fileName, mimeType)
+        // console.log(file_url)
+
+        // const title = videoMetadata.title
+        // io.to(getUser(senderId).socketId).emit("getMetadata", {
+        //   title,
+        //   file_url
+        // });
         if (user !== undefined) {
           io.to(user.socketId).emit("getMessage", {
             messageId,
@@ -116,10 +164,10 @@ io.on("connection", (socket) => {
       }
     }
     else if (type === "image" || type === "audio" || type === "video") {
-      url = await handleUploadLocalFile(file, fileName, mimeType)
-      console.log(url)
-      const title = null
-      const file_url = url
+      // url = await handleUploadLocalFile(file, fileName, mimeType)
+      // console.log(url)
+      // const title = null
+      // const file_url = url
 
       if (user !== undefined) {
         io.to(user.socketId).emit("getMessage", {
@@ -130,10 +178,10 @@ io.on("connection", (socket) => {
           title,
           file_url,
         });
-        io.to(getUser(senderId).socketId).emit("getMetadata", {
-          title,
-          file_url
-        });
+        // io.to(getUser(senderId).socketId).emit("getMetadata", {
+        //   title,
+        //   file_url
+        // });
       }
     }
     else {
