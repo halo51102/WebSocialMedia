@@ -27,6 +27,7 @@ const getUser = (userId) => {
   return users.find((user) => user.userId === userId);
 };
 
+
 const handleUploadLocalFile = async (file, fileName, mimeType) => {
   const data = new FormData();
   data.append("file", file);
@@ -48,6 +49,7 @@ io.on("connection", (socket) => {
   //take userId and socketId from user
   socket.on("addUser", (userId) => {
     addUser(userId, socket.id);
+    console.log(users)
     io.emit("getUsers", users);
   });
 
