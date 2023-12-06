@@ -52,8 +52,9 @@
   flex: 4;
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: flex-end;
   color: white;
+  padding-right: 20px;
 }
 
 .topbarLink {
@@ -88,12 +89,17 @@
 }
 
 .topbarImg {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
   cursor: pointer;
 }
+
+.topbarUsername{
+
+}
+
 
 @media screen and (max-width: 768px)  {
   .topbarLink{

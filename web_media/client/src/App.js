@@ -118,7 +118,7 @@ function App() {
       path: "/messenger",
       element: (
         <ProtectedRoute>
-          <Messenger socket={socket} />
+            <Messenger socket={socket} />
         </ProtectedRoute>
       ),
     },
