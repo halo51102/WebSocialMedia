@@ -92,6 +92,7 @@ export default function Messenger({ socket }) {
     // socket.current = io("ws://localhost:8900");
     socket?.on("getMessage", (data) => {
       setArrivalMessage({
+        id: data.messageId,
         senderId: data.senderId,
         text: data.text,
         type: data.type,
@@ -165,34 +166,59 @@ export default function Messenger({ socket }) {
     const receiverId = currentChat.members.find(
       (member) => member !== currentUser.id
     );
-    await socket?.emit("sendMessage", {
-      senderId: currentUser.id,
-      receiverId,
-      text: newMessage,
-      type: message["type"],
-      file: file ? file : null,
-      fileName: file ? file["name"] : null,
-      mimeType: file ? file["type"] : null
-    });
-    if (message["type"] !== "text") {
-      // Listen for the "getMetadata" event from the server
-      const metadataPromise = new Promise((resolve) => {
-        socket?.on("getMetadata", (data) => {
-          console.log("Received metadata:", data);
-          message["title"] = data.title;
-          message["file_url"] = data.file_url;
-          console.log("METADATA 2: " + message.file_url);
-          resolve(); // Resolve the promise when metadata is received
-        });
-      });
+    // await socket?.emit("sendMessage", {
+    //   senderId: currentUser.id,
+    //   receiverId,
+    //   text: newMessage,
+    //   type: message["type"],
+    //   file: file ? file : null,
+    //   fileName: file ? file["name"] : null,
+    //   mimeType: file ? file["type"] : null
+    // });
+    // if (message["type"] !== "text") {
+    //   // Listen for the "getMetadata" event from the server
+    //   const metadataPromise = new Promise((resolve) => {
+    //     socket?.on("getMetadata", (data) => {
+    //       console.log("Received metadata:", data);
+    //       message["title"] = data.title;
+    //       message["file_url"] = data.file_url;
+    //       console.log("METADATA 2: " + message.file_url);
+    //       resolve(); // Resolve the promise when metadata is received
+    //     });
+    //   });
 
-      // Wait for the "getMetadata" event before sending the "post /messages" request
-      await metadataPromise;
-    }
+    //   // Wait for the "getMetadata" event before sending the "post /messages" request
+    //   await metadataPromise;
+    // }
 
     try {
       const res = await makeRequest.post("/messages", message);
       console.log(res.data)
+      await socket?.emit("sendMessage", {
+        messageId: res.data.id,
+        senderId: currentUser.id,
+        receiverId,
+        text: newMessage,
+        type: message["type"],
+        file: file ? file : null,
+        fileName: file ? file["name"] : null,
+        mimeType: file ? file["type"] : null
+      });
+      if (message["type"] !== "text") {
+        // Listen for the "getMetadata" event from the server
+        const metadataPromise = new Promise((resolve) => {
+          socket?.on("getMetadata", (data) => {
+            console.log("Received metadata:", data);
+            message["title"] = data.title;
+            message["file_url"] = data.file_url;
+            console.log("METADATA 2: " + message.file_url);
+            resolve(); // Resolve the promise when metadata is received
+          });
+        });
+  
+        // Wait for the "getMetadata" event before sending the "post /messages" request
+        await metadataPromise;
+      }
       res.data.file_url = message?.file_url
       res.data.title = message?.title
       setMessages([...messages, res.data]);

@@ -71,7 +71,7 @@ io.on("connection", (socket) => {
   })
 
   //send and get message
-  socket.on("sendMessage", async ({ senderId, receiverId, text, type, file, fileName, mimeType }) => {
+  socket.on("sendMessage", async ({ messageId, senderId, receiverId, text, type, file, fileName, mimeType }) => {
     const user = getUser(receiverId);
     if (type === "video_link") {
       try {
@@ -103,6 +103,7 @@ io.on("connection", (socket) => {
         });
         if (user !== undefined) {
           io.to(user.socketId).emit("getMessage", {
+            messageId,
             senderId,
             text,
             type,
@@ -122,6 +123,7 @@ io.on("connection", (socket) => {
 
       if (user !== undefined) {
         io.to(user.socketId).emit("getMessage", {
+          messageId,
           senderId,
           text,
           type,
@@ -137,6 +139,7 @@ io.on("connection", (socket) => {
     else {
       if (user !== undefined) {
         io.to(user.socketId).emit("getMessage", {
+          messageId,
           senderId,
           text,
           type

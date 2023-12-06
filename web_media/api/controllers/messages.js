@@ -17,6 +17,7 @@ export const addMessage = (req, res) => {
         if (err) return res.status(500).json(err)
         const insertedData = {
             conversationId: req.body.conversationId,
+            id: data.insertId,
             senderId: req.body.senderId,
             text: req.body.text,
             type: req.body.type,
