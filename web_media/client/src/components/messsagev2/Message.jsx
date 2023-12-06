@@ -6,13 +6,14 @@ import { AuthContext } from "../../context/authContext";
 import { makeRequest } from "../../axios";
 
 
-export default function Message({ message, own, testManual = null, videoMetadata, index, handleEmotionSelect }) {
+export default function Message({ message, own, testManual = null, videoMetadata, index, handleEmotionSelect, socket }) {
   const { currentUser } = useContext(AuthContext);
   const [showOverlay, setShowOverlay] = useState(false);
   // const [selectedEmotion, setSelectedEmotion] = useState(null);
   const [overlayPosition, setOverlayPosition] = useState({ top: 0, left: 0, right: 0 });
   const [uniqueReactions, setUniqueReaction] = useState([]);
   const [isUpdateReaction, setIsUpdateReaction] = useState(false);
+  const [arrivalReaction, setArrivalReaction] = useState(null);
 
   const handleEmotionSelect2 = async (e, index) => {
     // setSelectedEmotion(emotion); 
@@ -22,7 +23,7 @@ export default function Message({ message, own, testManual = null, videoMetadata
     let src = e.target.src;
     try {
       console.log("WHYYY")        
-      console.dir(message)  
+      console.dir(message) 
       if (message.reactions) {
         let idx = null
       
@@ -33,19 +34,38 @@ export default function Message({ message, own, testManual = null, videoMetadata
           }
         }
         if (idx !== null) {
+          socket?.emit("sendReaction", {
+            reactionId: message.reactions[idx].reactionId,
+            messageId: message.id,
+            userId: currentUser.id,
+            reaction: src
+          })
           const res = await makeRequest.post(`/messages/${message.id}`, { "reactionId": message.reactions[idx].reactionId, "reaction": src });      
           message.reactions[idx].reaction = src
           console.log("Update")
-          setIsUpdateReaction(message.reactions[idx].reaction)
+          // setIsUpdateReaction(message.reactions[idx].reaction)
         } else {
           const res = await makeRequest.post(`/messages/${message.id}`, { "messageId": message.id, "userId": currentUser.id, "reaction": src });      
           message.reactions.push(res.data)
           console.log("Insert 1")
+          socket?.emit("sendReaction", {
+            reactionId: res.data.reactionId,
+            messageId: message.id,
+            userId: currentUser.id,
+            reaction: src
+          })
         }
       } else {
+        
         const res = await makeRequest.post(`/messages/${message.id}`, { "messageId": message.id, "userId": currentUser.id, "reaction": src });      
         message.reactions = [res.data]
         console.log("Insert 2")
+        socket?.emit("sendReaction", {
+          reactionId: res.data.reactionId,
+          messageId: message.id,
+          userId: currentUser.id,
+          reaction: src
+        })
       }
       setIsUpdateReaction(true)
       console.log("in handleEmotionSelect")
@@ -54,21 +74,58 @@ export default function Message({ message, own, testManual = null, videoMetadata
     }
   };
   useEffect(() => {
-    if (message && message.reactions) {
-      let result = []
-      console.dir(message)
-      message.reactions.forEach((r) => {
-        if (!result.includes(r.reaction)) {
-          console.log(r.reaction)
-          console.log(message.id)
-          result.push(r.reaction)
-        }
+      // socket.current = io("ws://localhost:8900");
+    socket?.on("getReaction", (data) => {
+      if (message.id === data.messageId) {
+        console.log("GET REACTION")
+        console.dir(data)
+          setArrivalReaction({
+            reactionId: data?.reactionId,
+            messageId: data.messageId,
+            userId: data.userId,
+            reaction: data.reaction
+          });
+      }
       });
-      if (result.length > 0 )
-        setUniqueReaction([...result])
-        setIsUpdateReaction(null)
+  }, [message.id]);
+  useEffect(() => {
+    if (arrivalReaction) {
+      
+      if (message.id === arrivalReaction.messageId) {
+        if (message.reactions) {
+          const desiredItemIndex = message.reactions.findIndex(item => item.reactionId === arrivalReaction?.reactionId);
+          if (arrivalReaction?.reactionId && desiredItemIndex != -1) { // update
+            console.dir(message)
+            console.log("desireItemIndex: " + desiredItemIndex)
+            console.dir(message.reactions[desiredItemIndex])
+            message.reactions[desiredItemIndex].reaction = arrivalReaction.reaction
+          } else { // insert new
+            message.reactions = [...message.reactions, arrivalReaction]
+          }
+        } else { // insert new
+          message.reactions = [arrivalReaction]
+        }
+      }
+      setIsUpdateReaction(!isUpdateReaction)
     }
-  }, [isUpdateReaction])
+    
+  }, [arrivalReaction, message]);
+  // useEffect(() => {
+  //   if (message && message.reactions) {
+  //     let result = []
+  //     console.dir(message)
+  //     message.reactions.forEach((r) => {
+  //       if (!result.includes(r.reaction)) {
+  //         console.log(r.reaction)
+  //         console.log(message.id)
+  //         result.push(r.reaction)
+  //       }
+  //     });
+  //     if (result.length > 0 )
+  //       setUniqueReaction([...result])
+  //       setIsUpdateReaction(null)
+  //   }
+  // }, [isUpdateReaction])
   // const reactionRef = useRef();
   const handleReactionClick = (e) => {
     e.preventDefault()
@@ -573,8 +630,8 @@ export default function Message({ message, own, testManual = null, videoMetadata
                 }
                 {message.reactions ? (<div className="reaction">
               <div className="reaction__content">
-                {uniqueReactions.map((r, index) => (
-                      <img height="16" width="16" src={r} alt="😠" />
+                {message.reactions.map((r, index) => (
+                      <img height="16" width="16" src={r.reaction} alt="😠" />
                     ))}
                     {/* <img height="16" width="16" src={message.reactions[0].reaction} alt="😠" /> */}
                     {/* <img height="16" width="16" src={message.reactions[0].reaction} alt="😠" /> */}

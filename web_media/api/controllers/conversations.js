@@ -13,7 +13,7 @@ export const createConversation = (req,res)=>{
         const conversationId = data.insertId
         db.query(q2, [[[conversationId, req.body.senderId], [conversationId, req.body.receiverId]]], (err2, data2) => {
             if (err2) return res.status(500).json(err2)
-            return res.status(200).json("Conversation has been created.")
+            return res.status(200).json({"conversationId": conversationId})
         })
     })
     
@@ -22,7 +22,7 @@ export const createConversation = (req,res)=>{
 export const getUserConversations = (req,res)=>{
     try {
         const userId = req.params.userId
-        const q = "SELECT * FROM conversation_members cm WHERE conversationId = (SELECT conversationId FROM conversation_members cm WHERE cm.userId = ?)"
+        const q = "SELECT * FROM conversation_members cm INNER JOIN conversations c ON cm.conversationId = c.id WHERE conversationId IN (SELECT conversationId FROM conversation_members cm WHERE cm.userId = ?)"
         db.query(q, [userId], (err, data) => {
             if (err) return res.status(500).json(err)
             if(data.length===0) return res.status(404).json("User not found!")
@@ -34,6 +34,7 @@ export const getUserConversations = (req,res)=>{
                 if (!transformedData[conversationId]) {
                     transformedData[conversationId] = {
                         "conversationId": conversationId,
+                        "name": item.name,
                         "members": []
                     };
                 }

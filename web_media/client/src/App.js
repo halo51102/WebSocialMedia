@@ -43,11 +43,6 @@ function App() {
       socket?.emit("newUser", user);
   }, [socket, user]);
 
-  useEffect(() => {
-    if (socket)
-      socket?.emit("addUser", user);
-  }, [socket, user]);
-
   const Layout = () => {
     return (
       <QueryClientProvider client={queryClient}>
