@@ -45,7 +45,7 @@ console.log(relationshipData)
       <div className="container">
         <div className="item">
           <span>Suggestions For You</span>
-          (
+          
           {sgdata?.map((usersg)=> 
               (!relationshipData?.some(item => item.id === usersg.id))&&(currentUser.id !== usersg.id)&&
                 <div className="user" >
@@ -64,7 +64,7 @@ console.log(relationshipData)
                   </div>
                 </div>
             
-            )})
+            )}
 
 
 

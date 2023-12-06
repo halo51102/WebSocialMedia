@@ -56,7 +56,6 @@ const handleUploadLocalFile = async (file, fileName, mimeType) => {
 };
 
 io.on("connection", (socket) => {
-  //when ceonnect
   console.log("a user connected.");
 
   //take userId and socketId from user
