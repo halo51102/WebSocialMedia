@@ -74,7 +74,7 @@ const Group = ({socket}) => {
             }
           </div>
         </div>
-        <Share/>
+        {memberData.some(member => member.userId === currentUser.id) && <Share/> }
         <PostsInGroup groupId={data.id} socket={socket} />
       </>}
       {openUpdate && <UpdateGroup setOpenUpdate={setOpenUpdate} group={data} />}
