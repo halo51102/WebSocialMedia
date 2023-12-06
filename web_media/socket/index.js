@@ -13,6 +13,7 @@ const io = require("socket.io")(8900, {
 });
 
 let users = [];
+let onlineUsers = [];
 
 const addUser = (userId, socketId) => {
   !users.some((user) => user.userId === userId) &&
@@ -21,11 +22,21 @@ const addUser = (userId, socketId) => {
 
 const removeUser = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
+  onlineUsers = onlineUsers.filter((user) => user.socketId !== socketId);
 };
 
 const getUser = (userId) => {
   return users.find((user) => user.userId === userId);
 };
+
+const addUserByName = (username, socketId) => {
+  !onlineUsers.some((user) => user.username === username) &&
+    onlineUsers.push({ username, socketId });
+};
+
+const getUserByName = (username) => {
+  return onlineUsers.find((user) => user.username === username);
+}
 
 const handleUploadLocalFile = async (file, fileName, mimeType) => {
   const data = new FormData();
@@ -127,13 +138,31 @@ io.on("connection", (socket) => {
     
   });
 
+  socket.on("sendReaction", ({reactionId, messageId, userId, reaction}) => {
+    console.log("In send reaction: " + reactionId + messageId + userId + reaction)
+    const receiver = users.find((user) => user.userId !== userId)
+    console.log(receiver)
+    io.to(receiver.socketId).emit("getReaction", {
+      reactionId,
+      messageId,
+      userId,
+      reaction
+    })
+    io.to(getUser(userId).socketId).emit("getReaction", {
+      reactionId,
+      messageId,
+      userId,
+      reaction
+    })
+  })
+
   // need discussion
   socket.on("newUser", (username) => {
-    addUser(username, socket.id);
+    addUserByName(username, socket.id);
   });
 
   socket.on("sendNotification", ({ senderName, receiverName, type }) => {
-    const receiver = getUser(receiverName);
+    const receiver = getUserByName(receiverName);
     io.to(receiver?.socketId).emit("getNotification", {
       senderName,
       type,
@@ -141,7 +170,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendText", ({ senderName, receiverName, text }) => {
-    const receiver = getUser(receiverName);
+    const receiver = getUserByName(receiverName);
     io.to(receiver.socketId).emit("getText", {
       senderName,
       text,
