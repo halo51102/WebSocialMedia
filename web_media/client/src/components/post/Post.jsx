@@ -87,7 +87,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   };
 
   const handleLike = () => {
-    const liked = data.includes(currentUser.id)
+    const liked = data?.includes(currentUser.id)
     mutation.mutate(liked);
 
     if (currentUser.id !== post.id) {
@@ -133,7 +133,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
           </div>
           <MoreHorizIcon onClick={() => setMenuOpen(!menuOpen)} />
           {menuOpen && post.userId === currentUser.id && <button onClick={handleDelete}>Delete</button>}
-          {menuOpen && gData.some(
+          {menuOpen && gData?.some(
             member => member.position === "admin" &&
               member.userId === currentUser.id &&
               member.groupId === post.groupId) &&
@@ -150,7 +150,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
             {isLoading ? (
               "loading"
             ) :
-              error ? "error" : data.includes(currentUser.id) ? (
+              error ? "error" : data?.includes(currentUser.id) ? (
                 <FavoriteOutlinedIcon
                   style={{ color: "red" }}
                   onClick={handleLike} />) :

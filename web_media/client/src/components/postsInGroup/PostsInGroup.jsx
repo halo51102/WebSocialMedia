@@ -19,7 +19,7 @@ const PostsInGroup = ({groupId,socket,user}) => {
           ? "Something went wrong!"
           : isLoading
           ? "loading"
-          : data.map((post) => <Post post={post}
+          : data?.map((post) => <Post post={post}
           key={post.id}
           isCommentOpen={commentOpen === post.id}
           openComment={() => setCommentOpen(post.id)}

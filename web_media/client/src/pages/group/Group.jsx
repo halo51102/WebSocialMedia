@@ -41,7 +41,7 @@ const Group = ({socket}) => {
 
 
   const handleJoinin = () => {
-    mutation.mutate(memberData.some(member => member.userId === currentUser.id))
+    mutation.mutate(memberData?.some(member => member.userId === currentUser.id))
   }
 
   return (
@@ -49,12 +49,12 @@ const Group = ({socket}) => {
       {isLoading ? "loading" : <>
         <div className="images">
           <img
-            src={"/upload/" + data.coverPic}
+            src={"/upload/" + data?.coverPic}
             alt=""
             className="cover"
           />
           <img
-            src={"/upload/" + data.profilePic}
+            src={"/upload/" + data?.profilePic}
             alt=""
             className="profilePic"
           />
@@ -62,20 +62,20 @@ const Group = ({socket}) => {
         <div className="profileContainer">
           <div className="center">
             <div className="info">
-              <span>{data.name}</span>
-              <span style={{ fontSize: "12px" }}>{data.desc}</span>
+              <span>{data?.name}</span>
+              <span style={{ fontSize: "12px" }}>{data?.desc}</span>
               <Link style={{ textDecoration: "none", fontSize:"12px"}} onClick={() => setOpenMember(true)} >
               <span> {memberData?.length} Member</span>
               </Link>
             </div>
             {mIsLoading ? ("loading")
-              : memberData.some(member => member.userId === currentUser.id && member.position === "admin") ? (<button onClick={() => setOpenUpdate(true)}>update</button>)
-                : <button onClick={handleJoinin}>{memberData.some(member => member.userId === currentUser.id) ? "Out group" : "Join in"}</button>
+              : memberData?.some(member => member.userId === currentUser.id && member.position === "admin") ? (<button onClick={() => setOpenUpdate(true)}>update</button>)
+                : <button onClick={handleJoinin}>{memberData?.some(member => member.userId === currentUser.id) ? "Out group" : "Join in"}</button>
             }
           </div>
         </div>
-        {memberData.some(member => member.userId === currentUser.id) && <Share/> }
-        <PostsInGroup groupId={data.id} socket={socket} />
+        {memberData?.some(member => member.userId === currentUser.id) && <Share/> }
+        <PostsInGroup groupId={data?.id} socket={socket} />
       </>}
       {openUpdate && <UpdateGroup setOpenUpdate={setOpenUpdate} group={data} />}
       {openMember && <MembersGroup setOpenMember={setOpenMember} groupId={groupId} />}

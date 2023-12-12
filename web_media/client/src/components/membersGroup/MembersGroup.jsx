@@ -39,7 +39,7 @@ const CreateGroup = ({ setOpenMember, groupId }) => {
                 <h1>Members In Group</h1>
                 <div className="userlist">
                     {isLoading ? "loading"
-                        : data.map((member, id) => (
+                        : data?.map((member, id) => (
                             <div className="memberInfo">
                                 <Link
                                     style={{ textDecoration: "none" }}
@@ -59,7 +59,7 @@ const CreateGroup = ({ setOpenMember, groupId }) => {
                                         </div>
                                     </div>
                                 </Link>
-                                {data.some(member => member.position === "admin"&& member.userId===currentUser.id && member.groupId===groupId)&& member.position!=="admin" &&<button onClick={()=>handleDelete(member.userId)} >- Delete</button>}
+                                {data?.some(member => member.position === "admin"&& member.userId===currentUser.id && member.groupId===groupId)&& member.position!=="admin" &&<button onClick={()=>handleDelete(member.userId)} >- Delete</button>}
                             </div>
                         )
 

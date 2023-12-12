@@ -29,7 +29,7 @@ const Friend = () => {
                         ? "Something went wrong!"
                         : isLoading
                             ? "loading"
-                            : data.map((friend, id) =>
+                            : data?.map((friend, id) =>
                                 <div className="item-container">
                                     <Link
                                         style={{ textDecoration: "none" }}

@@ -33,7 +33,7 @@ const AllGroup = () => {
         </div>
         <div class="joinedgroup">
           {isLoading ? "loading"
-            : data.map((group) =>
+            : data?.map((group) =>
               <Link to={`/group/${group.id}`}>
                 <img src={"/upload/" + group.profilePic} alt="" />
               </Link>)
@@ -48,7 +48,7 @@ const AllGroup = () => {
             : JisLoading
               ? "loading"
               : Jdata?.map((agroup) => (
-                (data && Array.isArray(data)&&!data.some(item => item.id === agroup.id)) && (<div className="comment">
+                (data && Array.isArray(data)&&!data?.some(item => item.id === agroup.id)) && (<div className="comment">
                   <img src={"/upload/" + agroup.profilePic} alt="" />
                   <div className="info">
                     <Link to={`/group/${agroup.id}`} style={{ textDecoration: "none", marginTop: "5px" }}

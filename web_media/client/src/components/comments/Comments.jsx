@@ -53,7 +53,7 @@ const Comments = ({ postId, socket, user, post }) => {
         ? "Something went wrong"
         : isLoading
           ? "loading"
-          : data.map((comment) => (
+          : data?.map((comment) => (
             <div className="comment" key={comment.id}>
               <img src={"/upload/" + comment.profilePic} alt="" />
               <div className="info">

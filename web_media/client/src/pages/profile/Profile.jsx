@@ -55,12 +55,12 @@ const Profile = ({socket, user}) => {
       {isLoading ? "loading" : <>
         <div className="images">
           <img
-            src={"/upload/" + data.coverPic}
+            src={"/upload/" + data?.coverPic}
             alt=""
             className="cover"
           />
           <img
-            src={"/upload/" + data.profilePic}
+            src={"/upload/" + data?.profilePic}
             alt=""
             className="profilePic"
           />
@@ -71,15 +71,15 @@ const Profile = ({socket, user}) => {
               {/*  */}
             </div>
             <div className="center">
-              <span>{data.name}</span>
+              <span>{data?.name}</span>
               <div className="info">
                 <div className="item">
                   <PlaceIcon />
-                  <span>{data.city}</span>
+                  <span>{data?.city}</span>
                 </div>
                 <div className="item">
                   <LanguageIcon />
-                  <span>{data.website}</span>
+                  <span>{data?.website}</span>
                 </div>
               </div>
               {rIsLoading ? ("loading")
