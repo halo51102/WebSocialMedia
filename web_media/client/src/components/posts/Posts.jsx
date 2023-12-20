@@ -1,15 +1,18 @@
 import Post from "../post/Post";
 import "./posts.scss";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Posts = ({ userId, socket, user, whichPage }) => {
 
   const [commentOpen, setCommentOpen] = useState(null);
+  const [finalData,setFinalData]=useState([])
+
+  const queryClient = useQueryClient();
 
   //Load post trong home
-  const { isLoading, error, data } = useQuery(["posts", userId], () =>
+  const { isLoading, error, data, refetch } = useQuery(["posts", userId], () =>
     makeRequest.get("/posts?userId=" + userId).then((res) => {
       return res.data;
     })
@@ -21,6 +24,14 @@ const Posts = ({ userId, socket, user, whichPage }) => {
       return res.data;
     })
   );
+
+  const fetchData = () => {
+    makeRequest.get("/posts?userId=" + userId).then((res) => {
+      setFinalData(res.d)
+    })
+  }
+
+
 
   return (
     <div className="posts">
@@ -39,6 +50,7 @@ const Posts = ({ userId, socket, user, whichPage }) => {
                 socket={socket}
                 user={user}
                 whichPage={whichPage}
+                fetchData={fetchData}
               />)
             : pData?.map((post) =>
               <Post
@@ -50,6 +62,7 @@ const Posts = ({ userId, socket, user, whichPage }) => {
                 socket={socket}
                 user={user}
                 whichPage={whichPage}
+                fetchData={fetchData}
               />)
       }
     </div>

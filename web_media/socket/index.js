@@ -5,7 +5,6 @@ const fs = require('fs');
 
 const { uploadLocalFile, uploadImageToS3 } = require('./s3.config')
 
-
 const io = require("socket.io")(8900, {
   cors: {
     origin: "http://localhost:3000",

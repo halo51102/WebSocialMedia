@@ -17,6 +17,12 @@
     gap: 20px;
   }
 
+  .story-empty{
+    display: flex;
+    padding: 20px;
+    align-items: flex-end;
+  }
+
   .story {
     flex-basis: 18%;
     border-radius: 10px;

@@ -14,6 +14,7 @@ import { AuthContext } from "../../context/authContext";
 import { SearchResults } from "../searchResults/SearchResults";
 import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
+import profileAlt from "../../assets/profileAlt.png"
 
 const Navbar = ({ socket }) => {
   const [notifications, setNotifications] = useState([]);
@@ -117,15 +118,18 @@ const Navbar = ({ socket }) => {
         >
           <div className="user">
             <img
-              src={"/upload/" + findUser?.profilePic}
+              src={findUser?.profilePic ? "/upload/" + findUser?.profilePic : profileAlt}
               alt=""
             />
           </div>
         </Link>
-        {openNotications &&
+        {openNotications && (notifications ?
+          (<div className="notifications">
+            <span style={{margin: "10px"}}>Không có thông báo gần đây</span>
+          </div>) :
           (<div className="notifications">
             {notifications.map((noti) => displayNotification(noti))}
-          </div>)
+          </div>))
         }
       </div>
     </div>
