@@ -38,21 +38,24 @@ const Register = () => {
           <p>
 
           </p>
-          <span>Do you have an account?</span>
-          <Link to="/login">
-            <button>Login</button>
-          </Link>
+          
         </div>
         <div className="right">
-          <h1>Register</h1>
+          <h1>Đăng ký</h1>
           <form>
             <input type="text" placeholder="Username" name="username" onChange={handleChange} />
             <input type="email" placeholder="Email" name="email" onChange={handleChange} />
             <input type="password" placeholder="Password" name="password" onChange={handleChange} />
             <input type="text" placeholder="Name" name="name" onChange={handleChange} />
             {err && err}
-            <button onClick={handleClick}>Register</button>
+            <button onClick={handleClick}>Xác nhận</button>
           </form>
+          <div className="login">
+            <span>Bạn đã có tài khoản?</span>
+            <Link to="/login" style={{ textDecoration: "none", color: "inherit" }}>
+              <button>Đăng nhập</button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

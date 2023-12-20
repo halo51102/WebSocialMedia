@@ -6,7 +6,6 @@ import Gallery from "../../assets/8.png";
 import Videos from "../../assets/9.png";
 import Messages from "../../assets/10.png";
 import Home from "../../assets/home.png";
-import Alt from "../../assets/alt.png"
 import { AuthContext } from "../../context/authContext";
 import { useContext, useState } from "react";
 import axios from "axios"
@@ -46,7 +45,7 @@ const LeftBar = ({ socket, user }) => {
             <div className="user">
               <img
                 src={Home}
-                alt={Alt}
+                alt=""
               />
               <span>Home</span>
             </div>

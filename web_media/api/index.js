@@ -13,6 +13,8 @@ import storyRoutes from './routes/stories.js'
 import cors from "cors"
 import multer from "multer"
 import cookieParser from "cookie-parser"
+import AWS from 'aws-sdk';
+import multerS3 from 'multer-s3';
 
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Credentials", true)

@@ -4,6 +4,8 @@ import { useContext } from "react";
 import { AuthContext } from "../../context/authContext";
 import { Link, useNavigate } from "react-router-dom";
 import "./friend.scss"
+import profileAlt from "../../assets/profileAlt.png"
+
 
 const Friend = () => {
     const { currentUser } = useContext(AuthContext)
@@ -38,14 +40,14 @@ const Friend = () => {
                                         <div className="user" key={id}>
                                             <div className="userInfo">
                                                 <img
-                                                    src={"/upload/" + friend.profilePic}
+                                                    src={friend?.profilePic ? "/upload/" + friend?.profilePic : profileAlt}
                                                     alt=""
                                                 />
                                                 <span>{friend.name}</span>
                                             </div>
                                         </div>
                                     </Link>
-                                    
+
                                 </div>
                             )
                     }

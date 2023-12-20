@@ -9,19 +9,20 @@ import { makeRequest } from "../../axios";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import profileAlt from "../../assets/profileAlt.png"
 
 const Share = () => {
 
   const [file, setFile] = useState(null)
   const [desc, setDesc] = useState("")
-  const groupId=parseInt(useLocation().pathname.split("/")[2])
+  const groupId = parseInt(useLocation().pathname.split("/")[2])
   const { currentUser } = useContext(AuthContext)
   const queryClient = useQueryClient()
 
   const { isLoading, error, data: findUser } = useQuery(["user"], () =>
-  makeRequest.get("/users/find/" + currentUser.id).then((res) => {
-    return res.data
-  }))
+    makeRequest.get("/users/find/" + currentUser.id).then((res) => {
+      return res.data
+    }))
 
   const upload = async () => {
     try {
@@ -46,7 +47,7 @@ const Share = () => {
     e.preventDefault()
     let imgUrl = ""
     if (file) imgUrl = await upload()
-    mutation.mutate({ desc, img: imgUrl, group:groupId })
+    mutation.mutate({ desc, img: imgUrl, group: groupId })
     setDesc("")
     setFile(null)
   }
@@ -57,7 +58,7 @@ const Share = () => {
         <div className="top">
           <div className="left">
             <img
-              src={"/upload/" + findUser?.profilePic}
+              src={findUser?.profilePic ? "/upload/" + findUser?.profilePic : profileAlt}
               alt=""
             />
             <input type="text" placeholder={`What's on your mind ${findUser?.name}?`}

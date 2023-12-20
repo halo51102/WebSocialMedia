@@ -18,6 +18,8 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [menuOpen, setMenuOpen] = useState(false)
   // const [commentOpen, setCommentOpen] = useState(null)
   const { currentUser } = useContext(AuthContext)
+  const [showImage, setShowImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState('');
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
     makeRequest.get("/groups/" + post.groupId + "/members").then((res) => {
@@ -52,7 +54,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["posts"])
+        queryClient.invalidateQueries(["post"])
         queryClient.invalidateQueries(["postsInGroup"])
       }
     }
@@ -64,7 +66,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["posts"])
+        queryClient.invalidateQueries(["post"])
         queryClient.invalidateQueries(["postsInGroup"])
       }
     }
@@ -72,6 +74,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
   const handleDelete = () => {
     deletePostMutation.mutate(post.id)
+    // window.location.reload();
   }
   const handleDeleteG = () => {
     console.log(post.id + "" + post.groupId)
@@ -111,9 +114,17 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     });
   };
 
-  let profile = "/profile/" + post.userId;
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+    setShowImage(true);
+  }
 
-  console.log(socket)
+  const handleImageClose = () => {
+    setShowImage(false);
+    setSelectedImage('');
+  }
+
+  let profile = "/profile/" + post.userId;
 
   return (
     <div className="post">
@@ -143,7 +154,9 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
         <div className="content">
           <p>{post.desc}</p>
-          <img src={"/upload/" + post.img} alt="" />
+          <img src={"/upload/" + post.img} 
+          alt=""
+          onClick={()=>handleImageClick("/upload/" + post.img)} />
         </div>
         <div className="info">
           <div className="item">
@@ -169,6 +182,12 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
         </div>
         {isCommentOpen && <Comments postId={post.id} socket={socket} user={user} post={post} />}
       </div>
+      {showImage && (
+        <div className="image-container">
+          <img src={selectedImage} alt="" />
+          <button onClick={handleImageClose}></button>
+        </div>
+      )}
     </div>
   );
 };

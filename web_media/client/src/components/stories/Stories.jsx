@@ -6,6 +6,7 @@ import { makeRequest } from "../../axios";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CreateStory from "../createStory/CreateStory";
+import profileAlt from "../../assets/profileAlt.png"
 
 const Stories = () => {
 
@@ -48,7 +49,7 @@ const Stories = () => {
   return (
     <div className="stories">
       <div className="story">
-        <img src={"/upload/" + findUser?.profilePic} alt="" />
+        <img src={findUser?.profilePic ? "/upload/" + findUser?.profilePic : profileAlt} alt="" />
         <span>{findUser?.name}</span>
         <button onClick={() => setOpenCreate(true)}>+</button>
       </div>
@@ -57,10 +58,15 @@ const Stories = () => {
       {error
         ? "Không thể load dữ liệu"
         : isLoading
-          ? "Đang tải..."
+          ? "Đang tải..." 
+          : !data ? (
+            <div className="story-empty">
+                Bạn đã xem hết story
+            </div>
+          )
           : data.map((story) => (
             <div className="story" key={story.id}>
-              <img src={"/upload/" + story.img} alt="" />
+              <img src={story.img ? "/upload/" + story.img : profileAlt} alt="" />
               <span>{story.name}</span>
             </div>
           ))

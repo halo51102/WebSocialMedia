@@ -10,8 +10,11 @@ import UpdateGroup from "../../components/updateGroup/UpdateGroup";
 import { Link } from "react-router-dom";
 import { style } from "@mui/system";
 import MembersGroup from "../../components/membersGroup/MembersGroup"
+import groupAlt from "../../assets/groupAlt.png"
+import coverAlt from "../../assets/coverAlt.png"
 
-const Group = ({socket}) => {
+
+const Group = ({ socket }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
   const [openMember, setOpenMember] = useState(false);
   const { currentUser } = useContext(AuthContext)
@@ -44,17 +47,19 @@ const Group = ({socket}) => {
     mutation.mutate(memberData?.some(member => member.userId === currentUser.id))
   }
 
+  console.log(data)
+
   return (
     <div className="profilegroup">
       {isLoading ? "loading" : <>
         <div className="images">
           <img
-            src={"/upload/" + data?.coverPic}
+            src={data?.coverPic ? "/upload/" + data?.coverPic : coverAlt}
             alt=""
             className="cover"
           />
           <img
-            src={"/upload/" + data?.profilePic}
+            src={data?.profilePic ? "/upload/" + data?.profilePic : groupAlt}
             alt=""
             className="profilePic"
           />
@@ -64,8 +69,8 @@ const Group = ({socket}) => {
             <div className="info">
               <span>{data?.name}</span>
               <span style={{ fontSize: "12px" }}>{data?.desc}</span>
-              <Link style={{ textDecoration: "none", fontSize:"12px"}} onClick={() => setOpenMember(true)} >
-              <span> {memberData?.length} Member</span>
+              <Link style={{ textDecoration: "none", fontSize: "12px" }} onClick={() => setOpenMember(true)} >
+                <span> {memberData?.length} Member</span>
               </Link>
             </div>
             {mIsLoading ? ("loading")
@@ -74,7 +79,7 @@ const Group = ({socket}) => {
             }
           </div>
         </div>
-        {memberData?.some(member => member.userId === currentUser.id) && <Share/> }
+        {memberData?.some(member => member.userId === currentUser.id) && <Share />}
         <PostsInGroup groupId={data?.id} socket={socket} />
       </>}
       {openUpdate && <UpdateGroup setOpenUpdate={setOpenUpdate} group={data} />}
