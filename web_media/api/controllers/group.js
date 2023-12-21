@@ -13,41 +13,41 @@ export const getGroup = (req, res) => {
     })
 }
 
-export const getGroupJoinedIn=(req, res) => {
+export const getGroupJoinedIn = (req, res) => {
     const token = req.cookies.accessToken
     if (!token) return res.status(401).json("Not logged in!")
 
     jwt.verify(token, "secretkey", (err, userInfo) => {
         if (err) return res.status(403).json("Token is not valid!")
-    const q = "SELECT p.* FROM publicgroups as p JOIN membergroups as m ON (p.id=m.groupId) WHERE m.userId=?"
+        const q = "SELECT p.* FROM publicgroups as p JOIN membergroups as m ON (p.id=m.groupId) WHERE m.userId=?"
 
-    db.query(q, [userInfo.id], (err, data) => {
-        if (err) return res.status(500).json(err)
-        return res.json(data)
+        db.query(q, [userInfo.id], (err, data) => {
+            if (err) return res.status(500).json(err)
+            return res.json(data)
+        })
     })
-})
 }
 
-export const getGroupNoJoin=(req, res) => {
+export const getGroupNoJoin = (req, res) => {
     const token = req.cookies.accessToken
     if (!token) return res.status(401).json("Not logged in!")
 
     jwt.verify(token, "secretkey", (err, userInfo) => {
         if (err) return res.status(403).json("Token is not valid!")
-    const q = "SELECT p.* FROM publicgroups as p JOIN membergroups as m ON (p.id=m.groupId) WHERE m.userId!=?"
+        const q = "SELECT p.* FROM publicgroups as p JOIN membergroups as m ON (p.id=m.groupId) WHERE m.userId!=?"
 
-    db.query(q, [userInfo.id], (err, data) => {
-        if (err) return res.status(500).json(err)
-        return res.json(data)
+        db.query(q, [userInfo.id], (err, data) => {
+            if (err) return res.status(500).json(err)
+            return res.json(data)
+        })
     })
-})
 }
 
 
-export const getAllGroup=(req,res)=>{
-    const q="SELECT * FROM publicgroups"
-    db.query(q,(err,data)=>{
-        if(err) return res.status(500).json(err)
+export const getAllGroup = (req, res) => {
+    const q = "SELECT * FROM publicgroups"
+    db.query(q, (err, data) => {
+        if (err) return res.status(500).json(err)
         return res.status(200).json(data)
     })
 }
@@ -77,7 +77,7 @@ export const addGroup = (req, res) => {
                     const q =
                         "INSERT INTO membergroups (`groupId`,`userId`,`position`,`createdJion`) VALUES (?)";
                     const values = [
-                        data_groupId.map(group=>group.id),
+                        data_groupId.map(group => group.id),
                         userInfo.id,
                         "admin",
                         moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")
@@ -114,22 +114,58 @@ export const joinGroup = (req, res) => {
     jwt.verify(token, "secretkey", (err, userInfo) => {
         if (err) return res.status(403).json("Token is not valid!")
 
+        const q = `SELECT * FROM membergroups WHERE groupId=? AND userId=?`
+        const value = [
+            req.params.groupId,
+            userInfo.id,
+        ]
+        db.query(q,[req.params.groupId, userInfo.id], (err, data) => {
+            if (err) return res.status(500).json(err)
+            if (data.length===0) {
+                const q =
+                    "INSERT INTO membergroups (`groupId`,`userId`,`position`,`createdJion`) VALUES (?)";
+                const values = [
+                    req.params.groupId,
+                    userInfo.id,
+                    "member",
+                    moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")
+                ]
+
+                db.query(q, [values], (err, data) => {
+                    if (err) return res.status(500).json(err)
+                    return res.status(200).json("You joined in group.")
+                })
+            }
+            else{
+                return res.status(200).json("You're joining in group")
+            }
+        })
+
+
+    })
+}
+export const addMemberGroup = (req, res) => {
+    const token = req.cookies.accessToken
+    if (!token) return res.status(401).json("Not logged in!")
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!")
+
         const q =
             "INSERT INTO membergroups (`groupId`,`userId`,`position`,`createdJion`) VALUES (?)";
         const values = [
             req.params.groupId,
-            userInfo.id,
+            req.params.userId,
             "member",
             moment(Date.now()).format("YYYY-MM-DD HH:mm:ss")
         ]
 
         db.query(q, [values], (err, data) => {
             if (err) return res.status(500).json(err)
-            return res.status(200).json("You joined in group.")
+            return res.status(200).json("Successful")
         })
     })
 }
-
 export const outGroup = (req, res) => {
     const token = req.cookies.accessToken
     if (!token) return res.status(401).json("Not logged in!")
@@ -147,23 +183,23 @@ export const outGroup = (req, res) => {
     })
 }
 
-export const kichMember =(req,res)=>{
+export const kichMember = (req, res) => {
     const token = req.cookies.accessToken;
-  if (!token) return res.status(401).json("Not logged in!");
-  jwt.verify(token, "secretkey", (err, userInfo) => {
-    if (err) return res.status(403).json("Token is not valid!");
-    const admin="admin"
-    const q =
-      "delete from membergroups where userId=? AND groupId=?";
-    db.query(q, [req.params.userId,req.params.groupId], (err, data) => {
-      if (err) return res.status(500).json(err);
-      if(data.affectedRows>0) return res.status(200).json("Member has been deleted.");
-      return res.status(403).json("Member hasn't joined in group")
+    if (!token) return res.status(401).json("Not logged in!");
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!");
+        const admin = "admin"
+        const q =
+            "delete from membergroups where userId=? AND groupId=?";
+        db.query(q, [req.params.userId, req.params.groupId], (err, data) => {
+            if (err) return res.status(500).json(err);
+            if (data.affectedRows > 0) return res.status(200).json("Member has been deleted.");
+            return res.status(403).json("Member hasn't joined in group")
+        });
     });
-  });
 }
 
-export const updateInfoGroup=(req,res)=>{
+export const updateInfoGroup = (req, res) => {
     const token = req.cookies.accessToken;
     if (!token) return res.status(401).json("Not authenticated!");
 

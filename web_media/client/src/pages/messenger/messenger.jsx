@@ -229,8 +229,8 @@ export default function Messenger({ socket }) {
         title: message["title"],
         file_url: message["file_url"],
       });
-      
-      
+
+
       res.data.file_url = message?.file_url
       res.data.title = message?.title
       setMessages([...messages, res.data]);

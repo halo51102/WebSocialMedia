@@ -15,8 +15,10 @@ import { SearchResults } from "../searchResults/SearchResults";
 import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import profileAlt from "../../assets/profileAlt.png"
+import ChangePassword from "../changePassword/ChangePassword";
 
 const Navbar = ({ socket }) => {
+  const [openUpdate, setOpenUpdate] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [results, setResults] = useState([]);
   const [input, setInput] = useState("");
@@ -107,7 +109,7 @@ const Navbar = ({ socket }) => {
           <DarkModeOutlinedIcon onClick={toggle} />
         )}
         <Link to="/friend" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}><PersonOutlinedIcon /></Link>
-        <Link to="#" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}><EmailOutlinedIcon /></Link>
+        <Link to="#" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" } } onClick={() => setOpenUpdate(true)}><EmailOutlinedIcon /></Link>
         <NotificationsOutlinedIcon onClick={() => setOpenNotifications(!openNotications)} />
         <Link
           to={profile}
@@ -131,6 +133,7 @@ const Navbar = ({ socket }) => {
             {notifications.map((noti) => displayNotification(noti))}
           </div>))
         }
+        {openUpdate && <ChangePassword setOpenUpdate={setOpenUpdate} user={findUser} />}
       </div>
     </div>
   );

@@ -1,0 +1,67 @@
+@import "../../style.scss";
+
+.results {
+    @include themify($themes) {
+        width: 95%;
+        background-color: themed("bg");
+        display: flex;
+        flex-direction: column;
+        border: 1px outset themed("logo");
+        border-radius: 10px;
+        margin-top: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .aresult {
+        display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        .result {
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+
+            .info {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                position: relative;
+
+                img {
+                    width: 35px;
+                    height: 35px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+
+                span {
+                    font-size: 15px;
+                    font-weight: normal;
+                }
+            }
+
+            &:hover {
+                background-color: #4939df73;
+            }
+        }
+        button{
+            border: none;
+            padding: 5px;
+            color: white;
+            cursor: pointer;
+            width: 60px;
+            height: 30px;
+            margin-right: 10px;
+
+            &:first-child {
+                background-color: #5271ff;
+            }
+
+            &:last-child {
+                background-color: #f0544f;
+        }}
+    }
+}
