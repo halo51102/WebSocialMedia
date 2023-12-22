@@ -14,8 +14,11 @@ import Group from "./pages/group/Group"
 import Profile from "./pages/profile/Profile";
 import AllGroup from "./pages/allGroup/AllGroup"
 import Messenger from "./pages/messenger/messenger"
-import Admin from "./pages/admin/Admin";
+import SideBar from "./components/sideBar/SideBar";
+import Header from "./components/navBar-admin/Header";
+import HomeAdmin from "./pages/admin/home/HomeAdmin";
 import "./style.scss";
+import "./styleAdmin.scss"
 import { useContext, useEffect } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 import { AuthContext } from "./context/authContext";
@@ -23,6 +26,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import Friend from "./pages/friend/Friend";
 import { io } from "socket.io-client";
 import { useState } from "react";
+import UserList from "./pages/admin/user-list/UserList";
 
 function App() {
 
@@ -34,6 +38,12 @@ function App() {
 
   const [user, setUser] = useState("");
   const [socket, setSocket] = useState(null);
+
+  //ADMIN
+  const [openSidebarToggle, setOpenSidebarToggle] = useState(false)
+  const openSidebar = () => {
+    setOpenSidebarToggle(!openSidebarToggle)
+  }
 
   useEffect(() => {
     setSocket(io("http://localhost:8900"));
@@ -60,6 +70,17 @@ function App() {
       </QueryClientProvider>
     );
   };
+
+  const LayoutAdmin = () => {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <div className="grid-container">
+          <Header openSidebar={openSidebar} />
+          <SideBar openSidebarToggle={openSidebarToggle} openSidebar={openSidebar} />
+          <Outlet />
+        </div>
+      </QueryClientProvider>)
+  }
 
   const ProtectedRoute = ({ children }) => {
     useEffect(() => {
@@ -93,7 +114,7 @@ function App() {
         {
           path: "/profile/:id",
           element: <Profile socket={socket} user={user} />,
-        }, 
+        },
         {
           path: "/group/all",
           element: <AllGroup />,
@@ -120,7 +141,7 @@ function App() {
       path: "/messenger",
       element: (
         <ProtectedRoute>
-            <Messenger socket={socket} />
+          <Messenger socket={socket} />
         </ProtectedRoute>
       ),
     },
@@ -128,11 +149,23 @@ function App() {
       path: "/admin",
       element: (
         <ProtectedRoute>
-            <Admin />
+          <LayoutAdmin />
         </ProtectedRoute>
-      )
+      ),
+      children: [
+        {
+          path: "/admin",
+          element: <HomeAdmin />
+        },
+        {
+          path: "/admin/users",
+          element: <UserList />
+        }
+      ]
     }
   ]);
+
+  console.log(currentUser)
 
   return (
     <div>

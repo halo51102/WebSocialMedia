@@ -1,7 +1,12 @@
 import "./admin.scss"
 
 const Admin = () => {
-    return <h1>Admin Page</h1>;
+    return (
+        <div className="admin-container">
+            
+        </div>
+    )
+    
 }
 
 export default Admin;

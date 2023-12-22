@@ -53,7 +53,7 @@ export const updateUser = (req, res) => {
 };
 
 export const getAllUsers = (req, res) => {
-    const q = "SELECT * FROM users"
+    const q = "SELECT * FROM users where role='user'"
 
     db.query(q, (err, data) => {
         if (err) return res.status(500).json(err)
@@ -89,5 +89,14 @@ export const changePasswordUser = (req, res) => {
                 }
             );
         });
+    })
+}
+
+export const countUsers = (req, res) => {
+    const q = "SELECT count(id) as count FROM socialmedia.users where role='user'"
+
+    db.query(q, (err, data) => {
+        if (err) return res.status(500).json(err);
+        return res.status(200).json(data[0].count)
     })
 }

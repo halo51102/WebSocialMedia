@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 const Posts = ({ userId, socket, user, whichPage }) => {
 
   const [commentOpen, setCommentOpen] = useState(null);
-  const [finalData,setFinalData]=useState([])
+  const [finalData, setFinalData] = useState([])
 
   const queryClient = useQueryClient();
 
@@ -64,6 +64,22 @@ const Posts = ({ userId, socket, user, whichPage }) => {
                 whichPage={whichPage}
                 fetchData={fetchData}
               />)
+      }
+
+      {
+        (whichPage === "home")
+        && pData?.map((post) =>
+          <Post
+            post={post}
+            key={post.id}
+            isCommentOpen={commentOpen === post.id}
+            openComment={() => setCommentOpen(post.id)}
+            closeComment={() => setCommentOpen(null)}
+            socket={socket}
+            user={user}
+            whichPage={whichPage}
+            fetchData={fetchData}
+          />)
       }
     </div>
   );
