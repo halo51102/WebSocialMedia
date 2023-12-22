@@ -87,8 +87,8 @@
         flex-direction: column;
         position: absolute;
         right: 0px;
-        max-height: 100px;
-        width: 250px;
+        max-height: 500px;
+        width: 400px;
         top: 50px;
         overflow-y: scroll;
         z-index: 10000;
@@ -98,7 +98,15 @@
 
         .notification{
           border-bottom: 3px solid themed("bgSoft");
-          padding: 10px 20px;
+          padding: 20px 30px;
+          display: flex;
+          flex-direction: column;
+
+          .date{
+            font-size: 12px;
+            font-style: italic;
+            padding-top: 5px;
+          }
         }
       }
 

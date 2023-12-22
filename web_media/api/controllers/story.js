@@ -55,3 +55,19 @@ export const deleteStory = (req, res) => {
     });
   });
 };
+
+export const getStoryOfUser = (req, res) => {
+  const token = req.cookies.accessToken;
+  if (!token) return res.status(401).json("Not logged in!");
+
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!");
+
+    const q = "SELECT * FROM socialmedia.stories where userId=?;";
+
+    db.query(q, [req.query.userId], (err, data) => {
+      if (err) return res.status(500).json(err);
+      return res.status(200).json(data);
+    });
+  });
+};

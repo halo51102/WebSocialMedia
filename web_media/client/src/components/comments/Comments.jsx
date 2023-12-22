@@ -25,12 +25,28 @@ const Comments = ({ postId, socket, user, post }) => {
         queryClient.invalidateQueries(["comments"])
       }
     })
-    
+
+  const notificationMutation = useMutation((type) => {
+    return makeRequest.post("/notifications",
+      {
+        senderId: currentUser.id,
+        receiverId: post.userId,
+        type: type
+      },
+    );
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["notifications"])
+      }
+    });
+
   const handleClick = async (e) => {
     e.preventDefault();
     mutation.mutate({ desc, postId })
     setDesc("")
     handleNotification(3);
+    notificationMutation.mutate("bình luận")
   }
 
   const handleNotification = (type) => {

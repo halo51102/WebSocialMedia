@@ -20,6 +20,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const { currentUser } = useContext(AuthContext)
   const [showImage, setShowImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
     makeRequest.get("/groups/" + post.groupId + "/members").then((res) => {
@@ -38,7 +39,22 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
   const queryClient = useQueryClient()
 
-  const mutation = useMutation((liked) => {
+  const notificationMutation = useMutation((type) => {
+    return makeRequest.post("/notifications",
+      {
+        senderId: currentUser.id,
+        receiverId: post.userId,
+        type: type
+      },
+    );
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["notifications"])
+      }
+    });
+
+  const likeMutation = useMutation((liked) => {
     if (liked) return makeRequest.delete("/likes?postId=" + post.id);
     return makeRequest.post("/likes", { postId: post.id });
   },
@@ -73,9 +89,14 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   );
 
   const handleDelete = () => {
-    deletePostMutation.mutate(post.id)
-    // window.location.reload();
+    setConfirmDelete(true);
   }
+
+  const handleConfirmDelete = () => {
+    setConfirmDelete(false);
+    deletePostMutation.mutate(post.id)
+  }
+
   const handleDeleteG = () => {
     console.log(post.id + "" + post.groupId)
     deletePostMutationG.mutate()
@@ -91,26 +112,26 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
   const handleLike = () => {
     const liked = data?.includes(currentUser.id)
-    mutation.mutate(liked);
+    likeMutation.mutate(liked);
 
     if (currentUser.id !== post.id) {
       if (liked) {
         // Nếu đã thích, gửi socket thông báo unlike
         handleNotification(2);
-
+        notificationMutation.mutate("hủy thích")
       } else {
         // Nếu chưa thích, gửi socket thông báo like
         handleNotification(1);
-
+        notificationMutation.mutate("thích")
       }
     }
   }
 
   const handleNotification = (type) => {
     socket?.emit("sendNotification", {
-      senderName: user,
-      receiverName: post.username,
-      type,
+      senderId: currentUser.id,
+      receiverId: post.userId,
+      type
     });
   };
 
@@ -142,8 +163,25 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
               <span className="date">{moment(post.createdAt).fromNow()}</span>
             </div>
           </div>
-          <MoreHorizIcon onClick={() => setMenuOpen(!menuOpen)} />
-          {menuOpen && post.userId === currentUser.id && <button onClick={handleDelete}>Delete</button>}
+          <MoreHorizIcon
+            onClick={() => setMenuOpen(!menuOpen)}
+            style={{ position: "absolute", right: 0, cursor: "pointer" }}
+          />
+
+          {menuOpen
+            && post.userId === currentUser.id
+            && <button
+              onClick={handleDelete}
+              style={{ padding: "10px", borderRadius: "10px" }}>Delete</button>
+          }
+
+          {menuOpen
+            && post.userId !== currentUser.id
+            && <div className="post-menu">
+              <span>Báo cáo bài viết</span>
+            </div>
+          }
+
           {menuOpen && gData?.some(
             member => member.position === "admin" &&
               member.userId === currentUser.id &&
@@ -154,9 +192,9 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
         <div className="content">
           <p>{post.desc}</p>
-          <img src={"/upload/" + post.img} 
-          alt=""
-          onClick={()=>handleImageClick("/upload/" + post.img)} />
+          <img src={"/upload/" + post.img}
+            alt=""
+            onClick={() => handleImageClick("/upload/" + post.img)} />
         </div>
         <div className="info">
           <div className="item">
@@ -188,6 +226,18 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
           <button onClick={handleImageClose}></button>
         </div>
       )}
+      {confirmDelete &&
+        (<div className="confirm-delete">
+          <span>Bạn chắc chắn muốn xóa bài viết?</span>
+          <div className="button-confirm">
+            <button onClick={handleConfirmDelete}>Xóa</button>
+            <button onClick={() => {
+              setConfirmDelete(false);
+              setMenuOpen(false)
+            }}>
+              Hủy</button>
+          </div>
+        </div>)}
     </div>
   );
 };
