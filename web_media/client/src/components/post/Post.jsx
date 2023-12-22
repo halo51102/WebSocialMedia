@@ -11,6 +11,8 @@ import moment from "moment"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import { AuthContext } from "../../context/authContext";
+import SharePost from "../sharePost/SharePost";
+import Share from "../share/Share";
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
@@ -19,6 +21,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   // const [commentOpen, setCommentOpen] = useState(null)
   const { currentUser } = useContext(AuthContext)
   const [showImage, setShowImage] = useState(false);
+  const[shareOpen,setShareOpen]=useState(false)
   const [selectedImage, setSelectedImage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -38,7 +41,12 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     }))
 
   const queryClient = useQueryClient()
-
+  const shareId=post.sharePostId
+  const{isLoading: shareIsLoading,error:shareError,data:shareData}=useQuery(["posts",post.sharePostId],()=>
+  makeRequest.get("/posts/s/"+post.sharePostId).then((res)=>{
+    return res.data[0]
+  }))
+  console.log(shareId)
   const notificationMutation = useMutation((type) => {
     return makeRequest.post("/notifications",
       {
@@ -148,96 +156,129 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   let profile = "/profile/" + post.userId;
 
   return (
-    <div className="post">
-      <div className="container">
-        <div className="user">
-          <div className="userInfo">
-            <img src={"/upload/" + post.profilePic} alt="" />
-            <div className="details">
-              <Link
-                to={profile}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <span className="name">{post.name}</span>
-              </Link>
-              <span className="date">{moment(post.createdAt).fromNow()}</span>
+    <div >
+      <div className="post">
+        <div className="container">
+          <div className="user">
+            <div className="userInfo">
+              <img src={"/upload/" + post.profilePic} alt="" />
+              <div className="details">
+                <Link
+                  to={profile}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <span className="name">{post.name}</span>
+                </Link>
+                <span className="date">{moment(post.createdAt).fromNow()}</span>
+              </div>
+            </div>
+            <MoreHorizIcon
+              onClick={() => setMenuOpen(!menuOpen)}
+              style={{ position: "absolute", right: 0, cursor: "pointer" }}
+            />
+            {menuOpen && gData?.some(
+              member => member.position === "admin" &&
+                member.userId === currentUser.id &&
+                member.groupId === post.groupId) &&
+              post.userId !== currentUser.id &&
+              <button onClick={handleDeleteG}>Delete Post of member</button>}
+            {menuOpen
+              && post.userId === currentUser.id
+              && <button
+                onClick={handleDelete}
+                style={{ padding: "10px", borderRadius: "10px" }}>Delete</button>
+            }
+
+            {menuOpen
+              && post.userId !== currentUser.id
+              && <div className="post-menu">
+                <span>Báo cáo bài viết</span>
+              </div>
+            }
+
+
+          </div>
+
+          <div className="content">
+            <p>{post.desc}</p>
+            <img src={"/upload/" + post.img}
+              alt=""
+              onClick={() => handleImageClick("/upload/" + post.img)} />
+          </div>
+
+
+          {post.sharePostId && <div className="sharePost">
+            <div className="userShare">
+              <div className="contentShare">
+                <img src={"/upload/" + shareData?.img}
+                  alt=""
+                  onClick={() => handleImageClick("/upload/" + shareData?.img)} />
+              </div>
+
+            </div>
+            <div className="userInfoShare">
+              <img src={"/upload/" + shareData?.profilePic} alt="" />
+              <div className="detailShare">
+                <Link
+                  to={"/profile/"+shareData?.userId}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <span className="nameShare">{shareData?.name}</span>
+                </Link>
+                <span className="dateShare">{moment(shareData?.createdAt).fromNow()}</span>
+              </div>
+            </div>
+            <div className="contentShare">
+              <p>{shareData?.desc}</p>
+            </div>
+          </div>}
+
+
+
+          <div className="info">
+            <div className="item">
+              {isLoading ? (
+                "loading"
+              ) :
+                error ? "error" : data?.includes(currentUser.id) ? (
+                  <FavoriteOutlinedIcon
+                    style={{ color: "red" }}
+                    onClick={handleLike} />) :
+                  (<FavoriteBorderOutlinedIcon
+                    onClick={handleLike} />)}
+              {data?.length} Likes
+            </div>
+            <div className="item" onClick={handleToggleComment}>
+              <TextsmsOutlinedIcon />
+              See Comments
+            </div>
+            <div className="item" onClick={() => setShareOpen(true)}>
+              <ShareOutlinedIcon />
+              Share
             </div>
           </div>
-          <MoreHorizIcon
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{ position: "absolute", right: 0, cursor: "pointer" }}
-          />
-
-          {menuOpen
-            && post.userId === currentUser.id
-            && <button
-              onClick={handleDelete}
-              style={{ padding: "10px", borderRadius: "10px" }}>Delete</button>
-          }
-
-          {menuOpen
-            && post.userId !== currentUser.id
-            && <div className="post-menu">
-              <span>Báo cáo bài viết</span>
+          {isCommentOpen && <Comments postId={post.id} socket={socket} user={user} post={post} />}
+          {shareOpen && <SharePost setShareOpen={setShareOpen} postShare={post} />}
+        </div>
+        {showImage && (
+          <div className="image-container">
+            <img src={selectedImage} alt="" />
+            <button onClick={handleImageClose}></button>
+          </div>
+        )}
+        {confirmDelete &&
+          (<div className="confirm-delete">
+            <span>Bạn chắc chắn muốn xóa bài viết?</span>
+            <div className="button-confirm">
+              <button onClick={handleConfirmDelete}>Xóa</button>
+              <button onClick={() => {
+                setConfirmDelete(false);
+                setMenuOpen(false)
+              }}>
+                Hủy</button>
             </div>
-          }
-
-          {menuOpen && gData?.some(
-            member => member.position === "admin" &&
-              member.userId === currentUser.id &&
-              member.groupId === post.groupId) &&
-            post.userId !== currentUser.id &&
-            <button onClick={handleDeleteG}>Delete Post of member</button>}
-        </div>
-
-        <div className="content">
-          <p>{post.desc}</p>
-          <img src={"/upload/" + post.img}
-            alt=""
-            onClick={() => handleImageClick("/upload/" + post.img)} />
-        </div>
-        <div className="info">
-          <div className="item">
-            {isLoading ? (
-              "loading"
-            ) :
-              error ? "error" : data?.includes(currentUser.id) ? (
-                <FavoriteOutlinedIcon
-                  style={{ color: "red" }}
-                  onClick={handleLike} />) :
-                (<FavoriteBorderOutlinedIcon
-                  onClick={handleLike} />)}
-            {data?.length} Likes
-          </div>
-          <div className="item" onClick={handleToggleComment}>
-            <TextsmsOutlinedIcon />
-            See Comments
-          </div>
-          <div className="item">
-            <ShareOutlinedIcon />
-            Share
-          </div>
-        </div>
-        {isCommentOpen && <Comments postId={post.id} socket={socket} user={user} post={post} />}
+          </div>)}
       </div>
-      {showImage && (
-        <div className="image-container">
-          <img src={selectedImage} alt="" />
-          <button onClick={handleImageClose}></button>
-        </div>
-      )}
-      {confirmDelete &&
-        (<div className="confirm-delete">
-          <span>Bạn chắc chắn muốn xóa bài viết?</span>
-          <div className="button-confirm">
-            <button onClick={handleConfirmDelete}>Xóa</button>
-            <button onClick={() => {
-              setConfirmDelete(false);
-              setMenuOpen(false)
-            }}>
-              Hủy</button>
-          </div>
-        </div>)}
     </div>
   );
 };
