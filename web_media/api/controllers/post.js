@@ -62,13 +62,14 @@ export const addPost = (req, res) => {
     if (err) return res.status(403).json("Token is not valid!")
 
     const q =
-      "INSERT INTO posts(`desc`, `img`, `createdAt`, `userId`,`groupId`) VALUES (?)"
+      "INSERT INTO posts(`desc`, `img`, `createdAt`, `userId`,`groupId`,`sharePostId`) VALUES (?)"
     const values = [
       req.body.desc,
       req.body.img,
       moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
       userInfo.id,
-      req.body.group
+      req.body.group,
+      req.body.sharePost
     ]
 
     db.query(q, [values], (err, data) => {
