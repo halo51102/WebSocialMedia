@@ -1,9 +1,10 @@
 import express from 'express'
-import { addPost, getPosts, deletePost, getPostsInGroup, deletePostInGroup, getPostsInProfile } from '../controllers/post.js'
+import { addPost, getPosts, deletePost, getPostsInGroup, deletePostInGroup, getPostsInProfile, countPosts } from '../controllers/post.js'
 const routes = express.Router()
 
 routes.get("/", getPosts)
 routes.get("/profile", getPostsInProfile)
+routes.get("/count", countPosts)
 routes.post("/", addPost)
 routes.delete("/:id", deletePost)
 routes.delete("/:id/:groupId", deletePostInGroup)

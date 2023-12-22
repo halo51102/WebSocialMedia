@@ -22,21 +22,20 @@ function Login() {
     const handleLogin = async (e) => {
         e.preventDefault()
         try {
-            await login(inputs);
-            console.log("login success")
-            console.log(currentUser.role)
-            if (currentUser.role === "admin")
-                navigate("/admin");
+            const userData = await login(inputs);
+            console.log(userData)
+            if (userData.role === "admin")
+                navigate("/admin")
             else
                 navigate("/")
         } catch (err) {
-            setErr(err.response.data)
+            setErr(err.response?.data)
         }
     };
 
     return (
         <div className="login">
-            <div className="card">
+            <div className="card-login">
                 <div className="left">
                     <h1>Xin chào</h1>
                     <p>
