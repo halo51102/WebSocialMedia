@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./searchResults.scss";
-
+import profileAlt from "../../assets/profileAlt.png"
 export const SearchResults = ({ results }) => {
     console.log(results)
     let empty = []
@@ -25,7 +25,7 @@ export const SearchResults = ({ results }) => {
                     <div className="result" key={id} >
                         <div className="info">
                             <img
-                                src={"/upload/" + result.profilePic}
+                                src={result?.profilePic?"/upload/" + result?.profilePic:profileAlt}
                                 alt="" />
                             <span>{result.name}</span>
                         </div>

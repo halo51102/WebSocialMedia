@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { makeRequest } from "../../axios";
 import { AuthContext } from "../../context/authContext";
 import "./addmembergroup.scss";
+import profileAlt from "../../assets/profileAlt.png"
 
 export const AddMemberGroup = ({ results, groupId, membergroup }) => {
     console.log(results)
@@ -43,7 +44,7 @@ export const AddMemberGroup = ({ results, groupId, membergroup }) => {
                     <div className="result" key={id} >
                         <div className="info">
                             <img
-                                src={"/upload/" + result.profilePic}
+                                src={result?.profilePic?"/upload/" + result?.profilePic:profileAlt}
                                 alt="" />
                             <span>{result.name}</span>
                         </div>
