@@ -23,7 +23,7 @@ const LeftBar = ({ socket, user }) => {
 
   const handleClick = async (e) => {
     e.preventDefault()
-    socket?.emit("removeUser", user);
+    socket?.emit("removeUser", currentUser.id);
 
     try {
       await axios.post("http://localhost:8800/api/auth/logout")

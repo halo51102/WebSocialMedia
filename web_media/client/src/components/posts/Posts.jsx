@@ -12,7 +12,7 @@ const Posts = ({ userId, socket, user, whichPage }) => {
   const queryClient = useQueryClient();
 
   //Load post trong home
-  const { isLoading, error, data, refetch } = useQuery(["posts", userId], () =>
+  const { isLoading, error, data } = useQuery(["posts", userId], () =>
     makeRequest.get("/posts?userId=" + userId).then((res) => {
       return res.data;
     })

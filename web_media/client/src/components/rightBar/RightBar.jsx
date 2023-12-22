@@ -3,13 +3,13 @@ import { useContext, useEffect, useState } from "react";
 import { makeRequest } from "../../axios";
 import { AuthContext } from "../../context/authContext";
 import "./rightBar.scss";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import profileAlt from "../../assets/profileAlt.png"
 
 const RightBar = ({ socket, user }) => {
   const { currentUser } = useContext(AuthContext)
   const [onlineUser, setOnlineUser] = useState([]);
-
+  const navigate = useNavigate();
   useEffect(() => {
     socket?.on("getUsers", (data) => {
       setOnlineUser(data);
@@ -33,6 +33,7 @@ const RightBar = ({ socket, user }) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["followed"])
+        queryClient.invalidateQueries(["relationship"])
       }
     }
   );
@@ -40,6 +41,7 @@ const RightBar = ({ socket, user }) => {
     mutation.mutate(!relationshipData?.some(item => item.id === userId && item.id === currentUser.id) && userId)
   }
 
+  console.log(onlineUser)
   return (
     <div className="rightBar">
       <div className="container">
@@ -49,7 +51,11 @@ const RightBar = ({ socket, user }) => {
           {sgdata?.map((usersg) =>
             (!relationshipData?.some(item => item.id === usersg.id)) && (currentUser.id !== usersg.id) &&
             <div className="user" >
-              <Link to={"/profile/" + usersg.id} style={{ textDecoration: "none", color: "inherit" }}>
+              <Link to={"/profile/" + usersg.id} style={{ textDecoration: "none", color: "inherit" }}
+                onClick={() => {
+                  navigate(`/profile/${usersg.id}`);
+                  window.location.reload();
+                }}>
                 <div className="userInfo">
                   <img
                     src={usersg?.profilePic ? "/upload/" + usersg.profilePic : profileAlt}
@@ -65,22 +71,24 @@ const RightBar = ({ socket, user }) => {
             </div>
 
           )}
-
-
-
         </div>
 
         <div className="item">
           <span>Following</span>
           {relationshipData?.map((user) =>
-          (<Link to={"/profile/" + user.id} style={{ textDecoration: "none", color: "inherit" }} >
+          (<Link to=""
+            style={{ textDecoration: "none", color: "inherit" }}
+            onClick={() => {
+              navigate(`/profile/${user.id}`);
+              window.location.reload();
+            }} >
             <div className="user">
               <div className="userInfo">
                 <img
                   src={user?.profilePic ? "/upload/" + user?.profilePic : profileAlt}
                   alt=""
                 />
-                {onlineUser?.some(data => data.userId === user.username) && <div className="online" />}
+                {onlineUser?.some(data => data.userId === user.id) && <div className="online" />}
                 <span>{user.name}</span>
               </div>
             </div>

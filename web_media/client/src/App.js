@@ -14,6 +14,7 @@ import Group from "./pages/group/Group"
 import Profile from "./pages/profile/Profile";
 import AllGroup from "./pages/allGroup/AllGroup"
 import Messenger from "./pages/messenger/messenger"
+import Admin from "./pages/admin/Admin";
 import "./style.scss";
 import { useContext, useEffect } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
@@ -40,7 +41,7 @@ function App() {
 
   useEffect(() => {
     if (socket)
-      socket?.emit("newUser", user);
+      socket.emit("addUser", currentUser?.id);
   }, [socket, user]);
 
   const Layout = () => {
@@ -92,7 +93,8 @@ function App() {
         {
           path: "/profile/:id",
           element: <Profile socket={socket} user={user} />,
-        }, {
+        }, 
+        {
           path: "/group/all",
           element: <AllGroup />,
         },
@@ -122,6 +124,14 @@ function App() {
         </ProtectedRoute>
       ),
     },
+    {
+      path: "/admin",
+      element: (
+        <ProtectedRoute>
+            <Admin />
+        </ProtectedRoute>
+      )
+    }
   ]);
 
   return (

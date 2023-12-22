@@ -19,8 +19,8 @@ const addUser = (userId, socketId) => {
     users.push({ userId, socketId });
 };
 
-const removeUser = (socketId) => {
-  users = users.filter((user) => user.socketId !== socketId);
+const removeUser = (userId) => {
+  users = users.filter((user) => user.id !== userId);
 };
 
 const removeUserByUserName = (username) => {
@@ -64,8 +64,9 @@ io.on("connection", (socket) => {
     io.emit("getUsers", users);
   });
 
-  socket.on("removeUser", (username) => {
-    removeUserByUserName(username);
+  socket.on("removeUser", (userId) => {
+    const user = getUser(userId)
+    removeUser(user?.userId);
   })
 
   socket.on("sendMetadata", async ({ senderId, receiverId, text, type, file, fileName, mimeType }) => {
@@ -195,7 +196,7 @@ io.on("connection", (socket) => {
 
   });
 
-  socket.on("sendReaction", ({reactionId, messageId, userId, reaction}) => {
+  socket.on("sendReaction", ({ reactionId, messageId, userId, reaction }) => {
     console.log("In send reaction: " + reactionId + messageId + userId + reaction)
     const receiver = users.find((user) => user.userId !== userId)
     console.log(receiver)
@@ -218,10 +219,11 @@ io.on("connection", (socket) => {
     addUserByName(username, socket.id);
   });
 
-  socket.on("sendNotification", ({ senderName, receiverName, type }) => {
-    const receiver = getUserByName(receiverName);
+  socket.on("sendNotification", ({ senderId, receiverId, type }) => {
+    const receiver = getUser(receiverId);
+    console.log(receiver)
     io.to(receiver?.socketId).emit("getNotification", {
-      senderName,
+      senderId,
       type,
     });
   });

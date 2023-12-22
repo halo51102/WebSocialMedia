@@ -17,13 +17,18 @@ function Login() {
         setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }))
     }
 
-    const { login } = useContext(AuthContext);
+    const { login, currentUser } = useContext(AuthContext);
 
     const handleLogin = async (e) => {
         e.preventDefault()
         try {
             await login(inputs);
-            navigate("/")
+            console.log("login success")
+            console.log(currentUser.role)
+            if (currentUser.role === "admin")
+                navigate("/admin");
+            else
+                navigate("/")
         } catch (err) {
             setErr(err.response.data)
         }

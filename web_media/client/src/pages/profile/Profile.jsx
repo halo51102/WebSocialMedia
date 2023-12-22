@@ -41,6 +41,8 @@ const Profile = ({ socket, user }) => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["relationship"])
+        queryClient.invalidateQueries(["followed"])
+        queryClient.invalidateQueries(["user"])
       }
     }
   );
@@ -97,7 +99,9 @@ const Profile = ({ socket, user }) => {
               </div>
               {rIsLoading ? ("loading")
                 : userId === currentUser.id ? (<button onClick={() => setOpenUpdate(true)}>update</button>)
-                  : (<button onClick={handleFollow}>{relationshipData.some(item => item.id === currentUser.id) ? "Unfollow" : "Follow"}</button>)}
+                  : (<button onClick={handleFollow}>
+                    {relationshipData.some(item => item.id === currentUser.id) ? "Unfollow" : "Follow"}
+                  </button>)}
             </div>
             <div className="right">
               <MoreVertIcon />

@@ -16,10 +16,11 @@ import { useQuery } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import profileAlt from "../../assets/profileAlt.png"
 import ChangePassword from "../changePassword/ChangePassword";
+import moment from "moment";
 
 const Navbar = ({ socket }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  // const [notifications, setNotifications] = useState([]);
   const [results, setResults] = useState([]);
   const [input, setInput] = useState("");
   const [openNotications, setOpenNotifications] = useState(false);
@@ -30,18 +31,22 @@ const Navbar = ({ socket }) => {
   let id = (String)(currentUser.id)
   let profile = "/profile/" + id
 
-  const navigate = useNavigate();
-
   const { isLoading, error, data: findUser } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + currentUser.id).then((res) => {
       return res.data
     }))
 
-  useEffect(() => {
-    socket?.on("getNotification", (data) => {
-      setNotifications((prev) => [...prev, data]);
-    });
-  }, [socket]);
+  const { error: notificationsError, data: notifications } = useQuery(["notifications"], () =>
+    makeRequest.get("/notifications?receiverId=" + currentUser.id).then((res) => {
+      return res.data
+    }))
+  console.log(notifications)
+
+  // useEffect(() => {
+  //   socket?.on("getNotification", (data) => {
+  //     setNotifications((prev) => [...prev, data]);
+  //   });
+  // }, [socket]);
 
 
   const fetchData = (value) => {
@@ -125,12 +130,16 @@ const Navbar = ({ socket }) => {
             />
           </div>
         </Link>
-        {openNotications && (notifications ?
+        {openNotications && (notifications?.length === 0  ?
           (<div className="notifications">
-            <span style={{margin: "10px"}}>Không có thông báo gần đây</span>
+            <span className="notification">Không có thông báo gần đây</span>
           </div>) :
           (<div className="notifications">
-            {notifications.map((noti) => displayNotification(noti))}
+            {notifications.map((noti) =>
+              <span className="notification">
+                {`${noti.name} ${noti.type} bài viết của bạn.`}
+                <span className="date">{moment(noti.create_at).fromNow()}</span>
+              </span>)}
           </div>))
         }
         {openUpdate && <ChangePassword setOpenUpdate={setOpenUpdate} user={findUser} />}
