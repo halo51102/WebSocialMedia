@@ -19,8 +19,9 @@ const addUser = (userId, socketId) => {
     users.push({ userId, socketId });
 };
 
-const removeUser = (userId) => {
-  users = users.filter((user) => user.id !== userId);
+const removeUser = (socketId) => {
+  users = users.filter((user) => user.socketId !== socketId);
+  console.log(users)
 };
 
 const removeUserByUserName = (username) => {
@@ -66,7 +67,8 @@ io.on("connection", (socket) => {
 
   socket.on("removeUser", (userId) => {
     const user = getUser(userId)
-    removeUser(user?.userId);
+    removeUser(user.socketId);
+    io.emit("getUsers", users);
   })
 
   socket.on("sendMetadata", async ({ senderId, receiverId, text, type, file, fileName, mimeType }) => {
@@ -238,10 +240,12 @@ io.on("connection", (socket) => {
   // need discussion
 
 
+
   //when disconnect
   socket.on("disconnect", () => {
     console.log("a user disconnected!");
     removeUser(socket.id);
+    console.log(users)
     io.emit("getUsers", users);
   });
 });

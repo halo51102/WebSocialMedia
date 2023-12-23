@@ -100,3 +100,20 @@ export const countUsers = (req, res) => {
         return res.status(200).json(data[0].count)
     })
 }
+
+export const deleteUser = (req, res) => {
+    const token = req.cookies.accessToken;
+    if (!token) return res.status(401).json("Not authenticated!");
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!");
+        if (userInfo.role === "admin") {
+            const q = "DELETE FROM users WHERE `id`=?";
+            db.query(q, [req.params.id], (err, data) => {
+                if (err) return res.status(500).json(err);
+                if (data.affectedRows > 0) return res.status(200).json("Xóa user thành công");
+                return res.status(403).json("Bạn phải là admin để thực hiện việc này")
+            });
+        }
+    });
+};

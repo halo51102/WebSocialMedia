@@ -1,27 +1,70 @@
 import "./userList.scss";
 import { DataGrid } from "@mui/x-data-grid";
-import { userColumns, userRows } from "../../../datatablesource.js";
+// import { userColumns, userRows } from "../../../datatablesource.js";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { makeRequest } from "../../../axios.js";
 
-const Datatable = () => {
-  const [data, setData] = useState(userRows);
+const UserList = () => {
+  const [data, setData] = useState([]);
+  const queryClient = useQueryClient();
+
+  const userColumns = [
+    { field: "id", headerName: "ID", width: 100 },
+    {
+      field: "name",
+      headerName: "Tên",
+      width: 250,
+      renderCell: (params) => {
+        return (
+          <div className="cellWithImg">
+            <img className="cellImg" src={"/upload/" + params.row.profilePic} alt="avatar" />
+            {params.row.name}
+          </div>
+        );
+      },
+    },
+    {
+      field: "email",
+      headerName: "Email",
+      width: 300,
+    },
+  ];
+
+  const { isLoading: pIdLoading, error: pError, data: pData } = useQuery(["allUsers"], async () =>
+    await makeRequest.get("/users/").then((res) => {
+      return res.data
+    }))
+
+  useEffect(() => {
+    if (pData)
+      setData(pData)
+  }, [pData]);
+
+  const deleteMutation = useMutation((userId) => {
+    return makeRequest.delete("/users/" + userId);
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["allUsers"])
+      }
+    }
+  );
 
   const handleDelete = (id) => {
-    setData(data.filter((item) => item.id !== id));
+    deleteMutation.mutate(id)
+    // setData(data.filter((item) => item.id !== id));
   };
 
   const actionColumn = [
     {
       field: "action",
       headerName: "Action",
-      width: 200,
+      width: 100,
       renderCell: (params) => {
         return (
           <div className="cellAction">
-            <Link to="/users/test" style={{ textDecoration: "none" }}>
-              <div className="viewButton">View</div>
-            </Link>
             <div
               className="deleteButton"
               onClick={() => handleDelete(params.row.id)}
@@ -36,10 +79,7 @@ const Datatable = () => {
   return (
     <main className="datatable">
       <div className="datatableTitle">
-        Add New User
-        <Link to="/users/new" className="link">
-          Add New
-        </Link>
+        Tài khoản
       </div>
       <DataGrid
         className="datagrid"
@@ -47,10 +87,10 @@ const Datatable = () => {
         columns={userColumns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
+      // checkboxSelection
       />
     </main>
   );
 };
 
-export default Datatable;
+export default UserList;

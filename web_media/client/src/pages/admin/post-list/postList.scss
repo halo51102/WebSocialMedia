@@ -1,0 +1,163 @@
+.datatable {
+  height: 600px;
+  padding: 20px;
+  color: white;
+  grid-area: main;
+
+  .view-container {
+    width: 100%;
+    display: flex;
+    z-index: 1000;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    right: 0;
+    align-items: center;
+    justify-content: center;
+    background-color: #808080eb;
+
+    .view {
+      padding: 20px;
+      border: 2px solid black;
+      border-radius: 20px;
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 35%;
+
+      .user {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        color: black;
+
+        .userInfo {
+          display: flex;
+          gap: 20px;
+
+          img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+
+          .details {
+            display: flex;
+            flex-direction: column;
+
+            .name {
+              font-weight: 500;
+            }
+
+            .date {
+              font-size: 12px;
+            }
+          }
+        }
+
+        button {
+          position: relative;
+          top: 30px;
+          right: 0;
+          border: none;
+          background-color: #f0544f;
+          padding: 5px;
+          cursor: pointer;
+          color: white;
+        }
+      }
+
+      .content {
+        margin-top: 20px;
+        color: black;
+        width: 100%;
+
+        img {
+          width: 100%;
+          max-height: 500px;
+          object-fit: cover;
+          margin-top: 20px;
+        }
+      }
+    }
+  }
+
+  .datatableTitle {
+    width: 100%;
+    font-size: 24px;
+    color: gray;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .link {
+      text-decoration: none;
+      color: green;
+      font-size: 16px;
+      font-weight: 400;
+      border: 1px solid green;
+      padding: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  }
+
+  .cellWithImg {
+    display: flex;
+    align-items: center;
+
+    .cellImg {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 20px;
+    }
+  }
+
+  .cellWithStatus {
+    padding: 5px;
+    border-radius: 5px;
+
+    &.good {
+      background-color: rgba(0, 128, 0, 0.05);
+      color: green;
+    }
+
+    &.pending {
+      background-color: rgba(255, 217, 0, 0.05);
+      color: goldenrod;
+    }
+
+    &.reported {
+      background-color: rgba(255, 0, 0, 0.05);
+      color: crimson;
+    }
+  }
+
+  .cellAction {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    .viewButton {
+      padding: 2px 5px;
+      border-radius: 5px;
+      color: darkblue;
+      border: 1px dotted rgba(0, 0, 139, 0.596);
+      cursor: pointer;
+    }
+
+    .deleteButton {
+      padding: 2px 5px;
+      border-radius: 5px;
+      color: crimson;
+      border: 1px dotted rgba(220, 20, 60, 0.6);
+      cursor: pointer;
+    }
+  }
+}
