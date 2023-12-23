@@ -1,14 +1,25 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { BsFillArchiveFill, BsFillGrid3X3GapFill, BsPeopleFill, BsFillBellFill }
     from 'react-icons/bs'
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line }
     from 'recharts';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { makeRequest } from '../../../axios';
+import { AuthContext } from '../../../context/authContext';
 
-function HomeAdmin() {
-    const[posts, setPosts]=useState(null);
-    const[users, setUsers]=useState(null);
+function HomeAdmin({ socket }) {
+    const [posts, setPosts] = useState(null);
+    const [users, setUsers] = useState(null);
+    const [numOfOnlineUsers, setNumOfOnlineUsers] = useState(0);
+    const { currentUser } = useContext(AuthContext)
+
+    useEffect(() => {
+        socket?.on("getUsers", (data) => {
+            const newData = data?.filter(user => user.userId !== currentUser.id && user.userId !== null);
+            setNumOfOnlineUsers(newData?.length);
+            console.log(newData)
+        })
+    }, [socket])
 
     const { data: countPosts } = useQuery(["countPosts"], () =>
         makeRequest.get("/posts/count").then((res) => {
@@ -22,7 +33,7 @@ function HomeAdmin() {
         })
     );
 
-    useEffect(()=>{
+    useEffect(() => {
         setPosts(countPosts)
         setUsers(countUsers)
     })
@@ -95,7 +106,7 @@ function HomeAdmin() {
                     <div className='card-inner'>
                         <h3>Lượt truy cập</h3>
                     </div>
-                    <h1>33</h1>
+                    <h1>{numOfOnlineUsers}</h1>
                 </div>
                 <div className='card'>
                     <div className='card-inner'>

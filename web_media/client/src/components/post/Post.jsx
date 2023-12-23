@@ -21,7 +21,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   // const [commentOpen, setCommentOpen] = useState(null)
   const { currentUser } = useContext(AuthContext)
   const [showImage, setShowImage] = useState(false);
-  const[shareOpen,setShareOpen]=useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -41,11 +41,11 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     }))
 
   const queryClient = useQueryClient()
-  const shareId=post.sharePostId
-  const{isLoading: shareIsLoading,error:shareError,data:shareData}=useQuery(["posts",post.sharePostId],()=>
-  makeRequest.get("/posts/s/"+post.sharePostId).then((res)=>{
-    return res.data[0]
-  }))
+  const shareId = post.sharePostId
+  const { isLoading: shareIsLoading, error: shareError, data: shareData } = useQuery(["posts", post.sharePostId], () =>
+    makeRequest.get("/posts/s/" + post.sharePostId).then((res) => {
+      return res.data[0]
+    }))
   console.log(shareId)
   const notificationMutation = useMutation((type) => {
     return makeRequest.post("/notifications",
@@ -220,7 +220,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
               <img src={"/upload/" + shareData?.profilePic} alt="" />
               <div className="detailShare">
                 <Link
-                  to={"/profile/"+shareData?.userId}
+                  to={"/profile/" + shareData?.userId}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <span className="nameShare">{shareData?.name}</span>

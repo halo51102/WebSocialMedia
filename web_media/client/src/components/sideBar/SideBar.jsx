@@ -21,18 +21,13 @@ const SideBar = ({ openSidebarToggle, openSidebar }) => {
                     </a>
                 </li>
                 <li className='sidebar-list-item'>
-                    <a href="">
+                    <a href="/admin/posts">
                         <BsFilePostFill className='icon' /> Bài viết
                     </a>
                 </li>
                 <li className='sidebar-list-item'>
                     <a href="/admin/users">
                         <BsPeopleFill className='icon' /> Tài khoản
-                    </a>
-                </li>
-                <li className='sidebar-list-item'>
-                    <a href="">
-                        <BsMenuButtonWideFill className='icon' /> Báo cáo
                     </a>
                 </li>
                 <li className='sidebar-list-item'>

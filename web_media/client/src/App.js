@@ -17,6 +17,7 @@ import Messenger from "./pages/messenger/messenger"
 import SideBar from "./components/sideBar/SideBar";
 import Header from "./components/navBar-admin/Header";
 import HomeAdmin from "./pages/admin/home/HomeAdmin";
+import AdminProfile from "./pages/admin/profile/AdminProfile";
 import "./style.scss";
 import "./styleAdmin.scss"
 import { useContext, useEffect } from "react";
@@ -27,6 +28,7 @@ import Friend from "./pages/friend/Friend";
 import { io } from "socket.io-client";
 import { useState } from "react";
 import UserList from "./pages/admin/user-list/UserList";
+import PostList from "./pages/admin/post-list/PostList";
 
 function App() {
 
@@ -75,11 +77,12 @@ function App() {
     return (
       <QueryClientProvider client={queryClient}>
         <div className="grid-container">
-          <Header openSidebar={openSidebar} />
+          <Header openSidebar={openSidebar} socket={socket} />
           <SideBar openSidebarToggle={openSidebarToggle} openSidebar={openSidebar} />
           <Outlet />
         </div>
-      </QueryClientProvider>)
+      </QueryClientProvider>
+    )
   }
 
   const ProtectedRoute = ({ children }) => {
@@ -155,11 +158,19 @@ function App() {
       children: [
         {
           path: "/admin",
-          element: <HomeAdmin />
+          element: <HomeAdmin socket={socket}/>
         },
         {
           path: "/admin/users",
           element: <UserList />
+        },
+        {
+          path: "/admin/posts",
+          element: <PostList />
+        },
+        {
+          path: "/admin/profile",
+          element: <AdminProfile />
         }
       ]
     }
