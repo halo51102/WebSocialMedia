@@ -21,7 +21,7 @@ const LeftBar = ({ socket, user }) => {
 
   let group = "/group"
 
-  const handleClick = async (e) => {
+  const handleLogOut = async (e) => {
     e.preventDefault()
     socket?.emit("removeUser", currentUser.id);
     try {
@@ -68,36 +68,17 @@ const LeftBar = ({ socket, user }) => {
             </Link>
           </div>
           <div className="item">
-            <img src={Watch} alt="" />
-            <span>Watch</span>
-          </div>
-        </div>
-        <hr />
-        <div className="menu">
-          <span>Your shortcuts</span>
-          <div className="item">
-            <img src={Gallery} alt="" />
-            <span>Gallery</span>
-          </div>
-          <div className="item">
-            <img src={Videos} alt="" />
-            <span>Videos</span>
-          </div>
-          <div className="item">
             <img src={Messages} alt="" />
             <Link
               to='/messenger'
               style={{ textDecoration: "none", color: "inherit" }}>
-              <span>Messages</span>
+              <span>Messenger</span>
             </Link>
           </div>
         </div>
         <hr />
-        <div className="menu">
-          <span>Others</span>
-        </div>
         {err && err}
-        <button onClick={handleClick}>LogOut</button>
+        <button onClick={handleLogOut}>LogOut</button>
       </div>
     </div>
   );

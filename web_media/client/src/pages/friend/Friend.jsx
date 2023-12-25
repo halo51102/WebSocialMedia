@@ -26,6 +26,7 @@ const Friend = () => {
     return (
         <div className="friends">
             <div className="container">
+                <h1>Follower</h1>
                 <div className="item">
                     {error
                         ? "Something went wrong!"

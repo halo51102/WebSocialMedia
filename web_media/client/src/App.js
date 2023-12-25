@@ -176,8 +176,6 @@ function App() {
     }
   ]);
 
-  console.log(currentUser)
-
   return (
     <div>
       <RouterProvider router={router} />

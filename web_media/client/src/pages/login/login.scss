@@ -1,6 +1,6 @@
 .login {
   height: 100vh;
-  background-color: rgb(193, 190, 255);
+  background-color: rgba(116, 115, 115, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8,7 +8,7 @@
   .card-login {
     width: 50%;
     display: flex;
-    background-color: white;
+    background-color: rgb(255, 255, 255);
     border-radius: 10px;
     min-height: 600px;
     overflow: hidden;
@@ -16,7 +16,7 @@
     .left {
       flex: 1;
       background: linear-gradient(rgba(39, 11, 96, 0.5), rgba(39, 11, 96, 0.5)),
-        url("https://images.pexels.com/photos/3228727/pexels-photo-3228727.jpeg?auto=compress&cs=tinysrgb&w=1600") center;
+        url("https://www.forbes.com/advisor/wp-content/uploads/2023/05/Social_Media_Statistics_-_article_image-900x510.jpg") center;
       background-size: cover;
       padding: 50px;
       display: flex;
@@ -48,20 +48,21 @@
         height: fit-content;
         gap: 20px;
         justify-content: center;
-        background-color: rgb(193, 190, 255);
+        background-color: #515152a5;
         padding: 10px;
         border-radius: 10px;
 
         span {
           font-size: 14px;
+          color: white;
         }
 
         button {
           width: 100%;
           padding: 10px;
           border: none;
-          background-color: #938eef;
-          color: white;
+          background-color: white;
+          color: rgb(56, 47, 239);
           font-weight: bold;
           cursor: pointer;
         }
@@ -82,7 +83,7 @@
           width: 50%;
           padding: 10px;
           border: none;
-          background-color: #938eef;
+          background-color: rgb(56, 47, 239);
           color: white;
           font-weight: bold;
           cursor: pointer;

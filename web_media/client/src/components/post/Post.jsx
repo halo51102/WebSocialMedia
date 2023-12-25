@@ -114,7 +114,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     if (isCommentOpen) {
       closeComment();
     } else {
-      openComment(post.id);
+      openComment(post.id); 
     }
   };
 

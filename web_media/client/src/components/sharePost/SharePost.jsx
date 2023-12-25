@@ -17,48 +17,46 @@ const SharePost = ({ setShareOpen, postShare }) => {
         makeRequest.get("/users/find/" + currentUser.id).then((res) => {
             return res.data
         }))
-        const mutation = useMutation((newPost) => {
-            return makeRequest.post("/posts", newPost)
-          },
-            {
-              onSuccess: () => {
+    const mutation = useMutation((newPost) => {
+        return makeRequest.post("/posts", newPost)
+    },
+        {
+            onSuccess: () => {
                 queryClient.invalidateQueries(["posts"])
-              }
-            })
-        const handleClick = async (e) => {
-            e.preventDefault()
-            mutation.mutate({ desc, img: null, group: null, sharePost: postShare.id})
-            setDesc("")
-            setShareOpen(false)
-          }
+            }
+        })
+    const handleShare = async (e) => {
+        e.preventDefault()
+        mutation.mutate({ desc, img: null, group: null, sharePost: postShare.id })
+        setDesc("")
+        setShareOpen(false)
+    }
 
     return (
 
         <div className="sharing">
             <div className="wrapper">
                 <div className="descSharing">
-                    <div className="userShare"><img
-                        src={findUser?.profilePic ? "/upload/" + findUser?.profilePic : profileAlt}
-                        alt=""
-                    />
+                    <div className="userShare">
+                        <img
+                            src={findUser?.profilePic ? "/upload/" + findUser?.profilePic : profileAlt}
+                            alt=""
+                        />
                         <span className="name">{findUser?.name}</span>
                     </div>
                     <input type="text" placeholder={`What's on your mind ${findUser?.name}?`}
                         onChange={(e) => setDesc(e.target.value)}
-                        value={desc} />
-
+                        value={desc}
+                    />
                 </div>
                 <div className="postSharing">
 
                     <div className="sharePost">
-
-                        <div className="userShare">
-                            <div className="contentShare">
-                                <img src={"/upload/" + postShare.img}
-                                    alt="" />
-                            </div>
-
+                        <div className="contentShare">
+                            <img src={"/upload/" + postShare.img}
+                                alt="" />
                         </div>
+
                         <div className="userInfoShare">
                             <img src={"/upload/" + postShare.profilePic} alt="" />
                             <div className="detailShare">
@@ -72,7 +70,7 @@ const SharePost = ({ setShareOpen, postShare }) => {
                         </div>
                     </div>
                 </div>
-                <button onClick={handleClick}>Share</button>
+                <button className="button-share" onClick={handleShare}>Share</button>
                 <button className="close" onClick={() => setShareOpen(false)}>
                     X Close
                 </button>

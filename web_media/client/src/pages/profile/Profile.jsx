@@ -57,7 +57,7 @@ const Profile = ({ socket, user }) => {
     setSelectedImage('');
   }
 
-  const handleFollow = () => {
+  const handleFollowClick = () => {
     // console.log("here")
     mutation.mutate(relationshipData.some(item => item.id === currentUser.id))
   }
@@ -99,7 +99,7 @@ const Profile = ({ socket, user }) => {
               </div>
               {rIsLoading ? ("loading")
                 : userId === currentUser.id ? (<button onClick={() => setOpenUpdate(true)}>update</button>)
-                  : (<button onClick={handleFollow}>
+                  : (<button onClick={handleFollowClick}>
                     {relationshipData.some(item => item.id === currentUser.id) ? "Unfollow" : "Follow"}
                   </button>)}
             </div>

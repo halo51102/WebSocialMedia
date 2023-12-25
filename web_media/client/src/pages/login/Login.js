@@ -37,7 +37,7 @@ function Login() {
         <div className="login">
             <div className="card-login">
                 <div className="left">
-                    <h1>Xin chào</h1>
+                    <h1>Xin chào,</h1>
                     <p>
 
                     </p>

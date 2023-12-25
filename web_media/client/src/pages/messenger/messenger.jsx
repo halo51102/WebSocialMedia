@@ -262,13 +262,6 @@ export default function Messenger({ socket }) {
     <>
       <Topbar />
 
-      {/* <div style={{ display: "flex" }}>
-                <div className="messenger">
-                    hello
-                </div>
-            <span>{id}</span>
-            </div> */}
-
       <div className="messenger">
         <dir className="chatMenu">
           <dir className="chatMenuWrapper">
