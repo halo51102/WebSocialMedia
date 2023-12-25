@@ -5,6 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 import CreateGroup from "../../components/createGroup/CreateGroup";
 import { useState, useContext } from "react";
 import { AuthContext } from "../../context/authContext";
+import profileAlt from "../../assets/profileAlt.png"
+
 const AllGroup = () => {
 
   const { currentUser } = useContext(AuthContext)
@@ -48,8 +50,8 @@ const AllGroup = () => {
             : JisLoading
               ? "loading"
               : Jdata?.map((agroup) => (
-                (data && Array.isArray(data)&&!data?.some(item => item.id === agroup.id)) && (<div className="comment">
-                  <img src={"/upload/" + agroup.profilePic} alt="" />
+                (data && Array.isArray(data) && !data?.some(item => item.id === agroup.id)) && (<div className="comment">
+                  <img src={agroup.profilePic ? "/upload/" + agroup.profilePic : profileAlt} alt="" />
                   <div className="info">
                     <Link to={`/group/${agroup.id}`} style={{ textDecoration: "none", marginTop: "5px" }}
                       onClick={() => {

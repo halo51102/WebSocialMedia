@@ -66,7 +66,7 @@ const Navbar = ({ socket }) => {
       });
   };
 
-  const handleChange = (value) => {
+  const handleSearch = (value) => {
     setInput(value);
     fetchData(value);
   };
@@ -101,7 +101,7 @@ const Navbar = ({ socket }) => {
             <input
               type="text"
               placeholder="Tìm kiếm..."
-              onChange={(e) => handleChange(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
           {results && results.length > 0 && <SearchResults results={results} />}
@@ -118,10 +118,6 @@ const Navbar = ({ socket }) => {
         <NotificationsOutlinedIcon onClick={() => setOpenNotifications(!openNotications)} />
         <Link
           to={profile}
-        // onClick={() => {
-        //   navigate("/profile/" + currentUser.id, { replace: true });
-        //   window.location.reload();
-        // }}
         >
           <div className="user">
             <img

@@ -19,7 +19,7 @@ const Register = () => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleClick = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault()
 
     try {
@@ -48,7 +48,7 @@ const Register = () => {
             <input type="password" placeholder="Password" name="password" onChange={handleChange} />
             <input type="text" placeholder="Name" name="name" onChange={handleChange} />
             {err && err}
-            <button onClick={handleClick}>Xác nhận</button>
+            <button onClick={handleRegister}>Xác nhận</button>
           </form>
           <div className="login">
             <span>Bạn đã có tài khoản?</span>

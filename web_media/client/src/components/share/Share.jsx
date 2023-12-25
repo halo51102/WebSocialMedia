@@ -43,7 +43,7 @@ const Share = () => {
         queryClient.invalidateQueries(["posts"])
       }
     })
-  const handleClick = async (e) => {
+  const handleNewPost = async (e) => {
     e.preventDefault()
     let imgUrl = ""
     if (file) imgUrl = await upload()
@@ -90,7 +90,7 @@ const Share = () => {
             </div>
           </div>
           <div className="right">
-            <button onClick={handleClick}>Share</button>
+            <button onClick={handleNewPost}>Share</button>
           </div>
         </div>
       </div>

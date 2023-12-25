@@ -21,11 +21,10 @@ export const SearchResults = ({ results }) => {
                     // }}
                     style={{ textDecoration: "none", color: "inherit" }}
                 >
-                    {console.log(result.id)}
                     <div className="result" key={id} >
                         <div className="info">
                             <img
-                                src={result?.profilePic?"/upload/" + result?.profilePic:profileAlt}
+                                src={result?.profilePic ? "/upload/" + result?.profilePic : profileAlt}
                                 alt="" />
                             <span>{result.name}</span>
                         </div>

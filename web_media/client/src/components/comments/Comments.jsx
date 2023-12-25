@@ -9,7 +9,7 @@ const Comments = ({ postId, socket, user, post }) => {
   const [desc, setDesc] = useState("")
 
   const { currentUser } = useContext(AuthContext);
-  const { isLoading, error, data } = useQuery(["comments"], () =>
+  const { isLoading, error, data : comments } = useQuery(["comments"], () =>
     makeRequest.get("/comments?postId=" + postId).then((res) => {
       return res.data;
     })
@@ -41,7 +41,7 @@ const Comments = ({ postId, socket, user, post }) => {
       }
     });
 
-  const handleClick = async (e) => {
+  const handleComment = async (e) => {
     e.preventDefault();
     mutation.mutate({ desc, postId })
     setDesc("")
@@ -62,14 +62,14 @@ const Comments = ({ postId, socket, user, post }) => {
       <div className="write">
         <img src={"/upload/" + currentUser.profilePic} alt="" />
         <input type="text" placeholder="write a comment" value={desc} onChange={e => setDesc(e.target.value)} />
-        <button onClick={handleClick}>Send</button>
+        <button onClick={handleComment}>Send</button>
       </div>
-      <p>{data?.length} comments</p>
+      <p>{comments?.length} comments</p>
       {error
         ? "Something went wrong"
         : isLoading
           ? "loading"
-          : data?.map((comment) => (
+          : comments?.map((comment) => (
             <div className="comment" key={comment.id}>
               <img src={"/upload/" + comment.profilePic} alt="" />
               <div className="info">

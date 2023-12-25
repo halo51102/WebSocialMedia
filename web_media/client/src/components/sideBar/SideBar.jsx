@@ -30,11 +30,6 @@ const SideBar = ({ openSidebarToggle, openSidebar }) => {
                         <BsPeopleFill className='icon' /> Tài khoản
                     </a>
                 </li>
-                <li className='sidebar-list-item'>
-                    <a href="">
-                        <BsFillGearFill className='icon' /> Setting
-                    </a>
-                </li>
             </ul>
         </aside>
 

@@ -1,6 +1,6 @@
 .register {
   height: 100vh;
-  background-color: rgb(193, 190, 255);
+  background-color: rgba(89, 89, 90, 0.662);
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -17,7 +17,7 @@
     .left {
       flex: 1;
       background: linear-gradient(rgba(39, 11, 96, 0.5), rgba(39, 11, 96, 0.5)),
-        url("https://images.pexels.com/photos/4881619/pexels-photo-4881619.jpeg?auto=compress&cs=tinysrgb&w=1600")
+        url("https://eminence.ch/wp-content/uploads/2023/08/Social-Media-Trends-2017.jpg")
           center;
       background-size: cover;
       padding: 50px;
@@ -51,20 +51,21 @@
         height: fit-content;
         gap: 20px;
         justify-content: center;
-        background-color: rgb(193, 190, 255);
+        background-color: rgba(99, 99, 101, 0.594);
         padding: 10px;
         border-radius: 10px;
 
         span {
           font-size: 14px;
+          color: white;
         }
 
         button {
           width: 100%;
           padding: 10px;
           border: none;
-          background-color: #938eef;
-          color: white;
+          background-color: white;
+          color: rgb(56, 47, 239);
           font-weight: bold;
           cursor: pointer;
         }
@@ -85,7 +86,7 @@
           width: 50%;
           padding: 10px;
           border: none;
-          background-color: #938eef;
+          background-color: rgb(56, 47, 239);
           color: white;
           font-weight: bold;
           cursor: pointer;
