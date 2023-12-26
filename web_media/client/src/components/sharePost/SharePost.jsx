@@ -58,7 +58,7 @@ const SharePost = ({ setShareOpen, postShare }) => {
                         </div>
 
                         <div className="userInfoShare">
-                            <img src={"/upload/" + postShare.profilePic} alt="" />
+                            <img src={postShare.profilePic? "/upload/" + postShare.profilePic: profileAlt} alt="" />
                             <div className="detailShare">
 
                                 <span className="nameShare">{postShare.name}</span>

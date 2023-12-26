@@ -8,6 +8,8 @@ import { Link } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { AddMemberGroup } from "../addMemberGroup/AddMemberGroup";
 
+import profileAlt from "../../assets/profileAlt.png"
+
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 const CreateGroup = ({ setOpenMember, groupId }) => {
@@ -88,7 +90,7 @@ const CreateGroup = ({ setOpenMember, groupId }) => {
                                     <div className="user" key={id}>
                                         <div className="userInfo">
                                             <img
-                                                src={"/upload/" + member.profilePic}
+                                                src={member.profilePic? "/upload/" + member.profilePic:profileAlt}
                                                 alt=""
                                             />
                                             <span>{member.name}</span>
