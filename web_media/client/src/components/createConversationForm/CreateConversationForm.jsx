@@ -49,7 +49,7 @@ const CreateConversationForm = ({ setNewConversation }) => {
     setSearchResults(filteredFriends);
   };
 
-  const handleCreateGroup = () => {
+  const handleOpenCreate = () => {
     setShowForm(true);
   };
 
@@ -86,7 +86,7 @@ const CreateConversationForm = ({ setNewConversation }) => {
     <div className="create-group-container">
 
       {!showForm ? (
-        <button className="chatSubmitButton" onClick={handleCreateGroup}>
+        <button className="chatSubmitButton" onClick={handleOpenCreate}>
           Create Conversation
         </button>
       ) : (
@@ -108,24 +108,9 @@ const CreateConversationForm = ({ setNewConversation }) => {
               onChange={handleGroupNameChange}
             />)}
           </div>
+
           <div className="form-group">
             <label htmlFor="searchMembers">Search Friends:</label>
-            {/* <input
-            type="text"
-            id="searchMembers"
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder="Search friends..."
-            />
-            {searchResults.length > 0 && (<div className="search-results">
-            <ul>
-                {searchResults.map(member => (
-                <li key={member.id} onClick={() => handleMemberSelection(member)}>
-                    {member.username}
-                </li>
-                ))}
-            </ul>
-            </div>)} */}
             <Multiselect
               options={friends} // Options to display in the dropdown
               selectedValues={null} // Preselected value to persist in dropdown
