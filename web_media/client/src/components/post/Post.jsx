@@ -13,6 +13,7 @@ import { makeRequest } from "../../axios";
 import { AuthContext } from "../../context/authContext";
 import SharePost from "../sharePost/SharePost";
 import Share from "../share/Share";
+import profileAlt from "../../assets/profileAlt.png"
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
@@ -161,7 +162,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
         <div className="container">
           <div className="user">
             <div className="userInfo">
-              <img src={"/upload/" + post.profilePic} alt="" />
+              <img src={post?.profilePic? "/upload/" + post?.profilePic:profileAlt} alt="" />
               <div className="details">
                 <Link
                   to={profile}
@@ -217,7 +218,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
             </div>
             <div className="userInfoShare">
-              <img src={"/upload/" + shareData?.profilePic} alt="" />
+              <img src={shareData?.profilePic? "/upload/" + shareData?.profilePic:profileAlt} alt="" />
               <div className="detailShare">
                 <Link
                   to={"/profile/" + shareData?.userId}

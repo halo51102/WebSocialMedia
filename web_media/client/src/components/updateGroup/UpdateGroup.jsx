@@ -62,11 +62,11 @@ const UpdateGroup = ({ setOpenUpdate, group }) => {
   return (
     <div className="create">
       <div className="wrapper">
-        <h1>Add your story</h1>
+        <h1>Update Information Group</h1>
         <form>
           <div className="files">
             <label htmlFor="image">
-              <span>Image</span>
+              <span>Profile Picture</span>
               <div className="imgContainer">
                 <img
                   src={
@@ -86,7 +86,7 @@ const UpdateGroup = ({ setOpenUpdate, group }) => {
               onChange={(e) => setProfile(e.target.files[0])}
             />
             <label htmlFor="cover">
-              <span>Image</span>
+              <span>Cover Picture</span>
               <div className="imgContainer">
                 <img
                   src={
@@ -121,7 +121,7 @@ const UpdateGroup = ({ setOpenUpdate, group }) => {
             name="desc"
             onChange={handleChange}
           />
-          <button onClick={handleClick}>Add</button>
+          <button onClick={handleClick}>Update</button>
         </form>
         <button className="close" onClick={() => setOpenUpdate(false)} >
           x
