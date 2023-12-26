@@ -56,7 +56,7 @@ export const deleteStory = (req, res) => {
   });
 };
 
-export const getStoryOfUser = (req, res) => {
+export const getStoriesOfUser = (req, res) => {
   const token = req.cookies.accessToken;
   if (!token) return res.status(401).json("Not logged in!");
 

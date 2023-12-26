@@ -166,30 +166,7 @@ export default function Messenger({ socket }) {
     const receiverId = currentChat.members.find(
       (member) => member !== currentUser.id
     );
-    // await socket?.emit("sendMessage", {
-    //   senderId: currentUser.id,
-    //   receiverId,
-    //   text: newMessage,
-    //   type: message["type"],
-    //   file: file ? file : null,
-    //   fileName: file ? file["name"] : null,
-    //   mimeType: file ? file["type"] : null
-    // });
-    // if (message["type"] !== "text") {
-    //   // Listen for the "getMetadata" event from the server
-    //   const metadataPromise = new Promise((resolve) => {
-    //     socket?.on("getMetadata", (data) => {
-    //       console.log("Received metadata:", data);
-    //       message["title"] = data.title;
-    //       message["file_url"] = data.file_url;
-    //       console.log("METADATA 2: " + message.file_url);
-    //       resolve(); // Resolve the promise when metadata is received
-    //     });
-    //   });
 
-    //   // Wait for the "getMetadata" event before sending the "post /messages" request
-    //   await metadataPromise;
-    // }
     await socket?.emit("sendMetadata", {
       senderId: currentUser.id,
       receiverId,
@@ -279,37 +256,19 @@ export default function Messenger({ socket }) {
             {currentChat ? (
               <>
                 <div className="chatBoxTop">
-                  {/* <div className="message">
-                                  {messages.map((m, index) => (
-                                          <div  className={m.senderId === currentUser.id ? "message-group-sent" : "message-group-received"} ref={scrollRef}>
-                                            <Message message={m} own={m.senderId === currentUser.id} testManual={false}/>
-                                          </div>
-                                      ))
-                                  }
-                                </div> */}
                   <div className="message">
                     <GroupByMessages messages={messages} currentUser={currentUser} handleEmotionSelect={handleEmotionSelect} socket={socket} />
                   </div>
-                  {/* <div className="messageContainer" ref={scrollRef}>
-                                  <Message testManual={null}/>
-                                </div> */}
                 </div>
 
                 <div className="chatBoxBottom">
                   <input type="file" onChange={handleFileChange} ref={fileRef} />
-                  {/* <div className="inputFile">
-                                    
-                                    <svg class="x1lliihq x1rdy4ex xcud41i x4vbgl9 x139jcc6 xsrhx6k" height="28px" viewBox="0 0 36 36" width="28px"><path d="M13.5 16.5a2 2 0 100-4 2 2 0 000 4z" fill="#035bb9"></path><path clip-rule="evenodd" d="M7 12v12a4 4 0 004 4h14a4 4 0 004-4V12a4 4 0 00-4-4H11a4 4 0 00-4 4zm18-1.5H11A1.5 1.5 0 009.5 12v9.546a.25.25 0 00.375.217L15 18.803a6 6 0 016 0l5.125 2.96a.25.25 0 00.375-.217V12a1.5 1.5 0 00-1.5-1.5z" fill="#035bb9" fill-rule="evenodd"></path></svg>
-                                  </div> */}
                   <textarea
                     className="chatMessageInput"
                     placeholder="write something..."
                     onChange={(e) => handleTextAreaOnChange(e)}
                     value={newMessage}
                   ></textarea>
-                  {/* <button className="chatSubmitButton" onClick={handleSubmit}>
-                                      Send
-                                    </button> */}
                   <div className="chatSubmitButtonIcon" onClick={handleSubmit}>
                     <svg class="xsrhx6k" height="20px" viewBox="0 0 24 24" width="20px"><title>Nhấn Enter để gửi</title><path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.118014 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905 C16.6915026,11.5318905 17.1624089,11.5318905 17.1624089,12.0031827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z" fill="#035bb9"></path></svg>
                   </div>
@@ -324,6 +283,5 @@ export default function Messenger({ socket }) {
         </div>
       </div>
     </>
-    // <TestMessage />
   )
 }
