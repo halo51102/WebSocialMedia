@@ -11,7 +11,6 @@ import relationshipRoutes from './routes/relationships.js'
 import groupRoutes from './routes/groups.js'
 import storyRoutes from './routes/stories.js'
 import notificationsRoutes from './routes/notifications.js'
-import reportRoutes from './routes/reports.js'
 import cors from "cors"
 import multer from "multer"
 import cookieParser from "cookie-parser"
@@ -59,7 +58,6 @@ app.use("/api/likes", likeRoutes)
 app.use("/api/relationships", relationshipRoutes)
 app.use("/api/stories", storyRoutes)
 app.use("/api/notifications", notificationsRoutes)
-app.use("/api/reports", reportRoutes)
 
 app.use("/api/groups", groupRoutes)
 app.listen(8800, () => {

@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CiBookmarkCheck } from "react-icons/ci";
 import { makeRequest } from "../../../axios.js";
 import moment from "moment"
 
@@ -58,7 +59,10 @@ const PostList = () => {
       renderCell: (params) => {
         return (
           <div className={`cellWithStatus ${params.row.status}`}>
-            {params.row.status}
+            {params.row.status} 
+            {params.row.status === "reported" && <div className="check-button" onClick={()=>handleReport(params.row.id)}>
+              <CiBookmarkCheck />
+              </div>}
           </div>
         );
       },
@@ -87,6 +91,15 @@ const PostList = () => {
       }
     }
   );
+
+  const reportMutation = useMutation((postId) => {
+    return makeRequest.put("/posts/report/" + postId, { status: "good" });
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["allPosts"])
+      }
+    })
   
   const handleDelete = (id) => {
     deleteMutation.mutate(id);
@@ -102,6 +115,10 @@ const PostList = () => {
   const handleCloseView = () => {
     setShowPost(false);
     setSelectedPost(null);
+  }
+
+  const handleReport = (postId)=>{
+    reportMutation.mutate(postId);
   }
 
   const actionColumn = [

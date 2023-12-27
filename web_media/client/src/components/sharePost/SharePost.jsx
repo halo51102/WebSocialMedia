@@ -33,7 +33,6 @@ const SharePost = ({ setShareOpen, postShare }) => {
     }
 
     return (
-
         <div className="sharing">
             <div className="wrapper">
                 <div className="descSharing">
