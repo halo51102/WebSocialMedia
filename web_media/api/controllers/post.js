@@ -171,7 +171,7 @@ export const getAllPosts = (req, res) => {
   const q = "SELECT p.*,u.profilePic as userProfilePic,u.name as userName, g.name as groupName, g.profilePic as groupProfilePic FROM posts as p join users as u on (p.userId=u.id) left join publicgroups as g on (g.id=p.groupId);"
 
   db.query(q, (err, data) => {
-    if (err) return res.status(500).json(err);
+    if (err) return resd.status(500).json(err);
     return res.status(200).json(data)
   })
 }
@@ -188,6 +188,27 @@ export const getAPost = (req, res) => {
     db.query(q, [req.params.postId], (err, data) => {
       if (err) return res.status(500).json(err);
       return res.status(200).json(data)
+    })
+  })
+}
+
+export const updateReportStatus = (req, res) => {
+  const token = req.cookies.accessToken
+  if (!token) return res.status(401).json("Not logged in!")
+
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!")
+
+    const q =
+      "UPDATE posts SET `status` = ? where `id` = ? "
+    const values = [
+      req.body.status,
+      req.params.postId
+    ]
+
+    db.query(q, values, (err, data) => {
+      if (err) return res.status(500).json(err)
+      return res.status(200).json("Post has been reported")
     })
   })
 }

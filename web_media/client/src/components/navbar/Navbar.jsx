@@ -7,6 +7,9 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import { RiLockPasswordLine } from "react-icons/ri";
+import { IoLogOutOutline } from "react-icons/io5";
+import { CgProfile } from "react-icons/cg";
 import { Link, useNavigate } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import { DarkModeContext } from "../../context/darkModeContext";
@@ -24,9 +27,10 @@ const Navbar = ({ socket }) => {
   const [results, setResults] = useState([]);
   const [input, setInput] = useState("");
   const [openNotications, setOpenNotifications] = useState(false);
-
+  const [openMenu, setOpenMenu] = useState(false);
   const { toggle, darkMode } = useContext(DarkModeContext);
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   let id = (String)(currentUser.id)
   let profile = "/profile/" + id
@@ -88,6 +92,16 @@ const Navbar = ({ socket }) => {
     );
   };
 
+  const handleOpenMenu = () => {
+    setOpenMenu(!openMenu);
+    setOpenNotifications(false);
+  }
+
+  const handleOpenNotifications = () => {
+    setOpenNotifications(!openNotications);
+    setOpenMenu(false);
+  }
+
   return (
     <div className="navbar">
       <div className="left">
@@ -114,10 +128,11 @@ const Navbar = ({ socket }) => {
           <DarkModeOutlinedIcon onClick={toggle} />
         )}
         <Link to="/friend" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}><PersonOutlinedIcon /></Link>
-        <Link to="#" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" } } onClick={() => setOpenUpdate(true)}><EmailOutlinedIcon /></Link>
-        <NotificationsOutlinedIcon onClick={() => setOpenNotifications(!openNotications)} />
+        <Link to="/messenger" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}><EmailOutlinedIcon /></Link>
+        <NotificationsOutlinedIcon onClick={handleOpenNotifications} />
         <Link
-          to={profile}
+          to="#"
+          onClick={handleOpenMenu}
         >
           <div className="user">
             <img
@@ -126,7 +141,7 @@ const Navbar = ({ socket }) => {
             />
           </div>
         </Link>
-        {openNotications && (notifications?.length === 0  ?
+        {openNotications && (notifications?.length === 0 ?
           (<div className="notifications">
             <span className="notification">Không có thông báo gần đây</span>
           </div>) :
@@ -139,8 +154,27 @@ const Navbar = ({ socket }) => {
           </div>))
         }
         {openUpdate && <ChangePassword setOpenUpdate={setOpenUpdate} user={findUser} />}
+        {openMenu
+          && <div className="menu">
+            <div className="menu-item"
+              onClick={() => {
+                navigate(`/profile/${currentUser.id}`);
+                setOpenMenu(false)
+              }}>
+              <CgProfile style={{ fontSize: "25px" }} />
+              <span>Trang cá nhân</span>
+            </div>
+            <div className="menu-item"
+              onClick={() => {
+                setOpenUpdate(true);
+                setOpenMenu(false)
+              }} >
+              <RiLockPasswordLine style={{ fontSize: "20px" }} />
+              <span>Đổi mật khẩu</span>
+            </div>
+          </div>}
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -50,8 +50,6 @@ export default function Messenger({ socket }) {
   };
 
   const handleEmotionSelect = async (e, index) => {
-    // setSelectedEmotion(emotion); 
-    // Do something with the selected emotion (e.g., send it, update state, etc.)
     console.log('Selected Emotion:', e.target.src);
     console.log('Selected Index:', index);
     console.dir(messages[index])
@@ -79,17 +77,13 @@ export default function Messenger({ socket }) {
         console.dir(messages)
         setMessages([...messages]);
       }
-      // const res = await axios.post(`/messages/${m._id}`, {"emote": emotion});
       console.log("in handleEmotionSelect")
-      // messages[index] = res.data
-      // setMessages([...messages]);
     } catch (err) {
       console.log(err);
     }
   };
 
   useEffect(() => {
-    // socket.current = io("ws://localhost:8900");
     socket?.on("getMessage", (data) => {
       setArrivalMessage({
         id: data.messageId,
@@ -111,11 +105,6 @@ export default function Messenger({ socket }) {
 
   useEffect(() => {
     socket?.emit("addUser", currentUser.id);
-    // socket.current.on("getUsers", (users) => {
-    //   setOnlineUsers(
-    //     currentUser.followings.filter((f) => users.some((u) => u.userId === f))
-    //   );
-    // });
   }, [currentUser]);
 
   useEffect(() => {

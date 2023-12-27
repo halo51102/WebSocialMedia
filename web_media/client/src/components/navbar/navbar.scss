@@ -81,6 +81,33 @@
       @include mobile {
         display: none;
       }
+      
+      .menu{
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        right: 0px;
+        max-height: 500px;
+        top: 50px;
+        z-index: 10000;
+        background-color: themed("bg");
+        border: 4px double themed("bgSoft");
+        border-radius: 20px;
+        width: 200px;
+
+        .menu-item{
+          border-bottom: 3px solid themed("bgSoft");
+          padding: 20px 30px;
+          display: flex;
+          gap: 20px;
+          cursor: pointer;
+
+          &:hover{
+            background-color: rgba(0, 0, 255, 0.368);
+            color: white;
+          }
+        }
+      }
 
       .notifications {
         display: flex;

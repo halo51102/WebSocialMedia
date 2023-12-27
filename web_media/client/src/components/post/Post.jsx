@@ -47,7 +47,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     makeRequest.get("/posts/s/" + post.sharePostId).then((res) => {
       return res.data[0]
     }))
-  console.log(shareId)
+
   const notificationMutation = useMutation((type) => {
     return makeRequest.post("/notifications",
       {
@@ -97,6 +97,16 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     }
   );
 
+  const reportMutation = useMutation(() => {
+    console.log(post.id)
+    return makeRequest.put("/posts/report/" + post.id, { status: "reported" });
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["allPosts"])
+      }
+    })
+
   const handleDelete = () => {
     setConfirmDelete(true);
   }
@@ -115,7 +125,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     if (isCommentOpen) {
       closeComment();
     } else {
-      openComment(post.id); 
+      openComment(post.id);
     }
   };
 
@@ -144,6 +154,11 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     });
   };
 
+  const handleReport = () => {
+    reportMutation.mutate();
+    setMenuOpen(false);
+  }
+
   const handleImageClick = (image) => {
     setSelectedImage(image);
     setShowImage(true);
@@ -162,7 +177,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
         <div className="container">
           <div className="user">
             <div className="userInfo">
-              <img src={post?.profilePic? "/upload/" + post?.profilePic:profileAlt} alt="" />
+              <img src={post?.profilePic ? "/upload/" + post?.profilePic : profileAlt} alt="" />
               <div className="details">
                 <Link
                   to={profile}
@@ -192,7 +207,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
             {menuOpen
               && post.userId !== currentUser.id
-              && <div className="post-menu">
+              && <div className="post-menu" onClick={handleReport}>
                 <span>Báo cáo bài viết</span>
               </div>
             }
@@ -218,7 +233,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
             </div>
             <div className="userInfoShare">
-              <img src={shareData?.profilePic? "/upload/" + shareData?.profilePic:profileAlt} alt="" />
+              <img src={shareData?.profilePic ? "/upload/" + shareData?.profilePic : profileAlt} alt="" />
               <div className="detailShare">
                 <Link
                   to={"/profile/" + shareData?.userId}
@@ -253,10 +268,12 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
               <TextsmsOutlinedIcon />
               See Comments
             </div>
-            <div className="item" onClick={() => setShareOpen(true)}>
-              <ShareOutlinedIcon />
-              Share
-            </div>
+            {(post.userId !== currentUser.id)
+              && <div className="item" onClick={() => setShareOpen(true)}>
+                <ShareOutlinedIcon />
+                Share
+              </div>
+            }
           </div>
           {isCommentOpen && <Comments postId={post.id} socket={socket} user={user} post={post} />}
           {shareOpen && <SharePost setShareOpen={setShareOpen} postShare={post} />}

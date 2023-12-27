@@ -84,7 +84,6 @@ const CreateConversationForm = ({ setNewConversation }) => {
   return (
 
     <div className="create-group-container">
-
       {!showForm ? (
         <button className="chatSubmitButton" onClick={handleOpenCreate}>
           Create Conversation

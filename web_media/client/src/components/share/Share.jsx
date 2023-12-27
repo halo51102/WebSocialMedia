@@ -40,9 +40,11 @@ const Share = () => {
   },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["posts"])
+        queryClient.invalidateQueries(["posts"]);
+        
       }
     })
+
   const handleNewPost = async (e) => {
     e.preventDefault()
     let imgUrl = ""
