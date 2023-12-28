@@ -120,7 +120,7 @@ function App() {
         },
         {
           path: "/group/all",
-          element: <AllGroup />,
+          element: <AllGroup />, 
         },
         {
           path: "/group/:id",

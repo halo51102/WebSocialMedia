@@ -9,11 +9,14 @@ import { AuthContext } from '../../context/authContext'
 import profileAlt from "../../assets/profileAlt.png"
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { NotificationContext } from '../../context/notificationContext';
+import { MdNotificationsActive } from "react-icons/md";
 
 function Header({ openSidebar, socket }) {
   const { currentUser } = useContext(AuthContext);
   const [openMenu, setOpenMenu] = useState(false);
   const navigate = useNavigate();
+  const { notification, showNotification } = useContext(NotificationContext)
 
   const { isLoading, error, data: findUser } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + currentUser.id).then((res) => {
@@ -30,7 +33,10 @@ function Header({ openSidebar, socket }) {
     try {
       await axios.post("http://localhost:8800/api/auth/logout")
       localStorage.removeItem('user');
-      navigate("/login")
+      showNotification("Đăng xuất thành công!!");
+      setTimeout(() => {
+        navigate("/login")
+      }, 1000);
     } catch (err) {
       console.log(err.response.data)
     }
@@ -70,6 +76,11 @@ function Header({ openSidebar, socket }) {
           </div>
         </div>
       }
+      {notification
+        && (<div className="pop-notification">
+          <MdNotificationsActive style={{ fontSize: "20px" }} />
+          <span>{notification}</span>
+        </div>)}
     </header >
   )
 }

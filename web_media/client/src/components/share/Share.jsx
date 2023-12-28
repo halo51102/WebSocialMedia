@@ -10,6 +10,7 @@ import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import profileAlt from "../../assets/profileAlt.png"
+import { NotificationContext } from "../../context/notificationContext";
 
 const Share = () => {
 
@@ -18,6 +19,7 @@ const Share = () => {
   const groupId = parseInt(useLocation().pathname.split("/")[2])
   const { currentUser } = useContext(AuthContext)
   const queryClient = useQueryClient()
+  const { showNotification } = useContext(NotificationContext)
 
   const { isLoading, error, data: findUser } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + currentUser.id).then((res) => {
@@ -41,7 +43,8 @@ const Share = () => {
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["posts"]);
-        
+        queryClient.invalidateQueries(["postsInGroup"]);
+
       }
     })
 
@@ -52,6 +55,7 @@ const Share = () => {
     mutation.mutate({ desc, img: imgUrl, group: groupId, sharePost: null })
     setDesc("")
     setFile(null)
+    showNotification("Đăng bài viết thành công!!")
   }
 
   return (

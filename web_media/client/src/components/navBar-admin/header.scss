@@ -55,3 +55,31 @@
         }
     }
 }
+
+.pop-notification {
+    display: flex;
+    position: absolute;
+    right: 40%;
+    /* border: 1px solid; */
+    padding: 20px;
+    z-index: 10000;
+    background-color: wheat;
+    border-radius: 10px;
+    top: 20px;
+    box-shadow: 0px 0px 100px 5px rgba(0, 0, 0, 0.38);
+    gap: 20px;
+    animation: fade-in 0.3s ease-in-out;
+    color: black;
+}
+
+  @keyframes fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
