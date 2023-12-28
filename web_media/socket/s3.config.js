@@ -12,6 +12,7 @@ aws.config.update({
   },
   region: 'ap-southeast-1',
 })
+
 const s3 = new aws.S3();
 
 // Multer S3 storage configuration

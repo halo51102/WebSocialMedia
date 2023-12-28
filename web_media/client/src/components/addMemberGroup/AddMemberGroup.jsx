@@ -16,7 +16,7 @@ export const AddMemberGroup = ({ results, groupId, membergroup }) => {
             return res.data;
         })
     );
-    const queryClient=useQueryClient()
+    const queryClient = useQueryClient()
     const addMemberMutation = useMutation((userId) => {
         return makeRequest.post("/groups/" + groupId + "/members/" + userId);
     },
@@ -26,17 +26,16 @@ export const AddMemberGroup = ({ results, groupId, membergroup }) => {
             }
         }
     );
-    const handleAdd=(userId)=>{
+    const handleAdd = (userId) => {
         addMemberMutation.mutate(userId)
     }
     console.log(data)
     return (
         <div className="results">
-
             {(results !== empty)
                 ?
                 results?.map((result, id) =>
-                (result.id!==currentUser.id && !membergroup?.some(member=>member.userId===result.id) && <div className="aresult"><Link
+                (result.id !== currentUser.id && !membergroup?.some(member => member.userId === result.id) && <div className="aresult"><Link
                     to={"/profile/" + result.id}
                     style={{ textDecoration: "none", color: "inherit" }}
                 >
@@ -44,15 +43,15 @@ export const AddMemberGroup = ({ results, groupId, membergroup }) => {
                     <div className="result" key={id} >
                         <div className="info">
                             <img
-                                src={result?.profilePic?"/upload/" + result?.profilePic:profileAlt}
+                                src={result?.profilePic ? "/upload/" + result?.profilePic : profileAlt}
                                 alt="" />
                             <span>{result.name}</span>
                         </div>
 
-                        
+
                     </div>
                 </Link>
-                <button onClick={() => handleAdd(result.id)}>+Add</button>
+                    <button onClick={() => handleAdd(result.id)}>+Add</button>
                 </div>)
                 )
 
