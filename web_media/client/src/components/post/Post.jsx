@@ -210,9 +210,13 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                   <span onClick={handleReport}>Báo cáo bài viết</span>
                   <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
                 </div>
-                : menuOpen && <div className="post-menu" onClick={handleReport}>
-                  <span>Báo cáo bài viết</span>
+                : menuOpen && <div className="post-menu" >
+                  <span onClick={handleReport}>Báo cáo bài viết</span>
+                  {post.userId === currentUser.id &&
+                    <span onClick={handleDelete}>Xóa bài viết</span>
+                  }
                 </div>
+
             }
             {menuOpen
               && post.userId === currentUser.id
