@@ -175,11 +175,19 @@
     background-color: white;
     border: 2px solid gray;
     border-radius: 10px;
-    padding: 20px;
     z-index: 1000;
     position: absolute;
     top: 30px;
     right: 0;
+    flex-direction: column;
+    
+    span{
+      padding: 15px;
+
+      &:hover{
+        background-color: rgba(128, 128, 128, 0.146);
+      }
+    }
   }
 
   .confirm-delete {

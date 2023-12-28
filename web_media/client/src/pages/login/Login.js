@@ -2,16 +2,16 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import "./login.scss";
+import { NotificationContext } from "../../context/notificationContext";
 
 function Login() {
     const [inputs, setInputs] = useState({
         username: "",
         password: "",
     })
-
     const [err, setErr] = useState(null)
-
     const navigate = useNavigate()
+    const { showNotification } = useContext(NotificationContext)
 
     const handleChange = (e) => {
         setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -24,10 +24,14 @@ function Login() {
         try {
             const userData = await login(inputs);
             console.log(userData)
-            if (userData.role === "admin")
-                navigate("/admin")
-            else
+            if (userData.role === "admin") {
+                navigate("/admin");
+                showNotification("Đăng nhập ADMIN thành công!!");
+            }
+            else{
                 navigate("/")
+                showNotification("Đăng nhập người dùng thành công!!");
+            }
         } catch (err) {
             setErr(err.response?.data)
         }

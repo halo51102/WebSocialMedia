@@ -14,6 +14,7 @@ import { AuthContext } from "../../context/authContext";
 import SharePost from "../sharePost/SharePost";
 import Share from "../share/Share";
 import profileAlt from "../../assets/profileAlt.png"
+import { NotificationContext } from "../../context/notificationContext";
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
@@ -25,6 +26,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [shareOpen, setShareOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const { showNotification } = useContext(NotificationContext)
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
     makeRequest.get("/groups/" + post.groupId + "/members").then((res) => {
@@ -114,11 +116,13 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const handleConfirmDelete = () => {
     setConfirmDelete(false);
     deletePostMutation.mutate(post.id)
+    showNotification("Xóa bài viết thành công!!")
   }
 
   const handleDeleteG = () => {
     console.log(post.id + "" + post.groupId)
     deletePostMutationG.mutate()
+    showNotification("Đã xóa bài viết của thành viên")
   }
 
   const handleToggleComment = () => {
@@ -157,6 +161,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const handleReport = () => {
     reportMutation.mutate();
     setMenuOpen(false);
+    showNotification("Bài viết đã được báo cáo, hãy chờ xử lý của ADMIN.")
   }
 
   const handleImageClick = (image) => {
@@ -192,12 +197,23 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
               onClick={() => setMenuOpen(!menuOpen)}
               style={{ position: "absolute", right: 0, cursor: "pointer" }}
             />
-            {menuOpen && gData?.some(
-              member => member.position === "admin" &&
-                member.userId === currentUser.id &&
-                member.groupId === post.groupId) &&
-              post.userId !== currentUser.id &&
-              <button onClick={handleDeleteG}>Delete Post of member</button>}
+            {
+              (
+                menuOpen && gData?.some(
+                  member => member.position === "admin" &&
+                    member.userId === currentUser.id &&
+                    member.groupId === post.groupId
+                )
+                && post.userId !== currentUser.id
+              )
+                ? <div className="post-menu" >
+                  <span onClick={handleReport}>Báo cáo bài viết</span>
+                  <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
+                </div>
+                : menuOpen && <div className="post-menu" onClick={handleReport}>
+                  <span>Báo cáo bài viết</span>
+                </div>
+            }
             {menuOpen
               && post.userId === currentUser.id
               && <button
@@ -205,12 +221,12 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                 style={{ padding: "10px", borderRadius: "10px" }}>Delete</button>
             }
 
-            {menuOpen
+            {/* {menuOpen
               && post.userId !== currentUser.id
               && <div className="post-menu" onClick={handleReport}>
                 <span>Báo cáo bài viết</span>
               </div>
-            }
+            } */}
 
 
           </div>

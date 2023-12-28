@@ -20,6 +20,8 @@ import { makeRequest } from "../../axios";
 import profileAlt from "../../assets/profileAlt.png"
 import ChangePassword from "../changePassword/ChangePassword";
 import moment from "moment";
+import { NotificationContext } from "../../context/notificationContext";
+import { MdNotificationsActive } from "react-icons/md";
 
 const Navbar = ({ socket }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -31,6 +33,7 @@ const Navbar = ({ socket }) => {
   const { toggle, darkMode } = useContext(DarkModeContext);
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { notification } = useContext(NotificationContext)
 
   let id = (String)(currentUser.id)
   let profile = "/profile/" + id
@@ -40,11 +43,10 @@ const Navbar = ({ socket }) => {
       return res.data
     }))
 
-  const { error: notificationsError, data: notifications } = useQuery(["notifications"], () =>
+  const { error: notificationsError, data: notificationsData } = useQuery(["notifications"], () =>
     makeRequest.get("/notifications?receiverId=" + currentUser.id).then((res) => {
       return res.data
     }))
-  console.log(notifications)
 
   // useEffect(() => {
   //   socket?.on("getNotification", (data) => {
@@ -141,12 +143,12 @@ const Navbar = ({ socket }) => {
             />
           </div>
         </Link>
-        {openNotications && (notifications?.length === 0 ?
+        {openNotications && (notificationsData?.length === 0 ?
           (<div className="notifications">
             <span className="notification">Không có thông báo gần đây</span>
           </div>) :
           (<div className="notifications">
-            {notifications.map((noti) =>
+            {notificationsData.map((noti) =>
               <span className="notification">
                 {`${noti.name} ${noti.type} bài viết của bạn.`}
                 <span className="date">{moment(noti.create_at).fromNow()}</span>
@@ -174,6 +176,11 @@ const Navbar = ({ socket }) => {
             </div>
           </div>}
       </div>
+      {notification
+        && (<div className="pop-notification">
+          <MdNotificationsActive style={{ fontSize: "20px" }} />
+          <span>{notification}</span>
+        </div>)}
     </div >
   );
 };
