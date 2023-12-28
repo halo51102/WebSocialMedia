@@ -14,7 +14,7 @@ export const getPosts = (req, res) => {
 
     const q = userId !== "undefined" ?
       `select p.*, u.username, u.name, u.profilePic, r.followedUserId, r.followerUserId from posts as p join users as u on(p.userId=u.id) left join relationships as r
-    on (u.id=r.followedUserId) where r.followerUserId=?;`
+    on (u.id=r.followedUserId) where r.followerUserId=? ORDER BY p.createdAt DESC;`
       : `SELECT p.*,u.id AS userId,name,username,profilePic FROM posts AS p JOIN users AS u ON(u.id=p.userId)
     LEFT JOIN relationships AS r ON (p.userId=r.followedUserId) WHERE r.followerUserId=? OR p.userId=?
     ORDER BY p.createdAt DESC`
@@ -39,7 +39,7 @@ export const getPostsInProfile = (req, res) => {
     if (err) return res.status(403).json("Token is not valid!")
 
     const q = userId !== "undefined" ?
-      `select p.*, u.username, u.name, u.profilePic from posts as p join users as u on(p.userId=u.id) where p.userId=?;`
+      `select p.*, u.username, u.name, u.profilePic from posts as p join users as u on(p.userId=u.id) where p.userId=? ORDER BY p.createdAt DESC;`
       : `SELECT p.*,u.id AS userId,name,username,profilePic FROM posts AS p JOIN users AS u ON(u.id=p.userId)
     LEFT JOIN relationships AS r ON (p.userId=r.followedUserId) WHERE r.followerUserId=? OR p.userId=?
     ORDER BY p.createdAt DESC`
