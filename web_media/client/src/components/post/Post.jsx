@@ -44,10 +44,17 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     }))
 
   const queryClient = useQueryClient()
-  const shareId = post.sharePostId
+
+
   const { isLoading: shareIsLoading, error: shareError, data: shareData } = useQuery(["posts", post.sharePostId], () =>
     makeRequest.get("/posts/s/" + post.sharePostId).then((res) => {
       return res.data[0]
+    }))
+
+  // Lấy hình ảnh của post
+  const { isLoading: imagesIsLoading, error: imagesError, data: imagesData } = useQuery(["imagesOfPost", post.id], () =>
+    makeRequest.get("/posts/images?postId=" + post.id).then((res) => {
+      return res.data
     }))
 
   const notificationMutation = useMutation((type) => {
@@ -237,9 +244,12 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
           <div className="content">
             <p>{post.desc}</p>
-            <img src={"/upload/" + post.img}
-              alt=""
-              onClick={() => handleImageClick("/upload/" + post.img)} />
+            {imagesError ? "erorr" : imagesIsLoading ? "loading" : Array.isArray(imagesData) &&
+              imagesData.map((data) => (
+                <img src={data.img}
+                  alt="lỗi image"
+                  onClick={() => handleImageClick(data.img)} />
+              ))}
           </div>
 
 

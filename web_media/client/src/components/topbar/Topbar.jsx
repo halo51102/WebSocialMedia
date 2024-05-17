@@ -35,35 +35,8 @@ export default function Topbar() {
         </Link>
       </div>
 
-      {/* <div className="topbarCenter">
-        <div className="searchbar">
-          <SearchOutlined className="searchIcon" />
-          <input
-            placeholder="Search for friend, post or video"
-            className="searchInput"
-          />
-        </div>
-      </div> */}
 
       <div className="topbarRight">
-        {/* <div className="topbarLinks">
-          <span className="topbarLink">Homepage</span>
-          <span className="topbarLink">Timeline</span>
-        </div> */}
-        {/* <div className="topbarIcons">
-          <div className="topbarIconItem">
-            <PersonOutline />
-            <span className="topbarIconBadge">1</span>
-          </div>
-          <div className="topbarIconItem">
-            <ChatOutlined />
-            <span className="topbarIconBadge">2</span>
-          </div>
-          <div className="topbarIconItem">
-            <Notifications />
-            <span className="topbarIconBadge">1</span>
-          </div>
-        </div> */}
         <Link
           onClick={() => {
             navigate(`/profile/${currentUser.id}`)
