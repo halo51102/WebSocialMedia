@@ -1,5 +1,5 @@
 import express from 'express'
-import { addPost, getPosts, deletePost, getPostsInGroup, deletePostInGroup, getPostsInProfile, countPosts, getAPost, getAllPosts, updateReportStatus } from '../controllers/post.js'
+import { addPost,addImageOfPost, getImagesOfPost, getPosts, deletePost, getPostsInGroup, deletePostInGroup, getPostsInProfile, countPosts, getAPost, getAllPosts, updateReportStatus } from '../controllers/post.js'
 const routes = express.Router()
 
 routes.get("/", getPosts)
@@ -12,5 +12,7 @@ routes.delete("/:id", deletePost)
 routes.delete("/:id/:groupId", deletePostInGroup)
 routes.get("/groups/:groupId", getPostsInGroup)
 routes.put("/report/:postId", updateReportStatus)
+routes.get("/images", getImagesOfPost)
+routes.post("/images", addImageOfPost)
 
 export default routes
