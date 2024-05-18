@@ -1,12 +1,14 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import "./createStory.scss"
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
+import { NotificationContext } from "../../context/notificationContext";
 
 const CreateStory = ({ setOpenCreate }) => {
 
     const [img, setImg] = useState(null);
+    const { showNotification } = useContext(NotificationContext);
 
     const upload = async () => {
         try {
@@ -41,6 +43,7 @@ const CreateStory = ({ setOpenCreate }) => {
         mutation.mutate({ img: imgUrl })
         setOpenCreate(false);
         setImg(null);
+        showNotification("Đăng story thành công!!")
     }
 
     return (

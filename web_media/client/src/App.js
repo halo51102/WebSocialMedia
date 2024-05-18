@@ -17,7 +17,6 @@ import Messenger from "./pages/messenger/messenger"
 import SideBar from "./components/sideBar/SideBar";
 import Header from "./components/navBar-admin/Header";
 import HomeAdmin from "./pages/admin/home/HomeAdmin";
-import AdminProfile from "./pages/admin/profile/AdminProfile";
 import "./style.scss";
 import "./styleAdmin.scss"
 import { useContext, useEffect } from "react";
@@ -120,7 +119,7 @@ function App() {
         },
         {
           path: "/group/all",
-          element: <AllGroup />,
+          element: <AllGroup />, 
         },
         {
           path: "/group/:id",
@@ -167,10 +166,6 @@ function App() {
         {
           path: "/admin/posts",
           element: <PostList />
-        },
-        {
-          path: "/admin/profile",
-          element: <AdminProfile />
         }
       ]
     }

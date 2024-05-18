@@ -1,5 +1,4 @@
 const dotenv = require("dotenv");
-const { S3Client } = require('@aws-sdk/client-s3');
 const aws = require('aws-sdk');
 const multer = require('multer');
 const multerS3 = require('multer-s3');
@@ -13,19 +12,8 @@ aws.config.update({
   },
   region: 'ap-southeast-1',
 })
+
 const s3 = new aws.S3();
-
-
-// let s3 = new S3Client({
-//   region: 'ap-southeast-1',
-//   credentials: {
-//     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-//     secretAccessKey: process.env.AWS_ACCESS_KEY_ID
-//   },
-//   // signatureVersion: 'v4',
-//   s3ForcePathStyle: true,
-// })
-
 
 // Multer S3 storage configuration
 const uploadLocalFile = multer({

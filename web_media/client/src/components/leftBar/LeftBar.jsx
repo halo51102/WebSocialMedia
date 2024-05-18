@@ -10,14 +10,14 @@ import { AuthContext } from "../../context/authContext";
 import { useContext, useState } from "react";
 import axios from "axios"
 import { Link, useNavigate } from "react-router-dom";
+import { NotificationContext } from "../../context/notificationContext";
 
 const LeftBar = ({ socket, user }) => {
 
   const { currentUser } = useContext(AuthContext);
-
   const [err, setErr] = useState(null)
-
   const navigate = useNavigate();
+  const { showNotification } = useContext(NotificationContext)
 
   let group = "/group"
 
@@ -27,7 +27,11 @@ const LeftBar = ({ socket, user }) => {
     try {
       await axios.post("http://localhost:8800/api/auth/logout")
       localStorage.removeItem('user');
-      navigate("/login")
+      showNotification("Đăng xuất thành công!!")
+
+      setTimeout(() => {
+        navigate("/login")
+      }, 1000);
     } catch (err) {
       setErr(err.response.data)
     }

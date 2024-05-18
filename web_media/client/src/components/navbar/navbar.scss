@@ -13,6 +13,33 @@
     color: themed("textColor");
     z-index: 999;
 
+    .pop-notification {
+      display: flex;
+      position: absolute;
+      right: 40%;
+      /* border: 1px solid; */
+      padding: 20px;
+      z-index: 10000;
+      background-color: wheat;
+      border-radius: 10px;
+      top: 20px;
+      box-shadow: 0px 0px 100px 5px rgba(0, 0, 0, 0.38);
+      gap: 20px;
+      animation: fade-in 0.3s ease-in-out;
+    }
+
+    @keyframes fade-in {
+      0% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
     .left {
       display: flex;
       gap: 30px;
@@ -81,8 +108,8 @@
       @include mobile {
         display: none;
       }
-      
-      .menu{
+
+      .menu {
         display: flex;
         flex-direction: column;
         position: absolute;
@@ -95,14 +122,14 @@
         border-radius: 20px;
         width: 200px;
 
-        .menu-item{
+        .menu-item {
           border-bottom: 3px solid themed("bgSoft");
           padding: 20px 30px;
           display: flex;
           gap: 20px;
           cursor: pointer;
 
-          &:hover{
+          &:hover {
             background-color: rgba(0, 0, 255, 0.368);
             color: white;
           }
@@ -123,13 +150,13 @@
         border: 4px double themed("bgSoft");
         border-radius: 20px;
 
-        .notification{
+        .notification {
           border-bottom: 3px solid themed("bgSoft");
           padding: 20px 30px;
           display: flex;
           flex-direction: column;
 
-          .date{
+          .date {
             font-size: 12px;
             font-style: italic;
             padding-top: 5px;

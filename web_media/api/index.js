@@ -47,6 +47,8 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
 })
 
 app.use("/api/auth", authRoutes)
+{/*http://localhost:8800/api/auth/login POST */}
+
 app.use("/api/users", userRoutes)
 app.use("/api/posts", postRoutes)
 app.use("/api/comments", commentRoutes)
@@ -61,15 +63,14 @@ app.use("/api/likes", likeRoutes)
 app.use("/api/relationships", relationshipRoutes)
 app.use("/api/stories", storyRoutes)
 app.use("/api/notifications", notificationsRoutes)
-<<<<<<< Updated upstream
-=======
+
 app.use("/api/groups", groupRoutes)
 app.use("/api/picOfPost", picOfPostRoutes)
 app.use("/api/userTagPost", userTagPostRoutes)
 app.use("/api/storage", storageRoutes)
->>>>>>> Stashed changes
 
 app.use("/api/groups", groupRoutes)
+
 app.listen(8800, () => {
     console.log("API working")
 })

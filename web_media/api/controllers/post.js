@@ -14,7 +14,7 @@ export const getPosts = (req, res) => {
 
     const q = userId !== "undefined" ?
       `select p.*, u.username, u.name, u.profilePic, r.followedUserId, r.followerUserId from posts as p join users as u on(p.userId=u.id) left join relationships as r
-    on (u.id=r.followedUserId) where r.followerUserId=?;`
+    on (u.id=r.followedUserId) where r.followerUserId=? ORDER BY p.createdAt DESC;`
       : `SELECT p.*,u.id AS userId,name,username,profilePic FROM posts AS p JOIN users AS u ON(u.id=p.userId)
     LEFT JOIN relationships AS r ON (p.userId=r.followedUserId) WHERE r.followerUserId=? OR p.userId=?
     ORDER BY p.createdAt DESC`
@@ -39,7 +39,7 @@ export const getPostsInProfile = (req, res) => {
     if (err) return res.status(403).json("Token is not valid!")
 
     const q = userId !== "undefined" ?
-      `select p.*, u.username, u.name, u.profilePic from posts as p join users as u on(p.userId=u.id) where p.userId=?;`
+      `select p.*, u.username, u.name, u.profilePic from posts as p join users as u on(p.userId=u.id) where p.userId=? ORDER BY p.createdAt DESC;`
       : `SELECT p.*,u.id AS userId,name,username,profilePic FROM posts AS p JOIN users AS u ON(u.id=p.userId)
     LEFT JOIN relationships AS r ON (p.userId=r.followedUserId) WHERE r.followerUserId=? OR p.userId=?
     ORDER BY p.createdAt DESC`
@@ -87,10 +87,9 @@ export const addPost = (req, res) => {
     if (err) return res.status(403).json("Token is not valid!")
 
     const q =
-      "INSERT INTO posts(`desc`, `img`, `createdAt`, `userId`,`groupId`,`sharePostId`) VALUES (?)"
+      "INSERT INTO posts(`desc`, `createdAt`, `userId`,`groupId`,`sharePostId`) VALUES (?)"
     const values = [
       req.body.desc,
-      req.body.img,
       moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
       userInfo.id,
       req.body.group,
@@ -99,7 +98,10 @@ export const addPost = (req, res) => {
 
     db.query(q, [values], (err, data) => {
       if (err) return res.status(500).json(err)
-      return res.status(200).json("Post has been created.")
+      return res.status(200).json({
+        msg: "Post has been created.",
+        data: data
+      })
     })
   })
 }
@@ -209,6 +211,36 @@ export const updateReportStatus = (req, res) => {
     db.query(q, values, (err, data) => {
       if (err) return res.status(500).json(err)
       return res.status(200).json("Post has been reported")
+    })
+  })
+}
+
+export const getImagesOfPost = (req, res) => {
+  const q = `SELECT pi.* FROM posts AS p JOIN posts_images AS pi ON (p.id=pi.postId) WHERE p.id=?`
+
+  db.query(q, [req.query.postId], (err, data) => {
+    if (err) return res.status(500).json(err);
+    return res.status(200).json(data)
+  })
+}
+
+export const addImageOfPost = (req, res) => {
+  const token = req.cookies.accessToken
+  if (!token) return res.status(401).json("Not logged in!")
+
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!")
+
+    const q =
+      "INSERT INTO posts_images(`postId`, `img`) VALUES (?)"
+    const values = [
+      req.body.postId,
+      req.body.img
+    ]
+
+    db.query(q, [values], (err, data) => {
+      if (err) return res.status(500).json(err)
+      return res.status(200).json({msg: "Image of post has been created.", data: data})
     })
   })
 }

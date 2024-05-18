@@ -22,7 +22,7 @@ const SharePost = ({ setShareOpen, postShare }) => {
     },
         {
             onSuccess: () => {
-                queryClient.invalidateQueries(["posts"])
+                // queryClient.invalidateQueries(["posts"])
             }
         })
     const handleShare = async (e) => {

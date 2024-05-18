@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { makeRequest } from "../../axios";
 import "./updateGroup.scss";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { NotificationContext } from "../../context/notificationContext";
 
 const UpdateGroup = ({ setOpenUpdate, group }) => {
   const [cover, setCover] = useState(null);
@@ -12,6 +13,7 @@ const UpdateGroup = ({ setOpenUpdate, group }) => {
     desc: group.desc,
     id: group.id,
   });
+  const { showNotification } = useContext(NotificationContext)
 
   const upload = async (file) => {
     console.log(file)
@@ -57,6 +59,7 @@ const UpdateGroup = ({ setOpenUpdate, group }) => {
     setOpenUpdate(false);
     setCover(null);
     setProfile(null);
+    showNotification("Đã cập nhật thông tin của nhóm")
   }
 
   return (

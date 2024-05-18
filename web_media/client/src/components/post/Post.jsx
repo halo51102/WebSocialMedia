@@ -14,11 +14,9 @@ import { AuthContext } from "../../context/authContext";
 import SharePost from "../sharePost/SharePost";
 import Share from "../share/Share";
 import profileAlt from "../../assets/profileAlt.png"
-<<<<<<< Updated upstream
-=======
 import { NotificationContext } from "../../context/notificationContext";
 import ListTagPost from "../listTagPost/ListTagPost";
->>>>>>> Stashed changes
+import { NotificationContext } from "../../context/notificationContext";
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
@@ -54,10 +52,17 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     }))
 
   const queryClient = useQueryClient()
-  const shareId = post.sharePostId
+
+
   const { isLoading: shareIsLoading, error: shareError, data: shareData } = useQuery(["posts", post.sharePostId], () =>
     makeRequest.get("/posts/s/" + post.sharePostId).then((res) => {
       return res.data[0]
+    }))
+
+  // Lấy hình ảnh của post
+  const { isLoading: imagesIsLoading, error: imagesError, data: imagesData } = useQuery(["imagesOfPost", post.id], () =>
+    makeRequest.get("/posts/images?postId=" + post.id).then((res) => {
+      return res.data
     }))
 
   const notificationMutation = useMutation((type) => {
@@ -126,11 +131,13 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const handleConfirmDelete = () => {
     setConfirmDelete(false);
     deletePostMutation.mutate(post.id)
+    showNotification("Xóa bài viết thành công!!")
   }
 
   const handleDeleteG = () => {
     console.log(post.id + "" + post.groupId)
     deletePostMutationG.mutate()
+    showNotification("Đã xóa bài viết của thành viên")
   }
 
   const handleToggleComment = () => {
@@ -169,6 +176,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const handleReport = () => {
     reportMutation.mutate();
     setMenuOpen(false);
+    showNotification("Bài viết đã được báo cáo, hãy chờ xử lý của ADMIN.")
   }
 
   const handleImageClick = (image) => {
@@ -206,12 +214,27 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
               style={{ position: "absolute", right: 0, cursor: "pointer" }}
             />
 <<<<<<< Updated upstream
-            {menuOpen && gData?.some(
-              member => member.position === "admin" &&
-                member.userId === currentUser.id &&
-                member.groupId === post.groupId) &&
-              post.userId !== currentUser.id &&
-              <button onClick={handleDeleteG}>Delete Post of member</button>}
+            {
+              (
+                menuOpen && gData?.some(
+                  member => member.position === "admin" &&
+                    member.userId === currentUser.id &&
+                    member.groupId === post.groupId
+                )
+                && post.userId !== currentUser.id
+              )
+                ? <div className="post-menu" >
+                  <span onClick={handleReport}>Báo cáo bài viết</span>
+                  <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
+                </div>
+                : menuOpen && <div className="post-menu" >
+                  <span onClick={handleReport}>Báo cáo bài viết</span>
+                  {post.userId === currentUser.id &&
+                    <span onClick={handleDelete}>Xóa bài viết</span>
+                  }
+                </div>
+
+            }
 =======
             {openTag && <ListTagPost setOpenTag={setOpenTag} postId={post.id} />}
             {
@@ -243,21 +266,24 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                 style={{ padding: "10px", borderRadius: "10px" }}>Delete</button>
             }
 
-            {menuOpen
+            {/* {menuOpen
               && post.userId !== currentUser.id
               && <div className="post-menu" onClick={handleReport}>
                 <span>Báo cáo bài viết</span>
               </div>
-            }
+            } */}
 
 
           </div>
 
           <div className="content">
             <p>{post.desc}</p>
-            <img src={"/upload/" + post.img}
-              alt=""
-              onClick={() => handleImageClick("/upload/" + post.img)} />
+            {imagesError ? "erorr" : imagesIsLoading ? "loading" : Array.isArray(imagesData) &&
+              imagesData.map((data) => (
+                <img src={data.img}
+                  alt="lỗi image"
+                  onClick={() => handleImageClick(data.img)} />
+              ))}
           </div>
 
 
