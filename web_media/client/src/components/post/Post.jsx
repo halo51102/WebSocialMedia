@@ -28,12 +28,11 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [shareOpen, setShareOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
-<<<<<<< Updated upstream
-=======
+
   const { showNotification } = useContext(NotificationContext)
   
   const [openTag, setOpenTag] = useState(false);
->>>>>>> Stashed changes
+
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
     makeRequest.get("/groups/" + post.groupId + "/members").then((res) => {
@@ -213,7 +212,6 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
               onClick={() => setMenuOpen(!menuOpen)}
               style={{ position: "absolute", right: 0, cursor: "pointer" }}
             />
-<<<<<<< Updated upstream
             {
               (
                 menuOpen && gData?.some(
@@ -235,7 +233,6 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                 </div>
 
             }
-=======
             {openTag && <ListTagPost setOpenTag={setOpenTag} postId={post.id} />}
             {
               (
@@ -258,7 +255,6 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                 </div>
 
             }
->>>>>>> Stashed changes
             {menuOpen
               && post.userId === currentUser.id
               && <button
