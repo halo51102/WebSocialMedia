@@ -155,6 +155,7 @@ export default function Messenger({ socket }) {
     const receiverId = currentChat.members.find(
       (member) => member !== currentUser.id
     );
+    console.log(currentChat.members)
 
     await socket?.emit("sendMetadata", {
       senderId: currentUser.id,
@@ -166,6 +167,7 @@ export default function Messenger({ socket }) {
       mimeType: file ? file["type"] : null
     });
     if (message["type"] !== "text") {
+      socket?.on("getMetadata", (data) => {console.log("url anh: "+data.file_url)})
       // Listen for the "getMetadata" event from the server
       const metadataPromise = new Promise((resolve) => {
         socket?.on("getMetadata", (data) => {

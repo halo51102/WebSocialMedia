@@ -11,6 +11,9 @@ import relationshipRoutes from './routes/relationships.js'
 import groupRoutes from './routes/groups.js'
 import storyRoutes from './routes/stories.js'
 import notificationsRoutes from './routes/notifications.js'
+import picOfPostRoutes from './routes/picsPost.js'
+import userTagPostRoutes from './routes/usersTagPost.js'
+import storageRoutes from './routes/storageOfUser.js'
 import cors from "cors"
 import multer from "multer"
 import cookieParser from "cookie-parser"
@@ -58,6 +61,13 @@ app.use("/api/likes", likeRoutes)
 app.use("/api/relationships", relationshipRoutes)
 app.use("/api/stories", storyRoutes)
 app.use("/api/notifications", notificationsRoutes)
+<<<<<<< Updated upstream
+=======
+app.use("/api/groups", groupRoutes)
+app.use("/api/picOfPost", picOfPostRoutes)
+app.use("/api/userTagPost", userTagPostRoutes)
+app.use("/api/storage", storageRoutes)
+>>>>>>> Stashed changes
 
 app.use("/api/groups", groupRoutes)
 app.listen(8800, () => {

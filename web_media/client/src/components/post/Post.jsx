@@ -14,6 +14,11 @@ import { AuthContext } from "../../context/authContext";
 import SharePost from "../sharePost/SharePost";
 import Share from "../share/Share";
 import profileAlt from "../../assets/profileAlt.png"
+<<<<<<< Updated upstream
+=======
+import { NotificationContext } from "../../context/notificationContext";
+import ListTagPost from "../listTagPost/ListTagPost";
+>>>>>>> Stashed changes
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
@@ -25,6 +30,12 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [shareOpen, setShareOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
+<<<<<<< Updated upstream
+=======
+  const { showNotification } = useContext(NotificationContext)
+  
+  const [openTag, setOpenTag] = useState(false);
+>>>>>>> Stashed changes
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
     makeRequest.get("/groups/" + post.groupId + "/members").then((res) => {
@@ -35,6 +46,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     makeRequest.get("/likes?postId=" + post.id).then((res) => {
       return res.data
     }))
+
 
   const { isLoading: pIdLoading, error: pError, data: pData } = useQuery(["users"], () =>
     makeRequest.get("/users/findByPost/" + post.id).then((res) => {
@@ -170,7 +182,6 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   }
 
   let profile = "/profile/" + post.userId;
-
   return (
     <div >
       <div className="post">
@@ -184,7 +195,9 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <span className="name">{post.name}</span>
-                </Link>
+                  {post.quantityTag>=1&&<span> gắn thẻ cùng với <Link style={{ textDecoration: "none", fontSize: "12px" }} onClick={() => setOpenTag(true)}>{post.quantityTag} người khác</Link></span>
+                  
+                  }</Link>
                 <span className="date">{moment(post.createdAt).fromNow()}</span>
               </div>
             </div>
@@ -192,12 +205,37 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
               onClick={() => setMenuOpen(!menuOpen)}
               style={{ position: "absolute", right: 0, cursor: "pointer" }}
             />
+<<<<<<< Updated upstream
             {menuOpen && gData?.some(
               member => member.position === "admin" &&
                 member.userId === currentUser.id &&
                 member.groupId === post.groupId) &&
               post.userId !== currentUser.id &&
               <button onClick={handleDeleteG}>Delete Post of member</button>}
+=======
+            {openTag && <ListTagPost setOpenTag={setOpenTag} postId={post.id} />}
+            {
+              (
+                menuOpen && gData?.some(
+                  member => member.position === "admin" &&
+                    member.userId === currentUser.id &&
+                    member.groupId === post.groupId
+                )
+                && post.userId !== currentUser.id
+              )
+                ? <div className="post-menu" >
+                  <span onClick={handleReport}>Báo cáo bài viết</span>
+                  <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
+                </div>
+                : menuOpen && <div className="post-menu" >
+                  <span onClick={handleReport}>Báo cáo bài viết</span>
+                  {post.userId === currentUser.id &&
+                    <span onClick={handleDelete}>Xóa bài viết</span>
+                  }
+                </div>
+
+            }
+>>>>>>> Stashed changes
             {menuOpen
               && post.userId === currentUser.id
               && <button

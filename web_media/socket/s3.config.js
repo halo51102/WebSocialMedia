@@ -31,7 +31,7 @@ const s3 = new aws.S3();
 const uploadLocalFile = multer({
   storage: multerS3({
     s3: s3,
-    bucket: 'social-network-cnpmm',
+    bucket: 'nhutlamsocialmedia1',
     contentType: multerS3.AUTO_CONTENT_TYPE,
     acl: 'public-read', // Set ACL to public-read for public access
     metadata: function (req, file, cb) {
@@ -48,7 +48,7 @@ const uploadLocalFile = multer({
 // Function to upload an image buffer to S3
 const uploadImageToS3 = async (buffer, fileName, mimeType) => {
   const params = {
-    Bucket: 'social-network-cnpmm',
+    Bucket: 'nhutlamsocialmedia1',
     Key: fileName,
     Body: buffer,
     ContentType: mimeType,

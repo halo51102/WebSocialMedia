@@ -29,6 +29,10 @@ const removeUserByUserName = (username) => {
 };
 
 const getUser = (userId) => {
+  if(users.find((user) => user.userId === userId)===undefined){
+    return {userId}
+  }
+  console.log(users.find((user) => user.userId === userId))
   return users.find((user) => user.userId === userId);
 };
 
@@ -51,7 +55,7 @@ const handleUploadLocalFile = async (file, fileName, mimeType) => {
   bufferStream.end(file);
   fileName = Date.now().toString() + '-' + fileName;
   const url = await uploadImageToS3(bufferStream, fileName, mimeType)
-  console.log(url)
+  console.log("url: "+url)
   return url
 };
 
@@ -107,21 +111,22 @@ io.on("connection", (socket) => {
     }
     else if (type === "image" || type === "audio" || type === "video") {
       url = await handleUploadLocalFile(file, fileName, mimeType)
-      console.log(url)
+      console.log("url l87 "+url)
       const title = null
       const file_url = url
-
-      if (user !== undefined) {
+      if (user!==undefined) {
         io.to(getUser(senderId).socketId).emit("getMetadata", {
           title,
           file_url
         });
+        console.log("Gui o day 99")
       }
     }
   });
   //send and get message
   socket.on("sendMessage", async ({ messageId, senderId, receiverId, text, type, file, fileName, mimeType, title, file_url }) => {
     const user = getUser(receiverId);
+    console.log(user)
     if (type === "video_link") {
       try {
         // const res = await getVideoMetadata(text);
@@ -179,10 +184,14 @@ io.on("connection", (socket) => {
           title,
           file_url,
         });
+<<<<<<< Updated upstream
         // io.to(getUser(senderId).socketId).emit("getMetadata", {
         //   title,
         //   file_url
         // });
+=======
+        console.log("Gui o day 134")
+>>>>>>> Stashed changes
       }
     }
     else {
