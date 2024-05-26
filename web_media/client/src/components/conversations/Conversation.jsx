@@ -9,15 +9,13 @@ export default function Conversation({ conversation, currentUser }) {
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
 
   useEffect(() => {
-
     const friendId = conversation.members.find((m) => m !== currentUser.id);
-
     console.log(friendId)
     const getUser = async () => {
       try {
         const res = await makeRequest.get("/users/find/" + friendId);
-          setUser(res.data);
-          console.dir(res.data)
+        setUser(res.data);
+        console.dir(res.data)
       } catch (err) {
         console.log(err);
       }
@@ -29,11 +27,7 @@ export default function Conversation({ conversation, currentUser }) {
     <div className="conversation">
       <img
         className="conversationImg"
-        src={
-          user?.profilePic
-            ? "/upload/" + user.profilePic
-            : "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
-        }
+        src={user?.profilePic}
         alt=""
       />
       <span className="conversationName">{conversation?.name ? conversation.name : user?.name}</span>

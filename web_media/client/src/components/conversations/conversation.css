@@ -1,33 +1,125 @@
 .conversation {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    cursor: pointer;
-    margin-top: 20px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+  /* margin-top: 20px; */
+  position: relative;
+}
+
+.conversation:hover {
+  background-color: rgb(245, 243, 243);
+  border-radius: 10px;
+
+  .button-option {
+    display: block;
   }
-  
-  .conversation:hover {
-    background-color: rgb(245, 243, 243);
-    border-radius: 10px;
-  }
-  
-  .conversationImg {
-    box-shadow: #e6e6e6 0px 0px 0px 1px inset;
-    width: 40px;  
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 20px;
-  }
-  
-  .conversationName {
-    font-weight: 500;
+}
+
+.conversation:focus {
+  background-color: rgb(245, 243, 243);
+  border-radius: 10px;
+}
+
+.conversationImg {
+  box-shadow: #e6e6e6 0px 0px 0px 1px inset;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.conversationName {
+  font-weight: 500;
+  color: black;
+}
+
+.button-option {
+  display: none;
+  padding: 10px;
+  z-index: 1000;
+  background: lightgray;
+  border-radius: 50px;
+  position: absolute;
+  right: 10px;
+
+  :hover {
+    background-color: white;
     color: black;
   }
-  
-  @media screen and (max-width: 768px) {
-    .conversationName {
-      display: none;
-    }
+}
+
+
+
+.conversation-option {
+  /* display: none; */
+  border: 1px lightgray;
+  border-radius: 5px;
+  padding: 15px;
+  position: absolute;
+  right: -70px;
+  background: white;
+  color: black;
+  top: 60px;
+  z-index: 10000;
+  box-shadow: 0px 0px 5px 0.1px #666;
+  font-size: 15px;
+}
+
+.conversation-delete {
+  padding: 10px;
+}
+
+.conversation-delete:hover {
+  background-color: lightgray;
+  border-radius: 5px;
+}
+
+@media screen and (max-width: 768px) {
+  .conversationName {
+    display: none;
   }
-  
+}
+
+.form-delete {
+  display: flex;
+  gap: 30px;
+  flex-direction: column;
+  position: fixed;
+  align-items: center;
+  background: white;
+  box-shadow: 0px 0px 10px 3px lightgray;
+  border-radius: 10px;
+  padding: 30px;
+  color: black;
+  border: 1px black;
+  top: 46%;
+  left: 23%;
+  z-index: 1000;
+}
+
+.form-delete-button-group {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 30px;
+}
+
+.form-delete-button {
+  padding: 10px 60px;
+  /* background: lightblue; */
+  border-radius: 10px;
+  border: 1px black;
+  box-shadow: 0px 0px 1px 1px lightgray;
+}
+
+.form-delete-button:hover {
+  cursor: pointer;
+  box-shadow: 0px 0px 2px 2px lightslategray;
+}
+
+.form-delete-button-ok {
+  background-color: blue;
+  color: white;
+}

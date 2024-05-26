@@ -11,20 +11,27 @@ import GroupByMessages from "../../components/groupMessage/GroupMessage";
 import CreateConversationForm from "../../components/createConversationForm/CreateConversationForm";
 import { io } from "socket.io-client";
 import Navbar from "../../components/navbar/Navbar";
+import { SlOptionsVertical } from "react-icons/sl";
+import { fabClasses } from "@mui/material";
+import { FaImage } from "react-icons/fa6";
+import { IoCloseCircle } from "react-icons/io5";
 
 export default function Messenger({ socket }) {
-  console.log("SOCKET: " + socket)
   const { currentUser } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [newConversation, setNewConversation] = useState(null);
   const [currentChat, setCurrentChat] = useState(null);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [isOpenConversationOption, setIsOpenConversationOption] = useState(false)
+  const [isOpenFormDeleteConversation, setIsOpenFormDeleteConversation] = useState(false)
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   // const socket = useRef();
   const scrollRef = useRef();
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState([]);
+  const [files, setFiles] = useState([]);
   const fileRef = useRef();
   const [selectedEmotion, setSelectedEmotion] = useState(null);
 
@@ -44,6 +51,7 @@ export default function Messenger({ socket }) {
     try {
       const res = await makeRequest.get("/conversations/" + currentUser.id);
       setConversations(res.data);
+      return res;
     } catch (err) {
       console.log(err);
     }
@@ -127,7 +135,7 @@ export default function Messenger({ socket }) {
   }, [currentChat]);
 
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, file) => {
     e.preventDefault();
     let message = {
       senderId: currentUser.id,
@@ -135,8 +143,8 @@ export default function Messenger({ socket }) {
       conversationId: currentChat.conversationId,
       type: "text"
     };
+
     if (file !== null) {
-      console.log("file: " + file)
       console.dir(file)
       if (file["type"].includes("image")) {
         message["type"] = "image"
@@ -151,7 +159,7 @@ export default function Messenger({ socket }) {
       message["type"] = "video_link"
       setMessages([...messages, message]);
     }
-
+    console.log(message)
     const receiverId = currentChat.members.find(
       (member) => member !== currentUser.id
     );
@@ -165,6 +173,7 @@ export default function Messenger({ socket }) {
       fileName: file ? file["name"] : null,
       mimeType: file ? file["type"] : null
     });
+
     if (message["type"] !== "text") {
       // Listen for the "getMetadata" event from the server
       const metadataPromise = new Promise((resolve) => {
@@ -180,6 +189,7 @@ export default function Messenger({ socket }) {
       // Wait for the "getMetadata" event before sending the "post /messages" request
       await metadataPromise;
     }
+
     try {
       const res = await makeRequest.post("/messages", message);
       console.log(res.data)
@@ -202,18 +212,20 @@ export default function Messenger({ socket }) {
       setMessages([...messages, res.data]);
       setNewMessage("");
       if (file) {
-        setFile(null)
+        setFiles(null)
         fileRef.current.value = null;
       }
     } catch (err) {
       console.log(err);
     }
   };
+
   useEffect(() => {
     if (newConversation) {
       getConversations(); // Fetch conversations when the component mounts or whenever needed
     }
   }, [newConversation]);
+
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -224,24 +236,103 @@ export default function Messenger({ socket }) {
     console.log(file);
   };
 
+  const handleClickConversationOption = (chat) => {
+    if (selectedChat == chat && isOpenConversationOption) {
+      setIsOpenConversationOption(false);
+    }
+    else {
+      setIsOpenConversationOption(true);
+    }
+  }
+
+  const handleCloseConversationOption = () => {
+    setIsOpenConversationOption(false);
+  }
+
+  const handleDeleteConversation = async () => {
+    try {
+      console.log(selectedChat.conversationId)
+      const r = await makeRequest.delete("/conversations/" + selectedChat.conversationId);
+      setIsOpenFormDeleteConversation(false);
+      const res = await getConversations();
+      console.log(res.data)
+    }
+    catch (err) {
+      alert(err);
+    }
+  }
+
   return (
-    <>
+    <div >
       <Topbar />
 
-      <div className="messenger">
+      <div className="messenger" >
         <dir className="chatMenu">
           <dir className="chatMenuWrapper">
-            <CreateConversationForm setNewConversation={setNewConversation} />
+            <div onClick={handleCloseConversationOption}>
+              <CreateConversationForm setNewConversation={setNewConversation} />
+            </div>
             {/* <input placeholder="Search for friends" className="chatMenuInput" /> */}
             {conversations.map((c) => (
-              <div onClick={() => setCurrentChat(c)}>
-                <Conversation conversation={c} currentUser={currentUser} />
+              <div className="conversation" tabIndex={0}>
+                <div onClick={() => {
+                  setCurrentChat(c);
+                  handleCloseConversationOption();
+                }} >
+                  <Conversation conversation={c} currentUser={currentUser} />
+                </div>
+                <SlOptionsVertical
+                  className="button-option"
+                  onClick={() => {
+                    setSelectedChat(c);
+                    handleClickConversationOption(c);
+                  }} />
+                {
+                  isOpenConversationOption
+                  && selectedChat === c
+                  && <SlOptionsVertical
+                    className="button-option"
+                    style={{ display: 'block' }}
+                    onClick={() => {
+                      setSelectedChat(c);
+                      handleClickConversationOption(c);
+                    }} />
+                }
+                {
+                  isOpenConversationOption
+                  && selectedChat === c
+                  && <div className="conversation-option">
+                    <span className="conversation-delete"
+                      onClick={() => {
+                        setIsOpenFormDeleteConversation(true);
+                        setIsOpenConversationOption(false);
+                      }}>
+                      Xóa cuộc hội thoại
+                    </span>
+                  </div>
+                }
               </div>
             ))}
+            {
+              isOpenFormDeleteConversation
+              && <div className="form-delete">
+                <span>Xóa cuộc hội thoại sẽ không thấy lịch sử tin nhắn nữa,
+                  bạn chắc chắn muốn xóa?</span>
+                <div className="form-delete-button-group">
+                  <span className="form-delete-button form-delete-button-ok"
+                    onClick={handleDeleteConversation}>
+                    OK
+                  </span>
+                  <span className="form-delete-button"
+                    onClick={() => { setIsOpenFormDeleteConversation(false) }}>
+                    Hủy
+                  </span>
+                </div>
+              </div>}
           </dir>
         </dir>
         <div className="chatBox">
-          <div className="chatBoxWrapper">
+          <div className="chatBoxWrapper" onClick={handleCloseConversationOption}>
             {currentChat ? (
               <>
                 <div className="chatBoxTop">
@@ -250,16 +341,55 @@ export default function Messenger({ socket }) {
                   </div>
                 </div>
 
-                <div className="chatBoxBottom">
-                  <input type="file" onChange={handleFileChange} ref={fileRef} />
-                  <textarea
-                    className="chatMessageInput"
-                    placeholder="write something..."
-                    onChange={(e) => handleTextAreaOnChange(e)}
-                    value={newMessage}
-                  ></textarea>
-                  <div className="chatSubmitButtonIcon" onClick={handleSubmit}>
-                    <svg class="xsrhx6k" height="20px" viewBox="0 0 24 24" width="20px"><title>Nhấn Enter để gửi</title><path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.118014 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905 C16.6915026,11.5318905 17.1624089,11.5318905 17.1624089,12.0031827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z" fill="#035bb9"></path></svg>
+                <div>
+                  <div
+                    className='images'
+                    style={{ display: 'flex', gap: '10px', alignItems: 'center', paddingLeft: '70px' }}
+                  >
+                    {files.length !== 0 && files.map((item) =>
+                      <div style={{ position: 'relative', maxWidth: '100px' }}>
+                        <IoCloseCircle
+                          className="icon-remove"
+                          style={{ position: 'absolute', right: 0, cursor: 'pointer' }}
+                          onClick={() => setFiles((prevFiles) => prevFiles.filter((file) => file !== item))} />
+                        <img className="file"
+                          alt=""
+                          src={URL.createObjectURL(item)}
+                          style={{ width: '70px' }} />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="chatBoxBottom">
+                    <input type="file"
+                      id="file"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])
+                      }}
+                      multiple />
+                    <label htmlFor="file" style={{ cursor: 'pointer' }}>
+                      <FaImage className="" style={{ color: 'blue', padding: '10px' }} />
+                    </label>
+                    {/* <input type="file" onChange={handleFileChange} /> */}
+                    <textarea
+                      className="chatMessageInput"
+                      placeholder="Nhập tin nhắn ..."
+                      onChange={(e) => handleTextAreaOnChange(e)}
+                      value={newMessage}
+                    >
+                    </textarea>
+                    <div className="chatSubmitButtonIcon"
+                      onClick={(e) => files.length === 0
+                        ? files.map((file) => { handleSubmit(e, file) })
+                        : handleSubmit(e, null)}>
+                      <svg className="xsrhx6k"
+                        height="20px"
+                        viewBox="0 0 24 24"
+                        width="20px">
+                        <title>Nhấn Enter để gửi</title>
+                        <path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.118014 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905 C16.6915026,11.5318905 17.1624089,11.5318905 17.1624089,12.0031827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z" fill="#035bb9"></path></svg>
+                    </div>
                   </div>
                 </div>
               </>
@@ -271,6 +401,6 @@ export default function Messenger({ socket }) {
           </div>
         </div>
       </div>
-    </>
+    </div >
   )
 }
