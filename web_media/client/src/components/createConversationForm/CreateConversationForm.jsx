@@ -78,18 +78,19 @@ const CreateConversationForm = ({ setNewConversation }) => {
     setNewConversation(res.data.conversationId)
     multiSelectRef.current.resetSelectedValues()
     setSelectedMembers([])
+    setGroupName('')
+    setShowForm(false)
     // Add logic to send data to create the group chat
   };
 
   return (
 
     <div className="create-group-container">
-      {!showForm ? (
-        <button className="chatSubmitButton" onClick={handleOpenCreate}>
-          Create Conversation
-        </button>
-      ) : (
-        <form className="group-form" onSubmit={handleSubmit}>
+      <button className="chatSubmitButton" onClick={handleOpenCreate}>
+        Tạo cuộc trò chuyện mới
+      </button>
+      {showForm
+        && <form className="group-form" onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="groupName">Conversation Name:</label>
             {selectedMembers.length > 1 ? (
@@ -124,9 +125,9 @@ const CreateConversationForm = ({ setNewConversation }) => {
             <button type="submit" className="submit-button">Create Conversation</button>
             <button type="button" className="close-modal-button" onClick={() => setShowForm(false)}>Close</button>
           </div>
-        </form>
-      )}
-    </div>
+        </form>}
+
+    </div >
   );
 };
 

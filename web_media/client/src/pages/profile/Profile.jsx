@@ -67,16 +67,16 @@ const Profile = ({ socket, user }) => {
       {isLoading ? "loading" : <>
         <div className="images">
           <img
-            src={data?.coverPic ? "/upload/" + data?.coverPic : coverAlt}
+            src={data?.coverPic ? data?.coverPic : coverAlt}
             alt=""
             className="cover"
-            onClick={() => handleImageClick(data?.coverPic ? "/upload/" + data?.coverPic : coverAlt)}
+            onClick={() => handleImageClick(data?.coverPic ? data?.coverPic : coverAlt)}
           />
           <img
-            src={data?.profilePic ? "/upload/" + data?.profilePic : profileAlt}
+            src={data?.profilePic ? data?.profilePic : profileAlt}
             alt=""
             className="profilePic"
-            onClick={() => handleImageClick(data?.profilePic ? "/upload/" + data?.profilePic : profileAlt)}
+            onClick={() => handleImageClick(data?.profilePic ? data?.profilePic : profileAlt)}
 
           />
         </div>

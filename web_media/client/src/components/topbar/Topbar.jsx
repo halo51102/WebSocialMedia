@@ -27,10 +27,11 @@ export default function Topbar() {
         <Link
           to="http://localhost:3000"
           style={{ textDecoration: "none" }}
-          onClick={() => {
-            navigate("/");
-            window.location.reload();
-          }} >
+          // onClick={() => {
+          //   navigate("/");
+          //   window.location.reload();
+          // }} 
+          >
           <span className="logo">WebSocialMedia</span>
         </Link>
       </div>
@@ -48,8 +49,8 @@ export default function Topbar() {
           <img
             src={
               profilePic
-              ? "/upload/" + profilePic
-              : "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
+                ? profilePic
+                : "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/512px-React-icon.svg.png"
             }
             alt=""
             className="topbarImg"

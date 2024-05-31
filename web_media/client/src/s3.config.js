@@ -23,8 +23,7 @@ export const uploadImagesToS3 = async (file) => {
     Key: file.name,
     Body: file,
     ACL: 'public-read',
-    ContentDisposition: 'inline',
-    ContentType: 'image/jpeg'
+    ContentDisposition: 'inline'
   };
 
   // Uploading file to s3

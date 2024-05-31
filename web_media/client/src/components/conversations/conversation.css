@@ -56,9 +56,9 @@
   /* display: none; */
   border: 1px lightgray;
   border-radius: 5px;
-  padding: 15px;
+  padding: 10px;
   position: absolute;
-  right: -70px;
+  right: 0px;
   background: white;
   color: black;
   top: 60px;
@@ -122,4 +122,25 @@
 .form-delete-button-ok {
   background-color: blue;
   color: white;
+}
+
+.groupConversationImgs {
+  box-shadow: none;
+  /* display: flex; */
+  /* flex-wrap: wrap; */
+  position: relative;
+}
+
+.groupConversationImg1,
+.groupConversationImg2 {
+  width: 25px;
+  height: 25px;
+  position: absolute;
+}
+
+.groupConversationImg2 {
+  top: 15px;
+  left: 15px;
+  /* border: 2px white; */
+  box-shadow: 0 0 0 3px white;
 }

@@ -22,6 +22,7 @@ import ChangePassword from "../changePassword/ChangePassword";
 import moment from "moment";
 import { NotificationContext } from "../../context/notificationContext";
 import { MdNotificationsActive } from "react-icons/md";
+import { GrLogout } from "react-icons/gr";
 
 const Navbar = ({ socket }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -33,7 +34,7 @@ const Navbar = ({ socket }) => {
   const { toggle, darkMode } = useContext(DarkModeContext);
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { notification } = useContext(NotificationContext)
+  const { notification, showNotification } = useContext(NotificationContext)
 
   let id = (String)(currentUser.id)
   let profile = "/profile/" + id
@@ -104,6 +105,22 @@ const Navbar = ({ socket }) => {
     setOpenMenu(false);
   }
 
+  const handleLogOut = async (e) => {
+    e.preventDefault()
+    socket?.emit("removeUser", currentUser.id);
+    try {
+      await makeRequest.post("http://localhost:8800/api/auth/logout")
+      localStorage.removeItem('user');
+      showNotification("Đăng xuất thành công!!")
+
+      setTimeout(() => {
+        navigate("/login")
+      }, 1000);
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   return (
     <div className="navbar">
       <div className="left">
@@ -138,7 +155,7 @@ const Navbar = ({ socket }) => {
         >
           <div className="user">
             <img
-              src={findUser?.profilePic ? "/upload/" + findUser?.profilePic : profileAlt}
+              src={findUser?.profilePic ? findUser?.profilePic : profileAlt}
               alt=""
             />
           </div>
@@ -173,6 +190,12 @@ const Navbar = ({ socket }) => {
               }} >
               <RiLockPasswordLine style={{ fontSize: "20px" }} />
               <span>Đổi mật khẩu</span>
+            </div>
+            <div className="menu-item"
+              onClick={handleLogOut}
+            >
+              <GrLogout style={{ fontSize: "20px" }} />
+              <span>Đăng xuất</span>
             </div>
           </div>}
       </div>
