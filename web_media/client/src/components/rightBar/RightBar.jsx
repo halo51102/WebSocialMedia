@@ -58,7 +58,7 @@ const RightBar = ({ socket, user }) => {
                 }}>
                 <div className="userInfo">
                   <img
-                    src={usersg?.profilePic ? "/upload/" + usersg.profilePic : profileAlt}
+                    src={usersg?.profilePic ? usersg.profilePic : profileAlt}
                     alt=""
                   />
                   <span>{usersg.name} </span>
@@ -85,7 +85,7 @@ const RightBar = ({ socket, user }) => {
             <div className="user">
               <div className="userInfo">
                 <img
-                  src={user?.profilePic ? "/upload/" + user?.profilePic : profileAlt}
+                  src={user?.profilePic ? user?.profilePic : profileAlt}
                   alt=""
                 />
                 {onlineUser?.some(data => data.userId === user.id) && <div className="online" />}

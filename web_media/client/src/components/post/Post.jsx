@@ -15,6 +15,7 @@ import SharePost from "../sharePost/SharePost";
 import Share from "../share/Share";
 import profileAlt from "../../assets/profileAlt.png"
 import { NotificationContext } from "../../context/notificationContext";
+import ReactPlayer from 'react-player';
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
@@ -189,7 +190,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
         <div className="container">
           <div className="user">
             <div className="userInfo">
-              <img src={post?.profilePic ? "/upload/" + post?.profilePic : profileAlt} alt="" />
+              <img src={post?.profilePic ? post?.profilePic : profileAlt} alt="" />
               <div className="details">
                 <Link
                   to={profile}
@@ -245,8 +246,11 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
           <div className="content">
             <p>{post.desc}</p>
             {imagesError ? "erorr" : imagesIsLoading ? "loading" : Array.isArray(imagesData) &&
-              imagesData.map((data) => (
-                <img src={data.img}
+              imagesData.map((data) => (data.img.includes("mp4")
+                ? <video width="100%" height="" controls>
+                  <source src={data.img} type="video/mp4" />
+                </video>
+                : <img src={data.img}
                   alt="lỗi image"
                   onClick={() => handleImageClick(data.img)} />
               ))}
@@ -256,14 +260,14 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
           {post.sharePostId && <div className="sharePost">
             <div className="userShare">
               <div className="contentShare">
-                <img src={"/upload/" + shareData?.img}
+                <img src={shareData?.img}
                   alt=""
-                  onClick={() => handleImageClick("/upload/" + shareData?.img)} />
+                  onClick={() => handleImageClick(shareData?.img)} />
               </div>
 
             </div>
             <div className="userInfoShare">
-              <img src={shareData?.profilePic ? "/upload/" + shareData?.profilePic : profileAlt} alt="" />
+              <img src={shareData?.profilePic ? shareData?.profilePic : profileAlt} alt="" />
               <div className="detailShare">
                 <Link
                   to={"/profile/" + shareData?.userId}

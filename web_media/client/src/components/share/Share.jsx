@@ -30,7 +30,6 @@ const Share = () => {
     }))
 
   const upload = async (postId, file) => {
-    try {
       // const formData = new FormData()
       // formData.append("file", file)
       const res = await uploadImagesToS3(file)
@@ -38,11 +37,6 @@ const Share = () => {
       const imgRes = await makeRequest.post("/posts/images", { postId: postId, img: res })
       console.log(imgRes)
       return;
-
-    }
-    catch (err) {
-      console.log(err)
-    }
   }
 
   const newPostMutation = useMutation(async (newPost) => {
@@ -59,18 +53,23 @@ const Share = () => {
 
   const handleNewPost = async (e) => {
     e.preventDefault()
-    newPostMutation.mutateAsync({
-      desc,
-      group: groupId,
-      sharePost: null,
-    }).then((data) => {
-      file.forEach(async (item) => {
-        upload(data.data.insertId, item)
+    try {
+      newPostMutation.mutateAsync({
+        desc,
+        group: groupId,
+        sharePost: null,
+      }).then((data) => {
+        file.forEach(async (item) => {
+          upload(data.data.insertId, item)
+        })
       })
-    })
-    setDesc("")
-    setFile([])
-    showNotification("Đăng bài viết thành công!!")
+      setDesc("")
+      setFile([])
+      showNotification("Đăng bài viết thành công!!")
+    }
+    catch (err) {
+      showNotification("Đăng bài viết thất bại!!")
+    }
   }
 
   return (
@@ -79,7 +78,7 @@ const Share = () => {
         <div className="top">
           <div className="left">
             <img
-              src={findUser?.profilePic ? "/upload/" + findUser?.profilePic : profileAlt}
+              src={findUser?.profilePic ?   findUser?.profilePic : profileAlt}
               alt=""
             />
             <input type="text" placeholder={`What's on your mind ${findUser?.name}?`}

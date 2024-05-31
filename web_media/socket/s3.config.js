@@ -34,22 +34,30 @@ const uploadLocalFile = multer({
 });
 
 // Function to upload an image buffer to S3
-const uploadImageToS3 = async (buffer, fileName, mimeType) => {
+const uploadImageToS3 = async (file, fileName, mimeType) => {
   const params = {
     Bucket: 'nhutlamsocialmedia1',
     Key: fileName,
-    Body: buffer,
+    Body: file,
     ContentType: mimeType,
     ContentDisposition: 'inline',
     ACL: 'public-read', // Access control level for the file
   };
 
   try {
-    const data = await s3.upload(params).promise();
+    const data = await s3
+      .upload(params)
+      .on("httpUploadProgress", (evt) => {
+        // File uploading progress
+        console.log(
+          "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%"
+        );
+      }).promise();
     return data.Location; // The URL of the uploaded file
   } catch (err) {
+    console.log('Error uploading image to S3: ' + err.message)
     throw new Error('Error uploading image to S3: ' + err.message);
   }
 };
 
-module.exports = {uploadLocalFile, uploadImageToS3};
+module.exports = { uploadLocalFile, uploadImageToS3 };

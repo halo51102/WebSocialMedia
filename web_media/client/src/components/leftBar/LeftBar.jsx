@@ -82,7 +82,7 @@ const LeftBar = ({ socket, user }) => {
         </div>
         <hr />
         {err && err}
-        <button onClick={handleLogOut}>LogOut</button>
+        <button style={{display: "none"}} onClick={handleLogOut}>LogOut</button>
       </div>
     </div>
   );

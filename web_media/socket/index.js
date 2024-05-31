@@ -2,12 +2,14 @@ const axios = require('axios');
 const { getVideoMetadata } = require('./services/embed');
 const stream = require('stream');
 
-const { uploadLocalFile, uploadImageToS3 } = require('./s3.config')
+const { uploadLocalFile, uploadImageToS3 } = require('./s3.config');
+const { TIMEOUT } = require('dns');
 
 const io = require("socket.io")(8900, {
   cors: {
     origin: "http://localhost:3000",
   },
+  timeout: 60000
 });
 
 let users = [];
@@ -27,15 +29,7 @@ const getUser = (userId) => {
 };
 
 const handleUploadLocalFile = async (file, fileName, mimeType) => {
-  const data = new FormData();
-  data.append("file", file);
-  // Upload the image to S3
-  console.log("socket file: ", file)
-
-  const bufferStream = new stream.PassThrough();
-  bufferStream.end(file);
-  fileName = Date.now().toString() + '-' + fileName;
-  const url = await uploadImageToS3(bufferStream, fileName, mimeType)
+  const url = await uploadImageToS3(file, fileName, mimeType)
   console.log(url)
   return url
 };
@@ -55,10 +49,11 @@ io.on("connection", (socket) => {
   })
 
   socket.on("sendMetadata", async ({ senderId, receiverId, text, type, file, fileName, mimeType }) => {
+    
     const user = getUser(receiverId);
     if (type === "video_link") {
       try {
-        const res = await getVideoMetadata(text);
+        const res = await getVideoMetada;ta(text);
         console.log("abcxyz" + res)
         videoMetadata = res;
         const thumbnail_res = await axios.get(videoMetadata.file_url, { responseType: 'arraybuffer' });
@@ -83,17 +78,18 @@ io.on("connection", (socket) => {
       }
     }
     else if (type === "image" || type === "audio" || type === "video") {
+      console.log("Đang up " + type)
       url = await handleUploadLocalFile(file, fileName, mimeType)
-      console.log(url)
+      console.log("Đã up xong " + type)
       const title = null
       const file_url = url
-
-      if (user !== undefined) {
-        io.to(getUser(senderId).socketId).emit("getMetadata", {
-          title,
-          file_url
-        });
-      }
+      // if (user !== undefined) {
+      const sender = getUser(senderId)
+      io.to(sender.socketId).emit("getMetadata", {
+        title,
+        file_url
+      });
+      // }
     }
   });
 
@@ -167,7 +163,7 @@ io.on("connection", (socket) => {
       senderId,
       type,
     });
-  });  
+  });
 
 
   //when disconnect
