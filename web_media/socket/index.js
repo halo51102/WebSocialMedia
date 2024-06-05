@@ -91,11 +91,11 @@ io.on("connection", (socket) => {
   })
 
   socket.on("sendMetadata", async ({ senderId, receiverId, text, type, file, fileName, mimeType }) => {
-    
+
     const user = getUser(receiverId);
     if (type === "video_link") {
       try {
-        const res = await getVideoMetada;ta(text);
+        const res = await getVideoMetada; ta(text);
         console.log("abcxyz" + res)
         videoMetadata = res;
         const thumbnail_res = await axios.get(videoMetadata.file_url, { responseType: 'arraybuffer' });
@@ -245,19 +245,29 @@ io.on("connection", (socket) => {
 
   socket.on('answer-call', ({ signal, to }) => {
     const index = users.findIndex(user => user.socketId === socket.id);
-    const user=users.find(user => user.userId === to)
+    const user = users.find(user => user.userId === to)
     if (user) {
-      console.log(users[index].userId+" đã chấp nhận cuộc gọi từ "+user.userId)
+      console.log(users[index].userId + " đã chấp nhận cuộc gọi từ " + user.userId)
       io.to(user.socketId).emit('call-accepted', signal);
     }
   });
 
-
+  socket.on('end-call', ({ roomId, userId }) => {
+    const room = rooms[roomId];
+    if (room) {
+      socket.to(roomId).emit('call-ended', { userId });
+    }
+  });
   //when disconnect
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
+      const user = rooms[roomId].users.find(user => user.socketId === socket.id);
+      if (user) {
+        socket.to(roomId).emit('user-disconnected', { userId: user.userId });
+      }
       rooms[roomId].users = rooms[roomId].users.filter(user => user.socketId !== socket.id);
       io.to(roomId).emit('update-room', rooms[roomId].users);
+      
     }
     console.log("a user disconnected!");
     removeUser(socket.id);
