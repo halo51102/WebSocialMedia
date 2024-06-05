@@ -4,6 +4,7 @@ import "./update.scss";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { NotificationContext } from "../../context/notificationContext";
+import { uploadImagesToS3 } from "../../s3.config";
 
 const Update = ({ setOpenUpdate, user }) => {
   const [cover, setCover] = useState(null);
@@ -19,11 +20,8 @@ const Update = ({ setOpenUpdate, user }) => {
   const upload = async (file) => {
     console.log(file)
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await makeRequest.post("/upload", formData);
-      console.log(res.data)
-      return res.data;
+      const res = await uploadImagesToS3(file);
+      return res;
     } catch (err) {
       console.log(err);
     }
@@ -56,7 +54,7 @@ const Update = ({ setOpenUpdate, user }) => {
     let profileUrl;
     coverUrl = cover ? await upload(cover) : user.coverPic;
     profileUrl = profile ? await upload(profile) : user.profilePic;
-    
+
 
     mutation.mutate({ ...texts, coverPic: coverUrl, profilePic: profileUrl });
     setOpenUpdate(false);
@@ -77,7 +75,7 @@ const Update = ({ setOpenUpdate, user }) => {
                   src={
                     cover
                       ? URL.createObjectURL(cover)
-                      : "/upload/" + user.coverPic
+                      : user.coverPic
                   }
                   alt=""
                 />
@@ -97,7 +95,7 @@ const Update = ({ setOpenUpdate, user }) => {
                   src={
                     profile
                       ? URL.createObjectURL(profile)
-                      : "/upload/" + user.profilePic
+                      : user.profilePic
                   }
                   alt=""
                 />

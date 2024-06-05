@@ -4,6 +4,7 @@ import "./createStory.scss"
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import { NotificationContext } from "../../context/notificationContext";
+import { uploadImagesToS3 } from "../../s3.config";
 
 const CreateStory = ({ setOpenCreate }) => {
 
@@ -12,10 +13,8 @@ const CreateStory = ({ setOpenCreate }) => {
 
     const upload = async () => {
         try {
-            const formData = new FormData()
-            formData.append("file", img)
-            const res = await makeRequest.post("/upload", formData)
-            return res.data
+            const res = await uploadImagesToS3(img);
+            return res;
         } catch (err) {
             console.log(err)
         }

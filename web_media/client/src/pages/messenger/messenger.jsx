@@ -15,20 +15,28 @@ import MembersGroup from "../../components/membersGroup/MembersGroup"
 import CreateConversationForm from "../../components/createConversationForm/CreateConversationForm";
 import { io } from "socket.io-client";
 import Navbar from "../../components/navbar/Navbar";
+import { SlOptionsVertical } from "react-icons/sl";
+import { fabClasses } from "@mui/material";
+import { FaImage } from "react-icons/fa6";
+import { IoCloseCircle } from "react-icons/io5";
+import { uploadImagesToS3 } from "../../s3.config";
 
 export default function Messenger({ socket }) {
-  console.log("SOCKET: " + socket)
   const { currentUser } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [newConversation, setNewConversation] = useState(null);
   const [currentChat, setCurrentChat] = useState(null);
+  const [selectedChat, setSelectedChat] = useState(null);
+  const [isOpenConversationOption, setIsOpenConversationOption] = useState(false)
+  const [isOpenFormDeleteConversation, setIsOpenFormDeleteConversation] = useState(false)
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
   // const socket = useRef();
   const scrollRef = useRef();
-  const [file, setFile] = useState(null);
+  // const [file, setFile] = useState([]);
+  const [files, setFiles] = useState([]);
   const fileRef = useRef();
   const [selectedEmotion, setSelectedEmotion] = useState(null);
 
@@ -49,7 +57,9 @@ export default function Messenger({ socket }) {
   const getConversations = async () => {
     try {
       const res = await makeRequest.get("/conversations/" + currentUser.id);
+      console.log(res.data)
       setConversations(res.data);
+      return res;
     } catch (err) {
       console.log(err);
     }
@@ -88,6 +98,17 @@ export default function Messenger({ socket }) {
       console.log(err);
     }
   };
+
+  const videoRef = useRef(null);
+
+  // useEffect(() => {
+  //   for (var file in files) {
+  //     if (file["type"].includes("video")) {
+  //       const url = URL.createObjectURL(file);
+  //       videoRef.current.src = url;
+  //     }
+  //   }
+  // }, [files]);
 
   useEffect(() => {
     socket?.on("getMessage", (data) => {
@@ -134,103 +155,196 @@ export default function Messenger({ socket }) {
 
 
   const handleSubmit = async (e) => {
+    console.log("In handle submit")
     e.preventDefault();
-    let message = {
-      senderId: currentUser.id,
-      text: newMessage,
-      conversationId: currentChat.conversationId,
-      type: "text"
-    };
-    if (file !== null) {
-      console.log("file: " + file)
-      console.dir(file)
-      if (file["type"].includes("image")) {
-        message["type"] = "image"
-      } else if (file["type"].includes("audio")) {
-        message["type"] = "audio"
-      } else if (file["type"].includes("video")) {
-        message["type"] = "video"
+
+    if (files.length !== 0) {       //Gửi tin nhắn có file đính kèm
+      files.map(async (file) => {
+        let message = {
+          senderId: currentUser.id,
+          text: newMessage,
+          conversationId: currentChat.conversationId,
+          type: "text"
+        };
+
+        if (file !== null) {
+          console.dir(file)
+          if (file["type"].includes("image")) {
+            message["type"] = "image"
+          } else if (file["type"].includes("audio")) {
+            message["type"] = "audio"
+          } else if (file["type"].includes("video")) {
+            message["type"] = "video"
+          }
+        }
+
+        if (newMessage.includes("https://")) {
+          message["type"] = "video_link"
+          setMessages([...messages, message]);
+        }
+
+        console.log("message trước khi gửi metadata:", message)
+
+        const receiverId = currentChat.members.find(
+          (member) => member !== currentUser.id
+        );
+
+        // await socket?.emit("sendMetadata", {
+        //   senderId: currentUser.id,
+        //   receiverId,
+        //   text: newMessage,
+        //   type: message["type"],
+        //   file: file ? file : null,
+        //   fileName: file ? file["name"] : null,
+        //   mimeType: file ? file["type"] : null
+        // });
+
+        const uploadData = await uploadImagesToS3(file);
+
+
+        console.log("đã up metadata")
+        message["file_url"] = uploadData;
+        console.log("message sau khi get metadata:", message)
+
+        try {
+          const res = await makeRequest.post("/messages", message);
+          console.log("response post message: " + res.data)
+          await socket?.emit("sendMessage", {
+            messageId: res.data.id,
+            senderId: currentUser.id,
+            receiverId,
+            text: newMessage,
+            type: message["type"],
+            file: file ? file : null,
+            fileName: file ? file["name"] : null,
+            mimeType: file ? file["type"] : null,
+            title: message["title"],
+            file_url: message["file_url"],
+          });
+
+
+          res.data.file_url = message?.file_url
+          res.data.title = message?.title
+          setMessages([...messages, res.data]);
+          setNewMessage("");
+        } catch (err) {
+          console.log(err);
+        }
+      })
+      setFiles([]);
+    }
+    else {    //Gửi tin nhắn text không có file đính kèm
+      let message = {
+        senderId: currentUser.id,
+        text: newMessage,
+        conversationId: currentChat.conversationId,
+        type: "text"
+      };
+
+      if (newMessage.includes("https://")) {
+        message["type"] = "video_link"
+        setMessages([...messages, message]);
       }
-    }
+      await console.log(message)
+      const receiverId = currentChat.members.find(
+        (member) => member !== currentUser.id
+      );
 
-    if (newMessage.includes("https://")) {
-      message["type"] = "video_link"
-      setMessages([...messages, message]);
-    }
-
-    const receiverId = currentChat.members.find(
-      (member) => member !== currentUser.id
-    );
-    console.log(currentChat.members)
-
-    await socket?.emit("sendMetadata", {
-      senderId: currentUser.id,
-      receiverId,
-      text: newMessage,
-      type: message["type"],
-      file: file ? file : null,
-      fileName: file ? file["name"] : null,
-      mimeType: file ? file["type"] : null
-    });
-    if (message["type"] !== "text") {
-      socket?.on("getMetadata", (data) => {console.log("url anh: "+data.file_url)})
-      // Listen for the "getMetadata" event from the server
-      const metadataPromise = new Promise((resolve) => {
-        socket?.on("getMetadata", (data) => {
-          console.log("Received metadata:", data);
-          message["title"] = data.title;
-          message["file_url"] = data.file_url;
-          console.log("METADATA 2: " + message.file_url);
-          resolve(); // Resolve the promise when metadata is received
-        });
-      });
-
-      // Wait for the "getMetadata" event before sending the "post /messages" request
-      await metadataPromise;
-    }
-    try {
-      const res = await makeRequest.post("/messages", message);
-      console.log(res.data)
-      await socket?.emit("sendMessage", {
-        messageId: res.data.id,
+      await socket?.emit("sendMetadata", {
         senderId: currentUser.id,
         receiverId,
         text: newMessage,
         type: message["type"],
-        file: file ? file : null,
-        fileName: file ? file["name"] : null,
-        mimeType: file ? file["type"] : null,
-        title: message["title"],
-        file_url: message["file_url"],
+        file: null,
+        fileName: null,
+        mimeType: null
       });
 
+      if (message["type"] !== "text") {
+        // Listen for the "getMetadata" event from the server
+        const metadataPromise = new Promise((resolve) => {
+          socket?.on("getMetadata", (data) => {
+            console.log("Received metadata:", data);
+            message["title"] = data.title;
+            message["file_url"] = data.file_url;
+            console.log("METADATA 2: " + message.file_url);
+            resolve(); // Resolve the promise when metadata is received
+          });
+        });
 
-      res.data.file_url = message?.file_url
-      res.data.title = message?.title
-      setMessages([...messages, res.data]);
-      setNewMessage("");
-      if (file) {
-        setFile(null)
-        fileRef.current.value = null;
+        // Wait for the "getMetadata" event before sending the "post /messages" request
+        await metadataPromise;
       }
-    } catch (err) {
-      console.log(err);
+
+      try {
+        console.log(message)
+        const res = await makeRequest.post("/messages", message);
+        console.log(res.data)
+        await socket?.emit("sendMessage", {
+          messageId: res.data.id,
+          senderId: currentUser.id,
+          receiverId,
+          text: newMessage,
+          type: message["type"],
+          file: null,
+          fileName: null,
+          mimeType: null,
+          title: message["title"],
+          file_url: message["file_url"],
+        });
+
+
+        res.data.file_url = message?.file_url
+        res.data.title = message?.title
+        setMessages([...messages, res.data]);
+        setNewMessage("");
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
+
   useEffect(() => {
     if (newConversation) {
       getConversations(); // Fetch conversations when the component mounts or whenever needed
     }
   }, [newConversation]);
+
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFile(file);
-    console.log(file);
-  };
+  // const handleFileChange = (e) => {
+  //   const file = e.target.files[0];
+  //   setFile(file);
+  //   console.log(file);
+  // };
+
+  const handleClickConversationOption = (chat) => {
+    if (selectedChat == chat && isOpenConversationOption) {
+      setIsOpenConversationOption(false);
+    }
+    else {
+      setIsOpenConversationOption(true);
+    }
+  }
+
+  const handleCloseConversationOption = () => {
+    setIsOpenConversationOption(false);
+  }
+
+  const handleDeleteConversation = async () => {
+    try {
+      console.log(selectedChat.conversationId)
+      const r = await makeRequest.delete("/conversations/" + selectedChat.conversationId);
+      setIsOpenFormDeleteConversation(false);
+      const res = await getConversations();
+      console.log(res.data)
+    }
+    catch (err) {
+      alert(err);
+    }
+  }
 
   const handleCallMess=()=>{
     setOpenCall(true);
@@ -238,23 +352,83 @@ export default function Messenger({ socket }) {
   }
 
   return (
-    <>
+    <div >
       <Topbar />
 
-      <div className="messenger">
+      <div className="messenger" >
         <dir className="chatMenu">
           <dir className="chatMenuWrapper">
-            <CreateConversationForm setNewConversation={setNewConversation} />
+            <div onClick={handleCloseConversationOption}>
+              <CreateConversationForm setNewConversation={setNewConversation} />
+            </div>
             {/* <input placeholder="Search for friends" className="chatMenuInput" /> */}
-            {conversations.map((c) => (
-              <div onClick={() => setCurrentChat(c)}>
-                <Conversation conversation={c} currentUser={currentUser} />
-              </div>
-            ))}
+            <div style={{ overflow: 'hidden auto', height: "80%" }}>
+              {conversations.map((c) => (
+                <div className="conversation" tabIndex={0}>
+                  <div onClick={() => {
+                    setCurrentChat(c);
+                    handleCloseConversationOption();
+                  }} >
+                    <Conversation conversation={c} currentUser={currentUser} />
+                  </div>
+                  <SlOptionsVertical
+                    className="button-option"
+                    onClick={() => {
+                      setSelectedChat(c);
+                      handleClickConversationOption(c);
+                    }} />
+                  {
+                    isOpenConversationOption
+                    && selectedChat === c
+                    && <SlOptionsVertical
+                      className="button-option"
+                      style={{ display: 'block' }}
+                      onClick={() => {
+                        setSelectedChat(c);
+                        handleClickConversationOption(c);
+                      }} />
+                  }
+                  {
+                    isOpenConversationOption
+                    && selectedChat === c
+                    && <div className="conversation-option">
+                      <span className="conversation-delete"
+                        onClick={() => {
+                          setIsOpenFormDeleteConversation(true);
+                          setIsOpenConversationOption(false);
+                        }}>
+                        Xóa cuộc hội thoại
+                      </span>
+                    </div>
+                  }
+                </div>
+              ))
+              }
+
+            </div>
           </dir>
+
         </dir>
+        {
+          isOpenFormDeleteConversation
+          && <div className="form-delete">
+            <span>Xóa cuộc hội thoại sẽ không thấy lịch sử tin nhắn nữa,
+              bạn chắc chắn muốn xóa?</span>
+            <div className="form-delete-button-group">
+              <span className="form-delete-button form-delete-button-ok"
+                onClick={handleDeleteConversation}>
+                OK
+              </span>
+              <span className="form-delete-button"
+                onClick={() => { setIsOpenFormDeleteConversation(false) }}>
+                Hủy
+              </span>
+            </div>
+          </div>
+        }
+
         <div className="chatBox">
-          <div className="chatBoxWrapper">
+          <div className="chatBoxWrapper" onClick={handleCloseConversationOption}>
             {currentChat ? (
               <>
                 <div className="chatBoxTop">
@@ -263,16 +437,64 @@ export default function Messenger({ socket }) {
                   </div>
                 </div>
 
-                <div className="chatBoxBottom">
-                  <input type="file" onChange={handleFileChange} ref={fileRef} />
-                  <textarea
-                    className="chatMessageInput"
-                    placeholder="write something..."
-                    onChange={(e) => handleTextAreaOnChange(e)}
-                    value={newMessage}
-                  ></textarea>
-                  <div className="chatSubmitButtonIcon" onClick={handleSubmit}>
-                    <svg class="xsrhx6k" height="20px" viewBox="0 0 24 24" width="20px"><title>Nhấn Enter để gửi</title><path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.118014 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905 C16.6915026,11.5318905 17.1624089,11.5318905 17.1624089,12.0031827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z" fill="#035bb9"></path></svg>
+                <div>
+                  <div
+                    className='images'
+                    style={{ display: 'flex', gap: '10px', alignItems: 'center', paddingLeft: '70px' }}
+                  >
+                    {files.length !== 0 && files.map((item) =>
+                      <div style={{ position: 'relative', maxWidth: '100px' }}>
+                        <IoCloseCircle
+                          className="icon-remove"
+                          style={{ position: 'absolute', right: 0, cursor: 'pointer', zIndex: 1000 }}
+                          onClick={() => setFiles((prevFiles) => prevFiles.filter((file) => file !== item))} />
+                        {item["type"].includes("image")
+                          ? <img className="file"
+                            alt=""
+                            src={URL.createObjectURL(item)}
+                            style={{ width: '70px' }} />
+                          : item["type"].includes("video")
+                            ? <video ref={videoRef}
+                              width="70px"
+                              height=""
+                              controls>
+                            </video>
+                            : <img className="file"
+                              alt=""
+                              src="https://www.bing.com/th/id/OIP.X_-ZmMTV55izgF-6wZadWgHaHa?w=199&h=199&c=7&r=0&o=5&dpr=1.3&pid=1.7"
+                              style={{ width: '70px' }} />}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="chatBoxBottom">
+                    <input type="file"
+                      id="file"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        setFiles((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])
+                      }}
+                      multiple />
+                    <label htmlFor="file" style={{ cursor: 'pointer' }}>
+                      <FaImage className="" style={{ color: 'blue', padding: '10px' }} />
+                    </label>
+                    {/* <input type="file" onChange={handleFileChange} /> */}
+                    <textarea
+                      className="chatMessageInput"
+                      placeholder="Nhập tin nhắn ..."
+                      onChange={(e) => handleTextAreaOnChange(e)}
+                      value={newMessage}
+                    >
+                    </textarea>
+                    <div className="chatSubmitButtonIcon"
+                      onClick={handleSubmit}>
+                      <svg className="xsrhx6k"
+                        height="20px"
+                        viewBox="0 0 24 24"
+                        width="20px">
+                        <title>Nhấn Enter để gửi</title>
+                        <path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.118014 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905 C16.6915026,11.5318905 17.1624089,11.5318905 17.1624089,12.0031827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z" fill="#035bb9"></path></svg>
+                    </div>
                   </div>
                   <div className="chatSubmitButtonIcon" onClick={() => setOpenCall(true)}>
                     <svg class="xsrhx6k" height="20px" viewBox="0 0 200 200" width="20px"><title>Nhấn để gọi</title><path fill="#010002" d="M198.048,160.105l-31.286-31.29c-6.231-6.206-16.552-6.016-23.001,0.433l-15.761,15.761
@@ -301,6 +523,6 @@ export default function Messenger({ socket }) {
         </div>
         {openCall && <CallMess setOpenCall={setOpenCall} room={currentChat} socket={socket} />}
       </div>
-    </>
+    </div >
   )
 }

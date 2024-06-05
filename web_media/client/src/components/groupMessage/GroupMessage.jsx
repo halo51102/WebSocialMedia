@@ -11,7 +11,6 @@ const GroupByMessages = ({ messages, currentUser, handleEmotionSelect, socket })
     let receiverMessages = []
     let i = 0
     while (i < messages.length) {
-      console.dir(messages[i])
       const currMessage = messages[i];
       // const nextMessage = messages[i + 1];
       if (currMessage.senderId === currentUser.id) {

@@ -1,5 +1,6 @@
 import { db } from "../connect.js"
 import jwt from "jsonwebtoken"
+
 export const createConversation = (req, res) => {
     const q1 = "INSERT INTO conversations(`name`) VALUES (?)"
     const values = [
@@ -67,12 +68,30 @@ export const getUserConversations = (req, res) => {
 }
 
 export const getAllUsersConverSation = (req, res) => {
-
     const token = req.cookies.accessToken
-    const q =
-        `select * from conversation_members`
+    const q = `select * from conversation_members`;
     db.query(q, (err, data) => {
         if (err) return res.status(500).json(err);
         return res.status(200).json(data)
+    })
+}
+
+export const deleteConversation = (req, res) => {
+    const q1 = "DELETE FROM conversation_members WHERE conversationId = ?"
+    const values = [
+        req.params.id
+    ]
+    db.query(q1, [values], (err, data) => {
+        if (err) return res.status(500).json(err);
+        if (data.affectedRows > 0) {
+            const q2 = "DELETE FROM conversations WHERE id = ?";
+            db.query(q2, [values], (err2, data2) => {
+                if (err2) return res.status(500).json(err2);
+                if (data2.affectedRows > 0)
+                    return res.status(200).json("Delete conversation success!");
+                return res.status(403)
+            });
+        }
+        return res.status(403);
     })
 }

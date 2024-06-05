@@ -102,7 +102,7 @@ const Stories = () => {
   return (
     <div className="stories">
       <div className="story">
-        <img src={findUser?.profilePic ? "/upload/" + findUser?.profilePic : profileAlt} alt="" />
+        <img src={findUser?.profilePic ?   findUser?.profilePic : profileAlt} alt="" />
         <span>{findUser?.name}</span>
         <button onClick={() => setOpenCreate(true)}>+</button>
       </div>
@@ -119,7 +119,7 @@ const Stories = () => {
           )
             : filteredData.map((story) => (
               <div className="story" >
-                <img src={story.img ? "/upload/" + story.img : profileAlt} alt="" onClick={() => handleClickStory(story)} />
+                <img src={story.img ?   story.img : profileAlt} alt="" onClick={() => handleClickStory(story)} />
                 <span>{story.name}</span>
               </div>
             ))
@@ -129,9 +129,9 @@ const Stories = () => {
         && <div className="story-container">
           <div className="story-view">
             {/* {storyData?.map((item) =>
-              <img src={"/upload/" + item.img} alt="" />
+              <img src={  item.img} alt="" />
             )} */}
-            <img src={"/upload/" + selectedStory[currentStoryIndex].img} alt="" />
+            <img src={  selectedStory[currentStoryIndex].img} alt="" />
           </div>
           <button onClick={handleCloseStory}>X</button>
 
