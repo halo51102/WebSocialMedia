@@ -143,7 +143,9 @@ function App() {
       path: "/messenger",
       element: (
         <ProtectedRoute>
+          <QueryClientProvider client={queryClient}>
           <Messenger socket={socket} />
+          </QueryClientProvider>
         </ProtectedRoute>
       ),
     },

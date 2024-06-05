@@ -16,7 +16,6 @@ import Share from "../share/Share";
 import profileAlt from "../../assets/profileAlt.png"
 import { NotificationContext } from "../../context/notificationContext";
 import ListTagPost from "../listTagPost/ListTagPost";
-import { NotificationContext } from "../../context/notificationContext";
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {

@@ -1,5 +1,6 @@
 import { useState, useContext, useRef, useEffect } from "react"
 import "./messenger.css"
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { AuthContext } from "../../context/authContext";
 import { makeRequest } from "../../axios";
 import Topbar from "../../components/topbar/Topbar";
@@ -8,6 +9,9 @@ import Message from "../../components/messsagev2/Message";
 import Conversation from "../../components/conversations/Conversation";
 // import TestMessage from "../../components/testMessage/TestMessage";
 import GroupByMessages from "../../components/groupMessage/GroupMessage";
+import CallMess from "../../components/callMess/CallMess"
+import CreateStory from "../../components/createStory/CreateStory"
+import MembersGroup from "../../components/membersGroup/MembersGroup"
 import CreateConversationForm from "../../components/createConversationForm/CreateConversationForm";
 import { io } from "socket.io-client";
 import Navbar from "../../components/navbar/Navbar";
@@ -27,6 +31,8 @@ export default function Messenger({ socket }) {
   const [file, setFile] = useState(null);
   const fileRef = useRef();
   const [selectedEmotion, setSelectedEmotion] = useState(null);
+
+  const [openCall,setOpenCall]=useState(false);
 
   const handleTextAreaOnChange = (e) => {
     setNewMessage(e.target.value)
@@ -226,6 +232,11 @@ export default function Messenger({ socket }) {
     console.log(file);
   };
 
+  const handleCallMess=()=>{
+    setOpenCall(true);
+    alert('Đang làm!');
+  }
+
   return (
     <>
       <Topbar />
@@ -263,6 +274,22 @@ export default function Messenger({ socket }) {
                   <div className="chatSubmitButtonIcon" onClick={handleSubmit}>
                     <svg class="xsrhx6k" height="20px" viewBox="0 0 24 24" width="20px"><title>Nhấn Enter để gửi</title><path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.8429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 C22.8132856,11.0605983 22.3423792,10.4322088 21.714504,10.118014 L4.13399899,1.16346272 C3.34915502,0.9 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.8376543,3.0486314 1.15159189,3.99121575 L3.03521743,10.4322088 C3.03521743,10.5893061 3.34915502,10.7464035 3.50612381,10.7464035 L16.6915026,11.5318905 C16.6915026,11.5318905 17.1624089,11.5318905 17.1624089,12.0031827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z" fill="#035bb9"></path></svg>
                   </div>
+                  <div className="chatSubmitButtonIcon" onClick={() => setOpenCall(true)}>
+                    <svg class="xsrhx6k" height="20px" viewBox="0 0 200 200" width="20px"><title>Nhấn để gọi</title><path fill="#010002" d="M198.048,160.105l-31.286-31.29c-6.231-6.206-16.552-6.016-23.001,0.433l-15.761,15.761
+			c-0.995-0.551-2.026-1.124-3.11-1.732c-9.953-5.515-23.577-13.074-37.914-27.421C72.599,101.48,65.03,87.834,59.5,77.874
+			c-0.587-1.056-1.145-2.072-1.696-3.038l10.579-10.565l5.2-5.207c6.46-6.46,6.639-16.778,0.419-23.001L42.715,4.769
+			c-6.216-6.216-16.541-6.027-23.001,0.433l-8.818,8.868l0.243,0.24c-2.956,3.772-5.429,8.124-7.265,12.816
+			c-1.696,4.466-2.752,8.729-3.235,12.998c-4.13,34.25,11.52,65.55,53.994,108.028c58.711,58.707,106.027,54.273,108.067,54.055
+			c4.449-0.53,8.707-1.593,13.038-3.275c4.652-1.818,9.001-4.284,12.769-7.233l0.193,0.168l8.933-8.747
+			C204.079,176.661,204.265,166.343,198.048,160.105z M190.683,176.164l-3.937,3.93l-1.568,1.507
+			c-2.469,2.387-6.743,5.74-12.984,8.181c-3.543,1.364-7.036,2.24-10.59,2.663c-0.447,0.043-44.95,3.84-100.029-51.235
+			C14.743,94.38,7.238,67.395,10.384,41.259c0.394-3.464,1.263-6.95,2.652-10.593c2.462-6.277,5.812-10.547,8.181-13.02l5.443-5.497
+			c2.623-2.63,6.714-2.831,9.112-0.433l31.286,31.286c2.394,2.401,2.205,6.492-0.422,9.13L45.507,73.24l1.95,3.282
+			c1.084,1.829,2.23,3.879,3.454,6.106c5.812,10.482,13.764,24.83,29.121,40.173c15.317,15.325,29.644,23.27,40.094,29.067
+			c2.258,1.249,4.32,2.398,6.17,3.5l3.289,1.95l21.115-21.122c2.634-2.623,6.739-2.817,9.137-0.426l31.272,31.279
+			C193.5,169.446,193.31,173.537,190.683,176.164z"></path></svg>
+                  </div>
+                  
                 </div>
               </>
             ) : (
@@ -272,6 +299,7 @@ export default function Messenger({ socket }) {
             )}
           </div>
         </div>
+        {openCall && <CallMess setOpenCall={setOpenCall} room={currentChat} socket={socket} />}
       </div>
     </>
   )

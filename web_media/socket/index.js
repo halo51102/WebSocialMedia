@@ -2,7 +2,8 @@ const axios = require('axios');
 const { getVideoMetadata } = require('./services/embed');
 const stream = require('stream');
 
-const { uploadLocalFile, uploadImageToS3 } = require('./s3.config')
+const { uploadLocalFile, uploadImageToS3 } = require('./s3.config');
+const { Console } = require('console');
 
 const io = require("socket.io")(8900, {
   cors: {
@@ -11,11 +12,27 @@ const io = require("socket.io")(8900, {
 });
 
 let users = [];
+const rooms = {};
 
 const addUser = (userId, socketId) => {
   !users.some((user) => user.userId === userId) &&
     users.push({ userId, socketId });
 };
+const fetchRoomsFromAPI = async () => {
+  try {
+    const response = await axios.get('http://localhost:8800/api/conversations/allmembersroom'); // Địa chỉ API thay thế
+    const apiRooms = response.data;
+
+    apiRooms.forEach(room => {
+      r = { roomId: room.conversationId, users: [] }
+      rooms[room.conversationId] = r;
+    });
+    console.log('Rooms fetched from API:', rooms);
+  } catch (error) {
+    console.error('Error fetching rooms from API:', error);
+  }
+};
+fetchRoomsFromAPI();
 
 const removeUser = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
@@ -23,12 +40,13 @@ const removeUser = (socketId) => {
 };
 
 const getUser = (userId) => {
-  if(users.find((user) => user.userId === userId)===undefined){
-    return {userId}
+  if (users.find((user) => user.userId === userId) === undefined) {
+    return { userId }
   }
   console.log(users.find((user) => user.userId === userId))
   return users.find((user) => user.userId === userId);
 };
+
 
 const handleUploadLocalFile = async (file, fileName, mimeType) => {
   const data = new FormData();
@@ -40,15 +58,35 @@ const handleUploadLocalFile = async (file, fileName, mimeType) => {
   bufferStream.end(file);
   fileName = Date.now().toString() + '-' + fileName;
   const url = await uploadImageToS3(bufferStream, fileName, mimeType)
-  console.log("url: "+url)
+  console.log("url: " + url)
   return url
 };
 
 io.on("connection", (socket) => {
+  const fetchAddUserInRoom = async (userId) => {
+    try {
+      const response = await axios.get('http://localhost:8800/api/conversations/allmembersroom'); // Địa chỉ API thay thế
+      const apiRooms = response.data;
+
+      apiRooms.forEach(room => {
+        if (room.userId === userId && rooms[room.conversationId]) {
+          const user = { userId: userId, socketId: socket.id };
+          const userExists = rooms[room.conversationId].users.some(u => u.userId === user.userId);
+          if (!userExists) {
+            rooms[room.conversationId].users.push(user);
+          }
+        };
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   socket.on("addUser", (userId) => {
     addUser(userId, socket.id);
     console.log(users)
+    if (userId) fetchAddUserInRoom(userId);
+    console.log('Rooms fetched from SOCKET:', rooms);
     io.emit("getUsers", users);
   });
 
@@ -88,10 +126,10 @@ io.on("connection", (socket) => {
     }
     else if (type === "image" || type === "audio" || type === "video") {
       url = await handleUploadLocalFile(file, fileName, mimeType)
-      console.log("url l87 "+url)
+      console.log("url l87 " + url)
       const title = null
       const file_url = url
-      if (user!==undefined) {
+      if (user !== undefined) {
         io.to(getUser(senderId).socketId).emit("getMetadata", {
           title,
           file_url
@@ -131,10 +169,7 @@ io.on("connection", (socket) => {
           title,
           file_url,
         });
-<<<<<<< Updated upstream
-=======
         console.log("Gui o day 134")
->>>>>>> Stashed changes
       }
     }
     else {
@@ -176,14 +211,62 @@ io.on("connection", (socket) => {
       senderId,
       type,
     });
-  });  
+  });
+
+  //call mess
+  socket.on('alluser-in-room', (roomId) => {
+    const room = rooms[roomId];
+    const usersInRoom = room ? room.users : [];
+    socket.emit('user-in-room', usersInRoom);
+  });
+
+  socket.on('call-group', ({ signalData, roomId, from }) => {
+    const room = rooms[roomId];
+    console.log("Đã tới 225")
+    if (room) {
+      room.users.forEach(user => {
+        if (user.userId !== from) {
+          console.log("229")
+          io.to(user.socketId).emit('group-call-made', { signal: signalData, from });
+          console.log("231")
+        }
+      });
+    }
+  });
+  /*socket.on('call-group', ({ roomId, from }) => {
+    const room = rooms[roomId];
+    console.log("Đã tới 225")
+    if (room) {
+      room.users.forEach(user => {
+        if (user.userId !== from) {
+          console.log("229")
+          io.to(user.socketId).emit('group-call-made', { signal: signalData, from });
+          console.log("231")
+        }
+      });
+    }
+  });*/
+
+  socket.on('answer-call', ({ signal, to }) => {
+    const index = users.findIndex(user => user.socketId === socket.id);
+    const user=users.find(user => user.userId === to)
+    if (user) {
+      console.log(users[index].userId+" đã chấp nhận cuộc gọi từ "+user.userId)
+      io.to(user.socketId).emit('call-accepted', signal);
+    }
+  });
 
 
   //when disconnect
   socket.on("disconnect", () => {
+    for (const roomId in rooms) {
+      rooms[roomId].users = rooms[roomId].users.filter(user => user.socketId !== socket.id);
+      io.to(roomId).emit('update-room', rooms[roomId].users);
+    }
     console.log("a user disconnected!");
     removeUser(socket.id);
     console.log(users)
+    console.log('Rooms fetched from SOCKET:', rooms);
     io.emit("getUsers", users);
   });
 });
