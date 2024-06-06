@@ -45,12 +45,12 @@ const LeftBar = ({ socket, user }) => {
             to={"/"}
             style={{ textDecoration: "none", marginTop: "13px", color: "inherit" }}
           >
-            <div className="user">
+            <div className="item">
               <img
                 src={Home}
                 alt=""
               />
-              <span>Home</span>
+              <span>Trang chủ</span>
             </div>
           </Link>
           <div className="item">
@@ -60,7 +60,7 @@ const LeftBar = ({ socket, user }) => {
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <img src={Friends} alt="" />
-              <span>Follower</span>
+              <span>Người theo dõi</span>
             </Link>
           </div>
           <div className="item">
@@ -68,7 +68,7 @@ const LeftBar = ({ socket, user }) => {
             <Link
               to="/group/all"
               style={{ textDecoration: "none", color: "inherit" }}>
-              <span>Group</span>
+              <span>Nhóm</span>
             </Link>
           </div>
           <div className="item">
@@ -76,7 +76,7 @@ const LeftBar = ({ socket, user }) => {
             <Link
               to='/messenger'
               style={{ textDecoration: "none", color: "inherit" }}>
-              <span>Messenger</span>
+              <span>Tin nhắn</span>
             </Link>
           </div>
         </div>

@@ -119,7 +119,7 @@ function App() {
         },
         {
           path: "/group/all",
-          element: <AllGroup />, 
+          element: <AllGroup />,
         },
         {
           path: "/group/:id",
@@ -143,7 +143,9 @@ function App() {
       path: "/messenger",
       element: (
         <ProtectedRoute>
-          <Messenger socket={socket} />
+          <QueryClientProvider client={queryClient}>
+            <Messenger socket={socket} />
+          </QueryClientProvider >
         </ProtectedRoute>
       ),
     },
@@ -157,7 +159,7 @@ function App() {
       children: [
         {
           path: "/admin",
-          element: <HomeAdmin socket={socket}/>
+          element: <HomeAdmin socket={socket} />
         },
         {
           path: "/admin/users",

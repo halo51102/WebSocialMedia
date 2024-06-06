@@ -23,6 +23,8 @@ import moment from "moment";
 import { NotificationContext } from "../../context/notificationContext";
 import { MdNotificationsActive } from "react-icons/md";
 import { GrLogout } from "react-icons/gr";
+import { IoCloseCircle } from "react-icons/io5";
+import { useRef } from "react";
 
 const Navbar = ({ socket }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -31,10 +33,12 @@ const Navbar = ({ socket }) => {
   const [input, setInput] = useState("");
   const [openNotications, setOpenNotifications] = useState(false);
   const [openMenu, setOpenMenu] = useState(false);
+  const [isOpenSearchResults, setIsOpenSearchResults] = useState(false);
   const { toggle, darkMode } = useContext(DarkModeContext);
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const { notification, showNotification } = useContext(NotificationContext)
+  const notiRef = useRef();
 
   let id = (String)(currentUser.id)
   let profile = "/profile/" + id
@@ -73,10 +77,17 @@ const Navbar = ({ socket }) => {
       });
   };
 
-  const handleSearch = (value) => {
-    setInput(value);
-    fetchData(value);
+  const handleSearch = (e) => {
+    setInput(e.target.value);
+    fetchData(e.target.value.trim());
+    setIsOpenSearchResults(true);
   };
+
+  const handleCloseSearchResults = () => {
+    setInput('');
+    setIsOpenSearchResults(false);
+    fetchData('');
+  }
 
   const displayNotification = ({ senderName, type }) => {
     let action;
@@ -133,22 +144,53 @@ const Navbar = ({ socket }) => {
             <SearchOutlinedIcon />
             <input
               type="text"
-              placeholder="Tìm kiếm..."
-              onChange={(e) => handleSearch(e.target.value)}
+              value={input}
+              onChange={handleSearch}
+              placeholder="Nhập từ khóa..."
             />
+            {input !== "" &&
+              <div
+                style={{ cursor: 'pointer' }}
+                onClick={handleCloseSearchResults}>
+                <IoCloseCircle />
+              </div>}
           </div>
-          {results && results.length > 0 && <SearchResults results={results} />}
+          {results?.length > 0
+            && isOpenSearchResults
+            && <SearchResults results={results} />}
         </div>
       </div>
-      <div className="right">
+      <div className="right" onClick={handleCloseSearchResults}>
         {darkMode ? (
-          <WbSunnyOutlinedIcon onClick={toggle} />
+          <div className='icon' >
+            <WbSunnyOutlinedIcon onClick={toggle} />
+          </div>
         ) : (
-          <DarkModeOutlinedIcon onClick={toggle} />
+          <div className='icon' >
+            <DarkModeOutlinedIcon onClick={toggle} />
+          </div>
         )}
-        <Link to="/friend" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}><PersonOutlinedIcon /></Link>
-        <Link to="/messenger" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}><EmailOutlinedIcon /></Link>
-        <NotificationsOutlinedIcon onClick={handleOpenNotifications} />
+        {/* <Link className='icon' to="/friend" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}>
+          <PersonOutlinedIcon />
+        </Link> */}
+        {/* <Link className='icon' to="/messenger" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}>
+          <EmailOutlinedIcon />
+        </Link> */}
+        <div className="icon" onClick={() => navigate('/friend')}>
+          <PersonOutlinedIcon />
+        </div>
+        <div className="icon" onClick={() => navigate('/messenger')}>
+          <EmailOutlinedIcon />
+        </div>
+        <div className="icon">
+          <NotificationsOutlinedIcon onClick={handleOpenNotifications} />
+          {openNotications
+            &&
+            <div className="icon-click">
+              <NotificationsOutlinedIcon onClick={handleOpenNotifications} />
+            </div>
+          }
+        </div>
         <Link
           to="#"
           onClick={handleOpenMenu}
@@ -171,6 +213,9 @@ const Navbar = ({ socket }) => {
                 <span className="date">{moment(noti.create_at).fromNow()}</span>
               </span>)}
           </div>))
+        }
+        {
+
         }
         {openUpdate && <ChangePassword setOpenUpdate={setOpenUpdate} user={findUser} />}
         {openMenu
@@ -199,11 +244,13 @@ const Navbar = ({ socket }) => {
             </div>
           </div>}
       </div>
-      {notification
-        && (<div className="pop-notification">
+      {
+        notification
+        && (<div className="pop-notification" onClick={handleCloseSearchResults}>
           <MdNotificationsActive style={{ fontSize: "20px" }} />
           <span>{notification}</span>
-        </div>)}
+        </div>)
+      }
     </div >
   );
 };

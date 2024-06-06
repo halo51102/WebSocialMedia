@@ -41,7 +41,7 @@ const Friend = () => {
                                         <div className="user" key={id}>
                                             <div className="userInfo">
                                                 <img
-                                                    src={friend?.profilePic ? "/upload/" + friend?.profilePic : profileAlt}
+                                                    src={friend?.profilePic ? friend?.profilePic : profileAlt}
                                                     alt=""
                                                 />
                                                 <span>{friend.name}</span>

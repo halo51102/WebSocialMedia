@@ -46,7 +46,7 @@ const RightBar = ({ socket, user }) => {
     <div className="rightBar">
       <div className="container">
         <div className="item">
-          <span>Suggestions For You</span>
+          <span>Đề xuất kết bạn</span>
 
           {sgdata?.map((usersg) =>
             (!relationshipData?.some(item => item.id === usersg.id)) && (currentUser.id !== usersg.id) &&
@@ -74,7 +74,7 @@ const RightBar = ({ socket, user }) => {
         </div>
 
         <div className="item">
-          <span>Following</span>
+          <span>Đang theo dõi</span>
           {relationshipData?.map((user) =>
           (<Link to=""
             style={{ textDecoration: "none", color: "inherit" }}

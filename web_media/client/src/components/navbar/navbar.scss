@@ -49,9 +49,12 @@
         font-weight: bold;
         font-size: 20px;
         color: themed("logo");
+        padding: 3px;
 
         &:hover {
-          color: themed("bgSoft");
+          // color: themed("bgSoft");
+          background: lightgray;
+          border-radius: 20px;
         }
       }
 
@@ -107,6 +110,32 @@
 
       @include mobile {
         display: none;
+      }
+
+      .icon {
+        margin-right: 0;
+        padding: 3px;
+        cursor: pointer;
+        position: relative;
+
+        .icon-click{
+          padding: 3px;
+          background: lightgray;
+          border-radius: 50%;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        &:hover {
+          background: lightgray;
+          border-radius: 50%;
+        }
+
+        &:focus {
+          background: lightgray;
+          border-radius: 50%;
+        }
       }
 
       .menu {

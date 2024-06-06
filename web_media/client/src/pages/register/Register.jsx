@@ -10,6 +10,7 @@ const Register = () => {
     password: "",
     name: "",
   })
+  const [email, setEmail] = useState('')
 
   const navigate = useNavigate()
 
@@ -23,12 +24,19 @@ const Register = () => {
     e.preventDefault()
 
     try {
-      await axios.post("http://localhost:8800/api/auth/register", inputs)
-      alert("Đăng ký tài khoản '" + inputs.username + "' thành công!")
-      navigate("/login")
+      const res = await axios.post("http://localhost:8800/api/auth/otp", { email: inputs.email });
+      console.log(res)
     } catch (err) {
-      setErr(err.response.data)
+      console.log(err)
     }
+
+    // try {
+    //   await axios.post("http://localhost:8800/api/auth/register", inputs)
+    //   alert("Đăng ký tài khoản '" + inputs.username + "' thành công!")
+    //   navigate("/login")
+    // } catch (err) {
+    //   setErr(err.response.data)
+    // }
   }
   return (
     <div className="register">
@@ -38,7 +46,7 @@ const Register = () => {
           <p>
 
           </p>
-          
+
         </div>
         <div className="right">
           <h1>Đăng ký</h1>

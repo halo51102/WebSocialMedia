@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import './createConversationForm.css'; // Import CSS file for styling
+import './createConversationForm.scss'; // Import CSS file for styling
 import axios from "axios";
 import { AuthContext } from "../../context/authContext";
 import { makeRequest } from "../../axios";
 import Multiselect from 'multiselect-react-dropdown';
-
+import { BiSolidMessageSquareAdd } from "react-icons/bi";
 
 const CreateConversationForm = ({ setNewConversation }) => {
   const [showForm, setShowForm] = useState(false);
@@ -50,7 +50,7 @@ const CreateConversationForm = ({ setNewConversation }) => {
   };
 
   const handleOpenCreate = () => {
-    setShowForm(true);
+    setShowForm(!showForm);
   };
 
   const handleGroupNameChange = (e) => {
@@ -86,13 +86,15 @@ const CreateConversationForm = ({ setNewConversation }) => {
   return (
 
     <div className="create-group-container">
-      <button className="chatSubmitButton" onClick={handleOpenCreate}>
-        Tạo cuộc trò chuyện mới
-      </button>
+      <div className='icon'
+        onClick={handleOpenCreate}>
+        <BiSolidMessageSquareAdd />
+      </div>
+
       {showForm
         && <form className="group-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="groupName">Conversation Name:</label>
+            <label htmlFor="groupName">Tên cuộc trò chuyện:</label>
             {selectedMembers.length > 1 ? (
               <input
                 type="text"
@@ -110,7 +112,7 @@ const CreateConversationForm = ({ setNewConversation }) => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="searchMembers">Search Friends:</label>
+            <label htmlFor="searchMembers">Bạn bè:</label>
             <Multiselect
               options={friends} // Options to display in the dropdown
               selectedValues={null} // Preselected value to persist in dropdown
@@ -122,8 +124,8 @@ const CreateConversationForm = ({ setNewConversation }) => {
             />
           </div>
           <div className='action-btns'>
-            <button type="submit" className="submit-button">Create Conversation</button>
-            <button type="button" className="close-modal-button" onClick={() => setShowForm(false)}>Close</button>
+            <button type="submit" className="submit-button">Tạo</button>
+            <button type="button" className="close-modal-button" onClick={() => setShowForm(false)}>Đóng</button>
           </div>
         </form>}
 

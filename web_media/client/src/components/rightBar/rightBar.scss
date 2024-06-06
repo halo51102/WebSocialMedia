@@ -30,6 +30,7 @@
         padding: 20px;
         margin-bottom: 20px;
         background-color: themed("bg");
+        border-radius: 20px;
 
         span {
           color: gray;
@@ -39,7 +40,13 @@
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin: 20px 0px;
+          padding: 10px;
+          cursor: pointer;
+
+          &:hover{
+            border-radius: 20px;
+            background: lightgray;
+          }
 
           .userInfo {
             display: flex;
@@ -71,6 +78,7 @@
             span {
               font-weight: 500;
               color: themed("textColor");
+              
             }
           }
 
