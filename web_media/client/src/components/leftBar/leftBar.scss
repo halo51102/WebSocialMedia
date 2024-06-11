@@ -34,7 +34,7 @@
       .menu {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        // gap: 20px;
 
         span {
           font-size: 12px;
@@ -61,6 +61,13 @@
           display: flex;
           align-items: center;
           gap: 10px;
+          padding: 10px;
+          cursor: pointer;
+
+          &:hover{
+            background: lightgray;
+            border-radius: 20px;
+          }
 
           .link {
             display: flex;

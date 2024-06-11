@@ -16,6 +16,7 @@ import Share from "../share/Share";
 import profileAlt from "../../assets/profileAlt.png"
 import { NotificationContext } from "../../context/notificationContext";
 import ReactPlayer from 'react-player';
+import { useRef } from "react";
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
@@ -27,7 +28,8 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [shareOpen, setShareOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const { showNotification } = useContext(NotificationContext)
+  const { showNotification } = useContext(NotificationContext);
+  const buttonOptionRef = useRef();
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
     makeRequest.get("/groups/" + post.groupId + "/members").then((res) => {
@@ -184,6 +186,8 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
   let profile = "/profile/" + post.userId;
 
+  console.log(imagesData)
+
   return (
     <div >
       <div className="post">
@@ -201,10 +205,25 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                 <span className="date">{moment(post.createdAt).fromNow()}</span>
               </div>
             </div>
-            <MoreHorizIcon
-              onClick={() => setMenuOpen(!menuOpen)}
-              style={{ position: "absolute", right: 0, cursor: "pointer" }}
-            />
+            <div className="button-option-post"
+              onClick={() => {
+                setMenuOpen(!menuOpen);
+              }}
+            >
+              <MoreHorizIcon />
+              {menuOpen
+                &&
+                <div className="button-option-post"
+                  onClick={() => {
+                    setMenuOpen(!menuOpen);
+                  }}
+                  style={{ background: 'lightgray', borderRadius: '50%', position: 'absolute', top: 0, left: 0 }}
+                >
+                  <MoreHorizIcon />
+                </div>
+              }
+            </div>
+
             {
               (
                 menuOpen && gData?.some(
@@ -244,16 +263,125 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
           </div>
 
           <div className="content">
-            <p>{post.desc}</p>
-            {imagesError ? "erorr" : imagesIsLoading ? "loading" : Array.isArray(imagesData) &&
-              imagesData.map((data) => (data.img.includes("mp4")
-                ? <video width="100%" height="" controls>
-                  <source src={data.img} type="video/mp4" />
-                </video>
-                : <img src={data.img}
-                  alt="lỗi image"
-                  onClick={() => handleImageClick(data.img)} />
-              ))}
+            {post.desc && <p>{post.desc}</p>}
+            {imagesError
+              ? "erorr"
+              : imagesIsLoading
+                ? "loading"
+                : Array.isArray(imagesData) && imagesData.length === 1
+                  ? imagesData.map((data) => (data.img.includes("mp4")
+                    ? <video width="100%" height="" controls>
+                      <source src={data.img} type="video/mp4" />
+                    </video>
+                    : <img src={data.img}
+                      alt="lỗi image"
+                      onClick={() => handleImageClick(data.img)} />
+                  ))
+                  : Array.isArray(imagesData) && imagesData.length === 2
+                    ? <div className="media">
+                      <div className="media-2">
+                        {imagesData[0]?.img.includes("mp4")
+                          ? <video width="100%" height="" controls>
+                            <source src={imagesData[0]?.img} type="video/mp4" />
+                          </video>
+                          : <img src={imagesData[0]?.img}
+                            alt="lỗi image"
+                            onClick={() => handleImageClick(imagesData[0]?.img)} />}
+                      </div>
+                      <div className="media-2">
+                        {imagesData[1]?.img.includes("mp4")
+                          ? <video width="100%" height="" controls>
+                            <source src={imagesData[1]?.img} type="video/mp4" />
+                          </video>
+                          : <img src={imagesData[1]?.img}
+                            alt="lỗi image"
+                            onClick={() => handleImageClick(imagesData[1]?.img)} />}
+                      </div>
+                    </div>
+                    : Array.isArray(imagesData) && imagesData.length === 3   //có 3 media
+                      ? <div className="media">
+                        <div className="media-2">
+                          {
+                            imagesData[0]?.img.includes("mp4")
+                              ? <video width="100%" height="" controls>
+                                <source src={imagesData[0]?.img} type="video/mp4" />
+                              </video>
+                              : <img src={imagesData[0]?.img}
+                                alt="lỗi image"
+                                onClick={() => handleImageClick(imagesData[0]?.img)} />
+                          }
+                        </div>
+                        <div className="media-2">
+                          <div className="media-3">
+                            {
+                              imagesData[1]?.img.includes("mp4")
+                                ? <video width="100%" height="" controls>
+                                  <source src={imagesData[1]?.img} type="video/mp4" />
+                                </video>
+                                : <img src={imagesData[1]?.img}
+                                  alt="lỗi image"
+                                  onClick={() => handleImageClick(imagesData[1]?.img)} />
+                            }
+                          </div>
+                          <div className="media-3">
+                            {
+                              imagesData[2]?.img.includes("mp4")
+                                ? <video width="100%" height="" controls>
+                                  <source src={imagesData[2]?.img} type="video/mp4" />
+                                </video>
+                                : <img src={imagesData[2]?.img}
+                                  alt="lỗi image"
+                                  onClick={() => handleImageClick(imagesData[2]?.img)} />
+                            }
+                          </div>
+                        </div>
+                      </div>
+                      : Array.isArray(imagesData) //nhiều hơn 3 media
+                      &&
+                      <div className="media">
+                        <div className="media-2">
+                          {
+                            imagesData[0]?.img.includes("mp4")
+                              ? <video width="100%" height="" controls>
+                                <source src={imagesData[0]?.img} type="video/mp4" />
+                              </video>
+                              : <img src={imagesData[0]?.img}
+                                alt="lỗi image"
+                                onClick={() => handleImageClick(imagesData[0]?.img)} />
+                          }
+                        </div>
+                        <div className="media-2">
+                          <div className="media-3">
+                            {
+                              imagesData[1]?.img.includes("mp4")
+                                ? <video width="100%" height="" controls>
+                                  <source src={imagesData[1]?.img} type="video/mp4" />
+                                </video>
+                                : <img src={imagesData[1]?.img}
+                                  alt="lỗi image"
+                                  onClick={() => handleImageClick(imagesData[1]?.img)} />
+                            }
+                          </div>
+                          <div className="media-3">
+                            {
+                              imagesData[2]?.img.includes("mp4")
+                                ? <video width="100%" height="" controls>
+                                  <source src={imagesData[2]?.img} type="video/mp4" />
+                                </video>
+                                : <img src={imagesData[2]?.img}
+                                  alt="lỗi image"
+                                  onClick={() => handleImageClick(imagesData[2]?.img)} />
+                            }
+                          </div>
+                          <div className="media-3"
+                            style={{ position: 'absolute', zIndex: 1, width: '50%', top: '155px' }}
+                          >
+                            <span style={{alignSelf: 'center', fontSize: '100px'}}>+</span>
+                          </div>
+                        </div>
+                      </div>
+            }
+
           </div>
 
 
@@ -296,16 +424,16 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                     onClick={handleLike} />) :
                   (<FavoriteBorderOutlinedIcon
                     onClick={handleLike} />)}
-              {data?.length} Likes
+              {data?.length} Thích
             </div>
             <div className="item" onClick={handleToggleComment}>
               <TextsmsOutlinedIcon />
-              See Comments
+              Bình luận
             </div>
             {(post.userId !== currentUser.id)
               && <div className="item" onClick={() => setShareOpen(true)}>
                 <ShareOutlinedIcon />
-                Share
+                Chia sẻ
               </div>
             }
           </div>

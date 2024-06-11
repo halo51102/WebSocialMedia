@@ -7,6 +7,7 @@ import { AuthContext } from "../../context/authContext"
 
 const Home = ({socket, user}) => {
   const { currentUser } = useContext(AuthContext)
+  console.log(currentUser)
 
   return (
     <div className="home">

@@ -25,6 +25,7 @@
     "dotenv": "^16.4.5",
     "moment": "^2.29.4",
     "multiselect-react-dropdown": "^2.0.25",
+    "nodemailer": "^6.9.13",
     "normalize.css": "^8.0.1",
     "react": "^18.0.0",
     "react-admin": "^4.16.4",

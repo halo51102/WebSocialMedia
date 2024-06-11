@@ -41,7 +41,7 @@
 
 .chatBoxTop {
     height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding-right: 10px;
 }
 
@@ -50,6 +50,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 10px;
 }
 
 .chatMessageInput {
@@ -93,6 +94,119 @@
     font-size: 50px;
     color: rgb(224, 220, 220);
     cursor: default;
+}
+
+.headerChat {
+    display: flex;
+    box-shadow: 0 1px 1px 1px lightgray;
+    padding: 10px;
+    justify-content: space-between;
+    position: relative;
+
+    .info {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 2px;
+
+        span {
+            color: black;
+        }
+
+        &:hover{
+            background: lightgray;
+            border-radius: 10px;
+        }
+    }
+
+    .extension {
+        display: flex;
+        align-items: center;
+        color: black;
+
+        .icon {
+            cursor: pointer;
+            border-radius: 50%;
+            color: blue;
+            background: white;
+            padding: 7px;
+        }
+
+        .icon:hover {
+            // padding: 7px;
+            border-radius: 50%;
+            background: lightgray;
+        }
+
+    }
+}
+
+.current-chat-option-form {
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    right: 6px;
+    top: 46px;
+    z-index: 1;
+    background: white;
+    color: black;
+    box-shadow: 0px 0px 3px 1px lightgray;
+    border-radius: 10px;
+    cursor: pointer;
+
+    .current-chat-option {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        font-size: 15px;
+
+        .icon {
+            margin-right: 15px;
+            font-size: 20px;
+        }
+    }
+
+    .current-chat-option:hover {
+        background: lightgray;
+    }
+}
+
+.search-conversation {
+    padding: 5px;
+    display: flex;
+    box-shadow: 0 0 0px 1px lightgray;
+    border-radius: 40px;
+    /* padding: 0 0; */
+    align-items: center;
+    width: 100%;
+    height: 35px;
+
+    .icon-search {
+        font-size: 20px;
+        padding: 10px;
+    }
+
+    input {
+        border: none;
+
+        &:focus {
+            outline: none;
+            background-color: transparent;
+        }
+    }
+
+    &:hover {
+        color: black;
+    }
+}
+
+.icon-back {
+    font-size: 30px;
+    cursor: pointer;
+
+    &:hover {
+        color: black;
+    }
 }
 
 @media screen and (max-width: 768px) {
