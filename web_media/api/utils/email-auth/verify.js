@@ -1,31 +1,27 @@
-const crypto = require('crypto')
-const nodemailer = require('nodemailer')
-const { google } = require('googleapis');
+import * as crypto from 'crypto';
+import * as nodemailer from 'nodemailer'
 
-const generateOTP = () => {
+export const generateOTP = () => {
   return crypto.randomBytes(3).toString("hex");
 };
-const auth = new google.auth.GoogleAuth({
-  keyFile: 'credentials.json',
-  scopes: ['https://www.googleapis.com/auth/gmail.send']
-});
 
-const sendOTP = (email, OTP) => {
+export const sendVerifyEmail = (email, emailToken) => {
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
       user: "halo051102@gmail.com",
-      pass: "...",
+      pass: "ynck wnna wvdm cnmt",
     },
   });
 
   const mailOptions = {
     from: 'halo051102@gmail.com',
     to: email,
-    subject: "Your OTP",
-    text: `Your OTP is: ${OTP}`,
+    subject: "Xác thực email",
+    html: `<a href='http://localhost:3000/verify?emailToken=${emailToken}'>NHẤN VÀO ĐÂY ĐỂ XÁC THỰC</a>
+    `,
   };
 
   // transporter.set("oauth2_provision_cb", (user, renew, callback) => {
@@ -45,6 +41,3 @@ const sendOTP = (email, OTP) => {
     }
   });
 };
-
-module.exports = { generateOTP, sendOTP }
-

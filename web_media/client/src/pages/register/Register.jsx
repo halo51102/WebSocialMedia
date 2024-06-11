@@ -1,8 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./register.scss";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import axios from "axios"
+import { AuthContext } from "../../context/authContext";
+
 const Register = () => {
+  const { register } = useContext(AuthContext);
 
   const [inputs, setInputs] = useState({
     username: "",
@@ -14,7 +17,7 @@ const Register = () => {
 
   const navigate = useNavigate()
 
-  const [err, setErr] = useState(null)
+  const [err, setErr] = useState('')
 
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }))
@@ -24,19 +27,15 @@ const Register = () => {
     e.preventDefault()
 
     try {
-      const res = await axios.post("http://localhost:8800/api/auth/otp", { email: inputs.email });
-      console.log(res)
+      const res = await register(inputs);
+      alert("Đăng ký tài khoản '" + inputs.username + "' thành công! Xác thực để đăng nhập.");
+      navigate('/login');
+      setErr('')
+      console.log(res);
     } catch (err) {
-      console.log(err)
+      console.log(err.response.data)
+      setErr(err.response.data)
     }
-
-    // try {
-    //   await axios.post("http://localhost:8800/api/auth/register", inputs)
-    //   alert("Đăng ký tài khoản '" + inputs.username + "' thành công!")
-    //   navigate("/login")
-    // } catch (err) {
-    //   setErr(err.response.data)
-    // }
   }
   return (
     <div className="register">
@@ -55,7 +54,7 @@ const Register = () => {
             <input type="email" placeholder="Email" name="email" onChange={handleChange} />
             <input type="password" placeholder="Password" name="password" onChange={handleChange} />
             <input type="text" placeholder="Name" name="name" onChange={handleChange} />
-            {err && err}
+            {/* {err && <span>{err}</span>} */}
             <button onClick={handleRegister}>Xác nhận</button>
           </form>
           <div className="login">
