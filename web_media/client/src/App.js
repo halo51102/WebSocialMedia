@@ -28,6 +28,7 @@ import { io } from "socket.io-client";
 import { useState } from "react";
 import UserList from "./pages/admin/user-list/UserList";
 import PostList from "./pages/admin/post-list/PostList";
+import VerifyEmail from "./pages/verify-email/VerifyEmail";
 
 function App() {
 
@@ -38,6 +39,7 @@ function App() {
   const queryClient = new QueryClient()
 
   const [user, setUser] = useState("");
+
   const [socket, setSocket] = useState(null);
 
   //ADMIN
@@ -111,7 +113,7 @@ function App() {
       children: [
         {
           path: "/",
-          element: <Home socket={socket} user={user} />,
+          element: user ? <Home socket={socket} user={user} /> : <Login />,
         },
         {
           path: "/profile/:id",
@@ -119,7 +121,7 @@ function App() {
         },
         {
           path: "/group/all",
-          element: <AllGroup />, 
+          element: <AllGroup />,
         },
         {
           path: "/group/:id",
@@ -130,6 +132,10 @@ function App() {
           element: <Friend />,
         },
       ],
+    },
+    {
+      path: "/verify",
+      element: <VerifyEmail />,
     },
     {
       path: "/login",
@@ -159,7 +165,7 @@ function App() {
       children: [
         {
           path: "/admin",
-          element: <HomeAdmin socket={socket}/>
+          element: <HomeAdmin socket={socket} />
         },
         {
           path: "/admin/users",

@@ -41,7 +41,6 @@ export default function Topbar() {
         <Link
           onClick={() => {
             navigate(`/profile/${currentUser.id}`)
-            window.location.reload();
           }}
           style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "10px" }}
         >

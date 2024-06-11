@@ -81,7 +81,7 @@ const Share = () => {
               src={findUser?.profilePic ?   findUser?.profilePic : profileAlt}
               alt=""
             />
-            <input type="text" placeholder={`What's on your mind ${findUser?.name}?`}
+            <input type="text" placeholder={`Bạn đang nghĩ gì vậy ${findUser?.name}...`}
               onChange={(e) => setDesc(e.target.value)}
               value={desc} />
           </div>
@@ -117,20 +117,20 @@ const Share = () => {
             <label htmlFor="file">
               <div className="item">
                 <img src={Image} alt="" />
-                <span>Images</span>
+                <span>Hình ảnh</span>
               </div>
             </label>
             <div className="item">
               <img src={Map} alt="" />
-              <span>Location</span>
+              <span>Địa điểm</span>
             </div>
             <div className="item">
               <img src={Friend} alt="" />
-              <span>Tag</span>
+              <span>Gắn thẻ</span>
             </div>
           </div>
           <div className="right">
-            <button onClick={handleNewPost}>Share</button>
+            <button onClick={handleNewPost}>Đăng</button>
           </div>
         </div>
       </div>

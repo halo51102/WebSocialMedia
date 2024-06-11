@@ -1,6 +1,7 @@
 import { useState, useContext, useRef, useEffect } from "react"
 import "./messenger.css"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import "./messenger.scss"
 import { AuthContext } from "../../context/authContext";
 import { makeRequest } from "../../axios";
 import Topbar from "../../components/topbar/Topbar";
@@ -20,6 +21,12 @@ import { fabClasses } from "@mui/material";
 import { FaImage } from "react-icons/fa6";
 import { IoCloseCircle } from "react-icons/io5";
 import { uploadImagesToS3 } from "../../s3.config";
+import profileAlt from "../../assets/profileAlt.png"
+import { MdDeleteForever } from "react-icons/md";
+import { FaPencil } from "react-icons/fa6";
+import { CiSearch } from "react-icons/ci";
+import { IoIosArrowRoundBack, IoIosPeople } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 export default function Messenger({ socket }) {
   const { currentUser } = useContext(AuthContext);
@@ -27,9 +34,12 @@ export default function Messenger({ socket }) {
   const [conversations, setConversations] = useState([]);
   const [newConversation, setNewConversation] = useState(null);
   const [currentChat, setCurrentChat] = useState(null);
+  const [users, setUsers] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [isOpenConversationOption, setIsOpenConversationOption] = useState(false)
+  const [isOpenCurrentChatOption, setIsOpenCurrentChatOption] = useState(false)
   const [isOpenFormDeleteConversation, setIsOpenFormDeleteConversation] = useState(false)
+  const [isOpenSearchConversation, setIsOpenSearchConversation] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
@@ -39,6 +49,7 @@ export default function Messenger({ socket }) {
   const [files, setFiles] = useState([]);
   const fileRef = useRef();
   const [selectedEmotion, setSelectedEmotion] = useState(null);
+  const navigate = useNavigate();
 
   const [openCall,setOpenCall]=useState(false);
 
@@ -123,6 +134,25 @@ export default function Messenger({ socket }) {
       });
     });
   }, []);
+
+  useEffect(() => {
+    setUsers([]);
+    if (currentChat) {
+      const friendId = currentChat.members.filter((m) => m !== currentUser.id);
+      const getUser = async () => {
+        try {
+          friendId.map(async (item) => {
+            const res = await makeRequest.get("/users/find/" + item);
+            setUsers((prev) => [...prev, res.data]);
+          })
+        } catch (err) {
+          console.log(err);
+        }
+      };
+      getUser();
+      console.log(users)
+    }
+  }, [currentUser, currentChat]);
 
   useEffect(() => {
     arrivalMessage &&
@@ -327,10 +357,7 @@ export default function Messenger({ socket }) {
     else {
       setIsOpenConversationOption(true);
     }
-  }
-
-  const handleCloseConversationOption = () => {
-    setIsOpenConversationOption(false);
+    setIsOpenCurrentChatOption(false);
   }
 
   const handleDeleteConversation = async () => {
@@ -338,6 +365,9 @@ export default function Messenger({ socket }) {
       console.log(selectedChat.conversationId)
       const r = await makeRequest.delete("/conversations/" + selectedChat.conversationId);
       setIsOpenFormDeleteConversation(false);
+      setIsOpenCurrentChatOption(false);
+      setCurrentChat(null);
+      setSelectedChat(null);
       const res = await getConversations();
       console.log(res.data)
     }
@@ -350,6 +380,11 @@ export default function Messenger({ socket }) {
     setOpenCall(true);
     alert('Đang làm!');
   }
+  const handleClickCurrentChatOption = () => {
+    setIsOpenCurrentChatOption(!isOpenCurrentChatOption);
+    setIsOpenConversationOption(false);
+    setSelectedChat(currentChat);
+  }
 
   return (
     <div >
@@ -358,8 +393,33 @@ export default function Messenger({ socket }) {
       <div className="messenger" >
         <dir className="chatMenu">
           <dir className="chatMenuWrapper">
-            <div onClick={handleCloseConversationOption}>
-              <CreateConversationForm setNewConversation={setNewConversation} />
+            <h2 style={{ paddingLeft: '10px', color: 'black', margin: '10px 0' }}>Tin nhắn</h2>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'space-between', paddingLeft: '10px' }}>
+              {
+                isOpenSearchConversation
+                &&
+                <div className="icon-back"
+                  onClick={() => { setIsOpenSearchConversation(false) }}>
+                  <IoIosArrowRoundBack />
+                </div>
+              }
+              <div className="search-conversation">
+                <div className="icon-search">
+                  <CiSearch />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Nhập từ khóa..."
+                  onClick={() => { setIsOpenSearchConversation(true) }}
+                  style={{ border: 'none', marginTop: '0' }} />
+              </div>
+              <div onClick={() => {
+                setIsOpenConversationOption(false);
+                setIsOpenCurrentChatOption(false);
+              }}>
+                <CreateConversationForm setNewConversation={setNewConversation} />
+              </div>
             </div>
             {/* <input placeholder="Search for friends" className="chatMenuInput" /> */}
             <div style={{ overflow: 'hidden auto', height: "80%" }}>
@@ -367,7 +427,8 @@ export default function Messenger({ socket }) {
                 <div className="conversation" tabIndex={0}>
                   <div onClick={() => {
                     setCurrentChat(c);
-                    handleCloseConversationOption();
+                    setIsOpenCurrentChatOption(false);
+                    setIsOpenConversationOption(false);
                   }} >
                     <Conversation conversation={c} currentUser={currentUser} />
                   </div>
@@ -412,7 +473,7 @@ export default function Messenger({ socket }) {
         {
           isOpenFormDeleteConversation
           && <div className="form-delete">
-            <span>Xóa cuộc hội thoại sẽ không thấy lịch sử tin nhắn nữa,
+            <span>Xóa cuộc hội thoại {selectedChat?.name ? selectedChat.name : users[0].name} sẽ không thấy lịch sử tin nhắn nữa,
               bạn chắc chắn muốn xóa?</span>
             <div className="form-delete-button-group">
               <span className="form-delete-button form-delete-button-ok"
@@ -428,7 +489,89 @@ export default function Messenger({ socket }) {
         }
 
         <div className="chatBox">
-          <div className="chatBoxWrapper" onClick={handleCloseConversationOption}>
+          <div className="chatBoxWrapper"
+            onClick={() => {
+              setIsOpenConversationOption(false);
+            }}>
+            {currentChat
+              &&
+              <div className="headerChat">
+                <div className="info" onClick={() => {
+                  if (users.length == 1)
+                    navigate(`/profile/${users[0].id}`)
+                }}>
+                  {(currentChat?.name)
+                    ? <div className="conversationImg groupConversationImgs">
+                      <img
+                        className="conversationImg groupConversationImg1"
+                        src={users[0]?.profilePic ? users[0].profilePic : profileAlt}
+                        alt=""
+                      />
+                      <img
+                        className="conversationImg groupConversationImg2"
+                        src={users[1]?.profilePic ? users[1].profilePic : profileAlt}
+                        alt=""
+                      />
+                    </div>
+                    :
+                    <img
+                      className="conversationImg"
+                      src={users[0]?.profilePic ? users[0].profilePic : profileAlt}
+                      alt=""
+                    />
+                  }
+                  <span className="conversationName">{currentChat?.name ? currentChat.name : users[0]?.name ? users[0].name : "Người dùng SocialMedia"}</span>
+                </div>
+                <div className="extension">
+                  <div className="icon">
+                    <SlOptionsVertical
+                      onClick={() => {
+                        handleClickCurrentChatOption();
+                      }} />
+                  </div>
+                </div>
+                {isOpenCurrentChatOption
+                  && <div className="current-chat-option-form">
+                    <div className="current-chat-option">
+                      <div className="icon">
+                        <MdDeleteForever />
+                      </div>
+                      <span
+                        onClick={() => {
+                          setIsOpenFormDeleteConversation(true);
+                        }}>
+                        Xóa cuộc trò chuyện
+                      </span>
+                    </div>
+                    {users.length === 1
+                      ?
+                      <div className="current-chat-option">
+                        <div className="icon">
+                          <FaPencil />
+                        </div>
+                        <span>Đổi biệt danh</span>
+                      </div>
+                      :
+                      <div className="current-chat-option">
+                        <div className="icon">
+                          <FaPencil />
+                        </div>
+                        <span>Đổi tên nhóm</span>
+                      </div>
+                    }
+                    {
+                      users.length !== 1
+                      && <div className="current-chat-option">
+                        <div className="icon">
+                          <IoIosPeople />
+                        </div>
+                        <span>Xem thành viên đoạn chat</span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            }
             {currentChat ? (
               <>
                 <div className="chatBoxTop">
@@ -515,8 +658,8 @@ export default function Messenger({ socket }) {
                 </div>
               </>
             ) : (
-              <span className="noConversationText">
-                Open a conversation to start a chat.
+              <span className="noConversationText" style={{ padding: '10px' }}>
+                Mở một cuộc trò chuyện để bắt đầu nhắn tin.
               </span>
             )}
           </div>

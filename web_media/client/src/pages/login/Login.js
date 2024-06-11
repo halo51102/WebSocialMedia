@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import "./login.scss";
 import { NotificationContext } from "../../context/notificationContext";
+import { useEffect } from "react";
 
 function Login() {
     const [inputs, setInputs] = useState({
@@ -11,24 +12,26 @@ function Login() {
     })
     const [err, setErr] = useState(null)
     const navigate = useNavigate()
-    const { showNotification } = useContext(NotificationContext)
+    const { notification, showNotification } = useContext(NotificationContext)
 
     const handleChange = (e) => {
         setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+        setLoginInput((prev) => ({ ...prev, [e.target.name]: e.target.value }))
     }
 
-    const { login, currentUser } = useContext(AuthContext);
+    const { login, currentUser, loginInput, setLoginInput } = useContext(AuthContext);
 
     const handleLogin = async (e) => {
         e.preventDefault()
         try {
             const userData = await login(inputs);
-            console.log(userData)
+            
+            setLoginInput({ username: '', password: '' });
             if (userData.role === "admin") {
                 navigate("/admin");
                 showNotification("Đăng nhập ADMIN thành công!!");
             }
-            else{
+            else {
                 navigate("/")
                 showNotification("Đăng nhập người dùng thành công!!");
             }
@@ -52,8 +55,9 @@ function Login() {
                         <input type="text" placeholder="Username" name="username" onChange={handleChange} />
                         <input type="password" placeholder="Password" name="password" onChange={handleChange} />
                         {err && err}
-                        <button onClick={handleLogin}>Enter</button>
+                        <button onClick={handleLogin}>Xác nhận</button>
                     </form>
+                    {notification && <span>{notification}</span>}
                     <div className="register">
                         <span>Bạn chưa có tài khoản?</span>
                         <Link to="/register"
