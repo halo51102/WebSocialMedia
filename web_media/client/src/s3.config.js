@@ -9,8 +9,8 @@ export const uploadImagesToS3 = async (file) => {
 
   // S3 Credentials
   AWS.config.update({
-    accessKeyId: "..",
-    secretAccessKey: ".." ,
+    accessKeyId: "...",
+    secretAccessKey: " ..." ,
   });
   const s3 = new AWS.S3({
     params: { Bucket: S3_BUCKET },

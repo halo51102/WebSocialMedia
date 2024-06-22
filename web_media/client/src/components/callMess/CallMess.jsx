@@ -7,6 +7,7 @@ import { NotificationContext } from "../../context/notificationContext";
 import Peer from 'simple-peer';
 import { io } from "socket.io-client";
 import { AuthContext } from "../../context/authContext";
+import "./setup.js";
 
 const CallMess = ({ setOpenCall, room, socket }) => {
 
@@ -39,7 +40,7 @@ const CallMess = ({ setOpenCall, room, socket }) => {
     }, []);
 
     const callMessenger = (roomId) => {
-
+        setCaller(currentUser.id)
         const peer = new Peer({
             initiator: true,
             trickle: false,
@@ -57,28 +58,34 @@ const CallMess = ({ setOpenCall, room, socket }) => {
         // Lắng nghe sự kiện 'stream' từ Peer
         peer.on('stream', (stream) => {
             // Xử lý stream âm thanh từ người dùng khác và hiển thị nó
-            userAudio.current.srcObject = stream;
+            if (userAudio.current) {
+                userAudio.current.srcObject = stream;
+            }
         });
-        socket.on('call-accepted', (signal) => {
-            setCallAccepted(true);
-            peer.signal(signal);
-        });
-        // Lưu kết nối Peer vào danh sách kết nối (nếu cần)
         connectionRef.current[currentUser.id] = peer;
-        //setUsersInCall(prevUsers => [...prevUsers, currentUser.id]);
     }
-
+    useEffect(() => {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+            setStream(stream);
+            if (userAudio.current) {
+                userAudio.current.srcObject = stream;
+            }
+        });
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            if (typeof process !== 'undefined') { }
+        }
+    }, [])
     //room: converId, name, member[]
     useEffect(() => {
 
-
-        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-            setStream(stream);
-        });
+        console.log("71")
 
         //lấy danh sách user có trong room
         if (room.conversationId && currentUser.id) userInRoom(room.conversationId);
-
+        console.log("81")
 
         socket.on('update-users', (users) => {
             setUsers(users);
@@ -112,7 +119,7 @@ const CallMess = ({ setOpenCall, room, socket }) => {
                     });
 
                     connectionRef.current[from].on('stream', (stream) => {
-                        if (userAudio.current) {
+                        if (userAudio.current && from.userId !== currentUser.id) {
                             userAudio.current.srcObject = stream;
                         }
                     });
@@ -122,35 +129,54 @@ const CallMess = ({ setOpenCall, room, socket }) => {
                 connectionRef.current[from].signal(signal);
                 setReceivingCall(true);
                 setCaller(from);
+                console.log(caller)
                 setCallerSignal(signal);
             }
         });
-        socket.on('call-accepted', ({ signal }) => {
+        socket.on('call-accepted', ({ signal, userId }) => {
             const peer = connectionRef.current[caller];
+            console.log(userId);
+            console.log(caller);
+            addUserToCall(userId)
+            setCallAccepted(true);
             if (peer) {
                 peer.signal(signal);
             }
+
         });
         socket.on('user-disconnected', (userId) => {
             if (connectionRef.current[userId]) {
                 connectionRef.current[userId].destroy();
                 delete connectionRef.current[userId];
             }
-            /*setUsersInCall(prevUsers => prevUsers.filter(id => id !== userId));
+            setUsersInCall(prevUsers => prevUsers.filter(id => id !== userId));
             if (usersInCall.length === 1 && usersInCall[0] === currentUser.id) {
                 endCall();
-            }*/
-        });
-        socket.on('call-ended', ({ userId }) => {
-            if (connectionRef.current[userId]) {
-                connectionRef.current[userId].destroy();
-                delete connectionRef.current[userId];
             }
-            /*setUsersInCall(prevUsers => prevUsers.filter(id => id !== userId));
-            if (usersInCall.length === 1 && usersInCall[0] === currentUser.id) {
-                endCall();
-            }*/
         });
+        socket.on('call-ended', ({ from }) => {
+            console.log(from)
+            console.log(callAccepted)
+            console.log(usersInCall)
+            if (from !== currentUser.id) {
+                console.log(from)
+                alert(from + "kết thúc cuộc gọi");
+                if (connectionRef.current[from]) {
+                    connectionRef.current[from].destroy();
+                    delete connectionRef.current[from];
+                }
+                setUsersInCall((prevUsers) => {
+
+                    const updatedUsers = prevUsers.filter(id => id !== from);
+                    console.log(updatedUsers); // In ra danh sách mới để kiểm tra
+                    return updatedUsers;
+                });
+                console.log(usersInCall)
+            } else {
+                console.log("169")
+            }
+        });
+        console.log("178")
         return () => {
             socket.off('update-users');
             socket.off('user-in-room');
@@ -158,24 +184,31 @@ const CallMess = ({ setOpenCall, room, socket }) => {
             socket.off('call-accepted');
             socket.off('user-disconnected');
             socket.off('call-ended');
-        };
-    }, [receivingCall, callAccepted]);
 
-    /*useEffect(() => {
+        };
+    }, [receivingCall, callAccepted, caller, currentUser.id]);
+
+
+    const addUserToCall = (userId) => {
+        console.log(caller)
+        if (!(usersInCall.some(id => id === caller))) {
+            setUsersInCall(prevUsers => [...prevUsers, caller]);
+        }
+        //setUsersInCall(prevUsers => [...prevUsers, userId]);
+        setUsersInCall(prevUsers => {
+            if (!prevUsers.includes(userId)) {
+                return [...prevUsers, userId];
+            }
+            return prevUsers;
+        });
+    };
+    useEffect(() => {
         if (usersInCall.length === 1 && usersInCall[0] === currentUser.id) {
             endCall();
         }
-    }, [usersInCall, currentUser.id]);*/
-
-    const addUserToCall = (userId) => {
-        if(!(usersInCall.some(id => id === caller))){
-            setUsersInCall(prevUsers => [...prevUsers, caller]);
-        }
-        setUsersInCall(prevUsers => [...prevUsers, userId]);
-    };
-
+    }, [usersInCall, currentUser.id]);
     const acceptCall = () => {
-        //addUserToCall(userId); 
+        addUserToCall(currentUser.id)
         setCallAccepted(true);
         const peer = new Peer({
             initiator: false,
@@ -184,7 +217,7 @@ const CallMess = ({ setOpenCall, room, socket }) => {
         });
 
         peer.on('signal', (data) => {
-            socket.emit('answer-call', { signal: data, to: caller });
+            socket.emit('answer-call', { signal: data, to: caller, roomId: room.conversationId });
         });
 
         peer.on('stream', (stream) => {
@@ -197,26 +230,45 @@ const CallMess = ({ setOpenCall, room, socket }) => {
     };
 
     const endCall = useCallback(() => {
+        console.log("233")
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
-        socket.emit('end-call', { roomId: room.conversationId, userId: currentUser.id });
-        Object.values(connectionRef.current).forEach(peer => {
-            if (peer && typeof peer.destroy === 'function') {
-                peer.destroy();
-            } else {
-                console.error("peer is not an instance of Peer", peer);
-            }
-        });
-        connectionRef.current = {};
-        setReceivingCall(false);
-        setCaller('');
-        setCallerSignal(null);
-        setCallAccepted(false);
-        setOpenCall(false);
-    }, [receivingCall]);
+        console.log("23")
+        if (typeof process !== 'undefined') {
+            // Thực hiện các thao tác dành riêng cho Node.js
+            console.log('Running in Node.js environment');
+            Object.values(connectionRef.current).forEach(peer => {
+                if (peer && typeof peer.destroy === 'function') {
+                    peer.destroy();
+                } else {
+                    console.error("peer is not an instance of Peer", peer);
+                }
+            });
 
+            socket.emit('end-call', { roomId: room.conversationId, userId: currentUser.id });
+            Object.values(connectionRef.current).forEach(peer => {
+                if (peer && typeof peer.on === 'function') {
+                    peer.on('close', () => {
+                        console.log(`Connection with peer closed: ${peer}`);
+                        // Thực hiện các bước dọn dẹp cần thiết
+                    });
+                } else {
+                    console.error("peer is not an instance of Peer", peer);
+                }
+            });
+            connectionRef.current = {};
+            setReceivingCall(false);
+            setCaller('');
+            setCallerSignal(null);
+            setCallAccepted(false);
+            setOpenCall(false);
+        }
+        console.log("258")
 
+    }, [stream, socket, currentUser.id, room.conversationId]);
+
+    console.log(usersInCall);
     return (
         <div className="update">
             <div className="wrapper">

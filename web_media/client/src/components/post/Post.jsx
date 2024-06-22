@@ -34,7 +34,6 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   
   const [openTag, setOpenTag] = useState(false);
 
-  const { showNotification } = useContext(NotificationContext);
   const buttonOptionRef = useRef();
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>

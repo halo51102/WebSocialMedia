@@ -1,5 +1,4 @@
 import { useState, useContext, useRef, useEffect } from "react"
-import "./messenger.css"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import "./messenger.scss"
 import { AuthContext } from "../../context/authContext";
