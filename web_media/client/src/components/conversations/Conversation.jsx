@@ -5,7 +5,7 @@ import { makeRequest } from "../../axios";
 import profileAlt from "../../assets/profileAlt.png"
 
 
-export default function Conversation({ conversation, currentUser }) {
+export default function Conversation({ conversation, currentUser, onClick }) {
   const [users, setUsers] = useState([]);
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
 
@@ -26,8 +26,8 @@ export default function Conversation({ conversation, currentUser }) {
   }, [currentUser, conversation]);
 
   return (
-    <div className="conversation">
-      {conversation?.name
+    <div className="conversation" onClick={onClick}>
+      {conversation.members?.length > 2
         ? <div className="conversationImg groupConversationImgs">
           <img
             className="conversationImg groupConversationImg1"

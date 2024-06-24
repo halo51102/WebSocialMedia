@@ -73,7 +73,7 @@ const CreateConversationForm = ({ setNewConversation }) => {
     // Here, you can perform actions like sending data to your backend to create the group chat
     console.log('Group Name:', groupName);
     console.log('Selected Members:', selectedMembers);
-    const res = await makeRequest.post("/conversations/", { "senderId": currentUser.id, "receiverId": selectedMembers.map(obj => obj.id), "name": selectedMembers.length > 1 ? groupName : null })
+    const res = await makeRequest.post("/conversations/", { "senderId": currentUser.id, "receiverId": selectedMembers.map(obj => obj.id), "name": Array.isArray(selectedMembers) && selectedMembers.length > 1 ? groupName : selectedMembers[0].name })
     console.log(res.data)
     setNewConversation(res.data.conversationId)
     multiSelectRef.current.resetSelectedValues()

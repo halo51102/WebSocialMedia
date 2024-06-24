@@ -29,6 +29,7 @@ import { useState } from "react";
 import UserList from "./pages/admin/user-list/UserList";
 import PostList from "./pages/admin/post-list/PostList";
 import VerifyEmail from "./pages/verify-email/VerifyEmail";
+import { makeRequest } from "./axios";
 
 function App() {
 
@@ -38,7 +39,9 @@ function App() {
 
   const queryClient = new QueryClient()
 
-  const [user, setUser] = useState("");
+  const [user, setUser] = useState('');
+
+  console.log(currentUser)
 
   const [socket, setSocket] = useState(null);
 
@@ -61,6 +64,7 @@ function App() {
     return (
       <QueryClientProvider client={queryClient}>
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
+          ....
           <Navbar socket={socket} />
           <div style={{ display: "flex" }}>
             <LeftBar socket={socket} user={user} />
@@ -88,11 +92,15 @@ function App() {
 
   const ProtectedRoute = ({ children }) => {
     useEffect(() => {
-      if (currentUser) {
-        setUser(currentUser.username);
-      } else {
-        setUser("");
-      }
+      const auth = async () => {
+        if (currentUser) {
+          setUser(currentUser.username);
+          await makeRequest.post('/auth/authorize', { username: currentUser.username });
+        } else {
+          setUser("");
+        }
+      };
+      auth();
     }, [currentUser]);
 
     if (!currentUser) {
@@ -113,7 +121,7 @@ function App() {
       children: [
         {
           path: "/",
-          element: user ? <Home socket={socket} user={user} /> : <Login />,
+          element: <Home socket={socket} user={user} />,
         },
         {
           path: "/profile/:id",

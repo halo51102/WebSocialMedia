@@ -22,6 +22,7 @@ import { FaPencil } from "react-icons/fa6";
 import { CiSearch } from "react-icons/ci";
 import { IoIosArrowRoundBack, IoIosPeople } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Messenger({ socket }) {
   const { currentUser } = useContext(AuthContext);
@@ -375,6 +376,22 @@ export default function Messenger({ socket }) {
     setSelectedChat(currentChat);
   }
 
+  // Search users
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  const handleSearch = (e) => {
+    setSearchInput(e.target.value);
+    if (e.target.value !== '') {
+      const results = conversations.filter(conversation =>
+        conversation.name.toLowerCase().includes(e.target.value.trim())
+      );
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+    }
+  }
+
   return (
     <div >
       <Topbar />
@@ -399,8 +416,10 @@ export default function Messenger({ socket }) {
                 </div>
                 <input
                   type="text"
+                  value={searchInput}
                   placeholder="Nhập từ khóa..."
                   onClick={() => { setIsOpenSearchConversation(true) }}
+                  onChange={handleSearch}
                   style={{ border: 'none', marginTop: '0' }} />
               </div>
               <div onClick={() => {
@@ -411,51 +430,116 @@ export default function Messenger({ socket }) {
               </div>
             </div>
             {/* <input placeholder="Search for friends" className="chatMenuInput" /> */}
-            <div style={{ overflow: 'hidden auto', height: "80%" }}>
-              {conversations.map((c) => (
-                <div className="conversation" tabIndex={0}>
-                  <div onClick={() => {
-                    setCurrentChat(c);
-                    setIsOpenCurrentChatOption(false);
-                    setIsOpenConversationOption(false);
-                  }} >
-                    <Conversation conversation={c} currentUser={currentUser} />
-                  </div>
-                  <SlOptionsVertical
-                    className="button-option"
-                    onClick={() => {
-                      setSelectedChat(c);
-                      handleClickConversationOption(c);
-                    }} />
+            {
+              !isOpenSearchConversation
+                ? <div style={{ overflow: 'hidden auto', height: "80%" }}>
                   {
-                    isOpenConversationOption
-                    && selectedChat === c
-                    && <SlOptionsVertical
-                      className="button-option"
-                      style={{ display: 'block' }}
-                      onClick={() => {
-                        setSelectedChat(c);
-                        handleClickConversationOption(c);
-                      }} />
-                  }
-                  {
-                    isOpenConversationOption
-                    && selectedChat === c
-                    && <div className="conversation-option">
-                      <span className="conversation-delete"
-                        onClick={() => {
-                          setIsOpenFormDeleteConversation(true);
+                    conversations.map((c) => (
+                      <div className="conversation" tabIndex={0}>
+                        <div onClick={() => {
+                          setCurrentChat(c);
+                          setIsOpenCurrentChatOption(false);
                           setIsOpenConversationOption(false);
-                        }}>
-                        Xóa cuộc hội thoại
-                      </span>
-                    </div>
+                        }} >
+                          <Conversation
+                            onClick={() => {
+                              setIsOpenSearchConversation(false);
+                              setSearchInput('');
+                            }}
+                            conversation={c}
+                            currentUser={currentUser} />
+                        </div>
+                        <SlOptionsVertical
+                          className="button-option"
+                          onClick={() => {
+                            setSelectedChat(c);
+                            handleClickConversationOption(c);
+                          }} />
+                        {
+                          isOpenConversationOption
+                          && selectedChat === c
+                          && <SlOptionsVertical
+                            className="button-option"
+                            style={{ display: 'block' }}
+                            onClick={() => {
+                              setSelectedChat(c);
+                              handleClickConversationOption(c);
+                            }} />
+                        }
+                        {
+                          isOpenConversationOption
+                          && selectedChat === c
+                          && <div className="conversation-option">
+                            <span className="conversation-delete"
+                              onClick={() => {
+                                setIsOpenFormDeleteConversation(true);
+                                setIsOpenConversationOption(false);
+                              }}>
+                              Xóa cuộc hội thoại
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    ))
                   }
-                </div>
-              ))
-              }
 
-            </div>
+                </div>
+                : <div style={{ overflow: 'hidden auto', height: "80%" }}>
+                  {
+                    searchResults.length === 0 && searchInput !== '' && "Không tìm thấy kết quả phù hợp"
+                  }
+                  {
+                    searchResults.map((c) => (
+                      <div className="conversation" tabIndex={0}>
+                        <div onClick={() => {
+                          setCurrentChat(c);
+                          setIsOpenCurrentChatOption(false);
+                          setIsOpenConversationOption(false);
+                        }} >
+                          <Conversation
+                            onClick={() => {
+                              setIsOpenSearchConversation(false);
+                              setSearchInput('');
+                            }}
+                            conversation={c}
+                            currentUser={currentUser} />
+                        </div>
+                        <SlOptionsVertical
+                          className="button-option"
+                          onClick={() => {
+                            setSelectedChat(c);
+                            handleClickConversationOption(c);
+                          }} />
+                        {
+                          isOpenConversationOption
+                          && selectedChat === c
+                          && <SlOptionsVertical
+                            className="button-option"
+                            style={{ display: 'block' }}
+                            onClick={() => {
+                              setSelectedChat(c);
+                              handleClickConversationOption(c);
+                            }} />
+                        }
+                        {
+                          isOpenConversationOption
+                          && selectedChat === c
+                          && <div className="conversation-option">
+                            <span className="conversation-delete"
+                              onClick={() => {
+                                setIsOpenFormDeleteConversation(true);
+                                setIsOpenConversationOption(false);
+                              }}>
+                              Xóa cuộc hội thoại
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    ))
+                  }
+
+                </div>
+            }
           </dir>
 
         </dir>
@@ -489,7 +573,7 @@ export default function Messenger({ socket }) {
                   if (users.length == 1)
                     navigate(`/profile/${users[0].id}`)
                 }}>
-                  {(currentChat?.name)
+                  {(currentChat.members.length > 2)
                     ? <div className="conversationImg groupConversationImgs">
                       <img
                         className="conversationImg groupConversationImg1"

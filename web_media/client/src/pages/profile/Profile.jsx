@@ -88,23 +88,29 @@ const Profile = ({ socket, user }) => {
             <div className="center">
               <span>{data?.name}</span>
               <div className="info">
-                <div className="item">
-                  <PlaceIcon />
-                  <span>{data?.city}</span>
-                </div>
-                <div className="item">
-                  <LanguageIcon />
-                  <span>{data?.website}</span>
-                </div>
+                {
+                  data?.city !== ''
+                  && <div className="item">
+                    <PlaceIcon />
+                    <span>{data?.city}</span>
+                  </div>
+                }
+                {
+                  data?.website !== ''
+                  && <div className="item">
+                    <LanguageIcon />
+                    <span>{data?.website}</span>
+                  </div>
+                }
               </div>
               {rIsLoading ? ("loading")
-                : userId === currentUser.id ? (<button onClick={() => setOpenUpdate(true)}>update</button>)
+                : userId === currentUser.id ? (<button onClick={() => setOpenUpdate(true)}>Chỉnh sửa</button>)
                   : (<button onClick={handleFollowClick}>
-                    {relationshipData.some(item => item.id === currentUser.id) ? "Unfollow" : "Follow"}
+                    {relationshipData.some(item => item.id === currentUser.id) ? "Hủy Theo dõi" : "Theo dõi"}
                   </button>)}
             </div>
             <div className="right">
-              <MoreVertIcon />
+              {/* <MoreVertIcon /> */}
             </div>
           </div>
           <Posts userId={userId} whichPage={"profile"} socket={socket} user={user} />

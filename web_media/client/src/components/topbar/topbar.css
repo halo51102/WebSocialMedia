@@ -96,13 +96,18 @@
   cursor: pointer;
 }
 
-.topbarUsername{
+.topbarUsername {}
 
+.user{
 }
 
+.user:hover,&:active {
+  background: darkgray;
+  border-radius: 20px;
+}
 
-@media screen and (max-width: 768px)  {
-  .topbarLink{
+@media screen and (max-width: 768px) {
+  .topbarLink {
     display: none;
   }
 }

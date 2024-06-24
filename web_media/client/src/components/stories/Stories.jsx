@@ -133,7 +133,7 @@ const Stories = () => {
             )} */}
             <img src={  selectedStory[currentStoryIndex].img} alt="" />
           </div>
-          <button onClick={handleCloseStory}>X</button>
+          <button onClick={handleCloseStory}>x</button>
 
           {selectedStory.length > 1
             && <div className="button-slide">

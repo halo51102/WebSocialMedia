@@ -1,7 +1,7 @@
 import { db } from "../connect.js"
 import jwt from "jsonwebtoken"
-
 import moment from "moment";
+import makeRequest from "axios";
 
 export const getPosts = (req, res) => {
 
@@ -84,7 +84,8 @@ export const addPost = (req, res) => {
   if (!token) return res.status(401).json("Not logged in!")
 
   jwt.verify(token, "secretkey", (err, userInfo) => {
-    if (err) return res.status(403).json("Token is not valid!")
+    if (err) return res.status(403).json("Token is not valid!");
+
 
     const q =
       "INSERT INTO posts(`desc`, `createdAt`, `userId`,`groupId`,`sharePostId`) VALUES (?)"
@@ -240,8 +241,33 @@ export const addImageOfPost = (req, res) => {
 
     db.query(q, [values], (err, data) => {
       if (err) return res.status(500).json(err)
-      return res.status(200).json({msg: "Image of post has been created.", data: data})
+      return res.status(200).json({ msg: "Image of post has been created.", data: data })
     })
   })
 }
+
+export const checkToxicStatus = (req, res) => {
+  const postId = req.body.postId;
+  db.query("select * from posts where id = ?", [postId], async (err, data) => {
+    if (err) return res.status(500).json("không tìm thấy posst");
+    const post = data[0];
+    const text = post.desc;
+    const formData = new FormData();
+    formData.append('text', text);
+    try {
+      const prediction = await makeRequest.post("https://localhost:8001/", formData);
+      const result = prediction.data.result;
+      if (result == '0') {
+        return res.status(200).json(result);
+      } else {
+        db.query("update posts set status = 'bad' where id = ?", [postId], (err1, data1) => {
+          if (err) return res.status(500).json("lỗi update post");
+          return res.status(200).json(result);
+        })
+      }
+    } catch (err) {
+      return res.status(500).json("lỗi link predict")
+    }
+  })
+};
 

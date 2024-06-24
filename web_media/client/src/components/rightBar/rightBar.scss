@@ -9,10 +9,11 @@
     overflow: scroll;
     background-color: themed("bgSoft");
 
-    @include mobile{
+    @include mobile {
       display: none;
     }
-    @include tablet{
+
+    @include tablet {
       display: none;
     }
 
@@ -31,9 +32,14 @@
         margin-bottom: 20px;
         background-color: themed("bg");
         border-radius: 20px;
+        display: flex;
+        flex-direction: column;
 
         span {
-          color: gray;
+          font-weight: 600;
+          color: black;
+          padding: 10px;
+          font-size: 15px;
         }
 
         .user {
@@ -43,9 +49,16 @@
           padding: 10px;
           cursor: pointer;
 
-          &:hover{
+          &:hover {
             border-radius: 20px;
             background: lightgray;
+          }
+
+          .who-follow {
+            p {
+              font-size: 12px;
+              font-weight: 100;
+            }
           }
 
           .userInfo {
@@ -59,6 +72,7 @@
               height: 40px;
               border-radius: 50%;
               object-fit: cover;
+              box-shadow: 0 0 1px 1.5px gray;
             }
 
             .online {
@@ -78,7 +92,7 @@
             span {
               font-weight: 500;
               color: themed("textColor");
-              
+
             }
           }
 

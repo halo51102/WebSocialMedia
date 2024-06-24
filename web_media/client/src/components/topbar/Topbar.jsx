@@ -40,8 +40,9 @@ export default function Topbar() {
       <div className="topbarRight">
         <Link
           onClick={() => {
-            navigate(`/profile/${currentUser.id}`)
+            // navigate(`/profile/${currentUser.id}`);
           }}
+          className="user"
           style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "10px" }}
         >
           <span className="topbarUsername">{currentUser.name}</span>
