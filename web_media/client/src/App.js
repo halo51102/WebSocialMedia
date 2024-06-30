@@ -17,9 +17,10 @@ import Messenger from "./pages/messenger/messenger"
 import SideBar from "./components/sideBar/SideBar";
 import Header from "./components/navBar-admin/Header";
 import HomeAdmin from "./pages/admin/home/HomeAdmin";
+import CallWindow from "./pages/callWindow/CallWindow";
 import "./style.scss";
 import "./styleAdmin.scss"
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 import { AuthContext } from "./context/authContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -41,22 +42,73 @@ function App() {
   const [user, setUser] = useState("");
 
   const [socket, setSocket] = useState(null);
-
+  const [socketId, setSocketId] = useState(null);
   //ADMIN
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false)
   const openSidebar = () => {
     setOpenSidebarToggle(!openSidebarToggle)
   }
 
+  const [incomingCall, setIncomingCall] = useState(null);
+  const broadcastChannel = useRef(new BroadcastChannel('socket_channel'));
   useEffect(() => {
     setSocket(io("http://localhost:8900"));
+    // Kết nối đến server socket.io
+    /*const socket = io('http://localhost:8900', {
+      query: { socketId: localStorage.getItem('socketId') } // Lấy socketId từ localStorage nếu có
+    });
+    console.log(socket)
+    socket.on('connect', () => {
+      /*console.log('Connected to server!');
+      const id = newSocket.id; // Lấy socketId mới từ server
+      console.log(id)
+      setSocketId(id); // Lưu vào state
+      localStorage.setItem('socketId', id); // Lưu vào localStorage
+      console.log(localStorage.getItem('socketId'))
+
+      setSocketId(socket.id);
+      localStorage.setItem('socketId', socket.id);
+    });
+    setSocket(socket)*/
+
   }, [])
 
   useEffect(() => {
-    if (socket)
+    
+    if (socket) {
+      console.log(socket)
       socket.emit("addUser", currentUser?.id);
-  }, [socket, user]);
 
+
+      socket.on('group-call-made', ({ signal, from, roomId }) => {
+        console.log(from)
+
+        if (from !== currentUser.id) {
+          if (window.confirm(`Incoming call from user ${from}. Do you want to accept?`)) {
+            const signalData = signal; // Lấy signal từ sự kiện hoặc từ state của bạn
+            localStorage.setItem('callSignal', JSON.stringify(signalData));
+            handleAcceptCall(from, roomId);
+          }
+        }
+        console.log(socket.id)
+      })
+
+    }
+  }, [socket, currentUser.id]);
+
+  const handleAcceptCall = (from, roomId) => {
+    //const { from } = incomingCall;
+    console.log(from)
+
+    window.open(`/call?roomId=${roomId}&isRc=true&from=${from}`, 'Call Window', 'width=800,height=600');
+  };
+  /*{incomingCall && (
+            <div>
+              <p>Incoming call from user {incomingCall.from}</p>
+              <button onClick={handleAcceptCall}>Accept</button>
+            </div>
+          )}
+          không dùng alert*/
   const Layout = () => {
     return (
       <QueryClientProvider client={queryClient}>
@@ -150,10 +202,15 @@ function App() {
       element: (
         <ProtectedRoute>
           <QueryClientProvider client={queryClient}>
-          <Messenger socket={socket} />
+            <Messenger socket={socket} />
           </QueryClientProvider>
         </ProtectedRoute>
       ),
+    },
+    {
+      path: "/call",
+      element: <CallWindow socket={socket} soketId={socketId} currentUser={currentUser} />
+
     },
     {
       path: "/admin",

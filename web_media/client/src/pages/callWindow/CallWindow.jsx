@@ -1,58 +1,97 @@
 import { useContext, useState, useRef, useEffect, useCallback } from "react";
 import { makeRequest } from "../../axios";
-import "./callMess.scss";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { NotificationContext } from "../../context/notificationContext";
 import Peer from 'simple-peer';
 import { io } from "socket.io-client";
 import { AuthContext } from "../../context/authContext";
-import "./setup.js";
+import { initializeSocket } from "./initializeSocket";
 
-const CallMess = ({ setOpenCall, room, socket }) => {
-
-    const { currentUser } = useContext(AuthContext);
-    console.log(room)
-    console.log(currentUser)
-
-    const [username, setUsername] = useState('');
-    const [userId, setUserId] = useState('');
-
-    const [users, setUsers] = useState({});
-    const [rooms, setRooms] = useState([]);
-    const [roomId, setRoomId] = useState('');
-    const [roomUsers, setRoomUsers] = useState([]);
+const CallWindow = ({ socket, soketId, currentUser }) => {
     const [stream, setStream] = useState(null);
-    const [receivingCall, setReceivingCall] = useState(false);
     const [caller, setCaller] = useState('');
     const [callerSignal, setCallerSignal] = useState(null);
     const [callAccepted, setCallAccepted] = useState(false);
     const [usersInCall, setUsersInCall] = useState([]);
     const userAudio = useRef();
     const connectionRef = useRef({});
+    const isSignalListenerSetRef = useRef(false);
+    const roomId = new URLSearchParams(window.location.search).get('roomId');
+    const isRc = new URLSearchParams(window.location.search).get('isRc');
+    const from = new URLSearchParams(window.location.search).get('from');
 
+    useEffect(() => {
+        console.log(currentUser.id)
+        console.log(from)
+        console.log(socket)
 
-    const userInRoom = useCallback((roomId) => {
-        if (roomId.trim !== '') {
-            console.log("vào 73")
-            socket.emit('alluser-in-room', roomId);
+        const storedSignal = localStorage.getItem('callSignal');
+        if (storedSignal) {
+            const signalData = JSON.parse(storedSignal);
+            console.log('Received signal:', signalData);
+
+            if (from !== currentUser.id) {
+                if (!connectionRef.current[from]) {
+                    connectionRef.current[from] = new Peer({
+                        initiator: false,
+                        trickle: false,
+                        stream: stream,
+                    });
+
+                    connectionRef.current[from].on('stream', (stream) => {
+                        if (userAudio.current && from.userId !== currentUser.id) {
+                            userAudio.current.srcObject = stream;
+                        }
+                    });
+                }
+
+                connectionRef.current[from].signal(signalData);
+                setCaller(from);
+                setCallerSignal(signalData);
+
+                if (isRc && from) {
+
+                    addUserToCall(currentUser.id);
+                    setCallAccepted(true);
+
+                    const peer = new Peer({
+                        initiator: false,
+                        trickle: false,
+                        stream: stream,
+                    });
+
+                    peer.on('signal', (data) => {
+                        socket?.emit('answer-call', { signal: data, to: from, userId: currentUser.id, roomId: roomId });
+                    });
+
+                    peer.on('stream', (stream) => {
+                        userAudio.current.srcObject = stream;
+                    });
+
+                    connectionRef.current = peer;
+                    peer.signal(signalData);
+                }
+            }
         }
-    }, []);
-
-    const callMessenger = (roomId) => {
+    }, [socket, currentUser.id, isRc, from])
+    const callMessenger = useCallback((roomId) => {
         setCaller(currentUser.id)
         const peer = new Peer({
             initiator: true,
             trickle: false,
             stream: stream,
         });
-
+        console.log(peer)
         // Lắng nghe sự kiện 'signal' từ Peer
         peer.on('signal', (data) => {
             // Gửi tín hiệu gọi đến người dùng khác trong phòng
-            console.log("tới emit call group")
-            socket.emit('call-group', { signalData: data, roomId: roomId, from: currentUser.id });
-            console.log("Đã phát call group")
+            if (!isSignalListenerSetRef.current) {
+                console.log("tới emit call group")
+                socket.emit('call-group', { signalData: data, roomId: roomId, from: currentUser.id });
+                console.log("Đã phát call group")
+                isSignalListenerSetRef.current = true;
+            }
         });
 
         // Lắng nghe sự kiện 'stream' từ Peer
@@ -63,8 +102,12 @@ const CallMess = ({ setOpenCall, room, socket }) => {
             }
         });
         connectionRef.current[currentUser.id] = peer;
-    }
+        return () => {
+            peer.destroy(); // Clean up when component unmounts
+        };
+    }, [socket])
     useEffect(() => {
+
         navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
             setStream(stream);
             if (userAudio.current) {
@@ -76,75 +119,76 @@ const CallMess = ({ setOpenCall, room, socket }) => {
                 stream.getTracks().forEach(track => track.stop());
             }
             if (typeof process !== 'undefined') { }
+            localStorage.removeItem('callSignal');
         }
     }, [])
+
     //room: converId, name, member[]
     useEffect(() => {
 
         console.log("71")
 
         //lấy danh sách user có trong room
-        if (room.conversationId && currentUser.id) userInRoom(room.conversationId);
         console.log("81")
 
-        socket.on('update-users', (users) => {
-            setUsers(users);
+        socket?.on('update-users', (users) => {
         });
 
-        socket.on('user-in-room', (roomUsers) => {
+        socket?.on('user-in-room', (roomUsers) => {
             console.log("Đã set roomUser bằng sk.on user-in-room")
-            setRoomUsers(roomUsers);
-            console.log(roomUsers)
         });
-
+        if (isRc == "false") setCaller(currentUser.id)
         //thực hiện thao tác callmess tới tất cả user trong phòng
 
-        socket.on('group-call-made', ({ signal, from }) => {
+        console.log(socket)
+        /*socket?.on('group-call-made', ({ signal, from }) => {
             console.log(from)
             alert("Cuộc gọi nhóm từ người dùng " + from);
-
+    
             if (from !== currentUser.id) {
-
+    
                 if (!connectionRef.current[from]) {
                     connectionRef.current[from] = new Peer({
                         initiator: false,
                         trickle: false,
                         stream: stream,
                     });
-
-
-
+    
+    
+    
                     connectionRef.current[from].on('signal', (data) => {
                         socket.emit('call-accepted', { signal: data, to: from });
                     });
-
+    
                     connectionRef.current[from].on('stream', (stream) => {
                         if (userAudio.current && from.userId !== currentUser.id) {
                             userAudio.current.srcObject = stream;
                         }
                     });
-
+    
                 }
-
+    
                 connectionRef.current[from].signal(signal);
                 setReceivingCall(true);
                 setCaller(from);
                 console.log(caller)
                 setCallerSignal(signal);
             }
-        });
-        socket.on('call-accepted', ({ signal, userId }) => {
+        });*/
+        socket?.on('call-accepted', ({ signal, userId }) => {
+            setCallAccepted(true);
             const peer = connectionRef.current[caller];
             console.log(userId);
             console.log(caller);
             addUserToCall(userId)
-            setCallAccepted(true);
+
             if (peer) {
                 peer.signal(signal);
+                console.log("167")
             }
-
+            console.log("169")
         });
-        socket.on('user-disconnected', (userId) => {
+        socket?.on('user-disconnected', (userId) => {
             if (connectionRef.current[userId]) {
                 connectionRef.current[userId].destroy();
                 delete connectionRef.current[userId];
@@ -154,9 +198,8 @@ const CallMess = ({ setOpenCall, room, socket }) => {
                 endCall();
             }
         });
-        socket.on('call-ended', ({ from }) => {
+        socket?.on('call-ended', ({ from }) => {
             console.log(from)
-            console.log(callAccepted)
             console.log(usersInCall)
             if (from !== currentUser.id) {
                 console.log(from)
@@ -178,21 +221,21 @@ const CallMess = ({ setOpenCall, room, socket }) => {
         });
         console.log("178")
         return () => {
-            socket.off('update-users');
-            socket.off('user-in-room');
-            socket.off('group-call-made');
-            socket.off('call-accepted');
-            socket.off('user-disconnected');
-            socket.off('call-ended');
+            socket?.off('update-users');
+            socket?.off('user-in-room');
+            socket?.off('group-call-made');
+            socket?.off('call-accepted');
+            socket?.off('user-disconnected');
+            socket?.off('call-ended');
 
         };
-    }, [receivingCall, callAccepted, caller, currentUser.id]);
+    }, [currentUser, socket]);
 
 
     const addUserToCall = (userId) => {
-        console.log(caller)
-        if (!(usersInCall.some(id => id === caller))) {
-            setUsersInCall(prevUsers => [...prevUsers, caller]);
+        console.log(from)
+        if (!(usersInCall.some(id => id === parseInt(from, 10)))) {
+            setUsersInCall(prevUsers => [...prevUsers, parseInt(from, 10)]);
         }
         //setUsersInCall(prevUsers => [...prevUsers, userId]);
         setUsersInCall(prevUsers => {
@@ -206,8 +249,8 @@ const CallMess = ({ setOpenCall, room, socket }) => {
         if (usersInCall.length === 1 && usersInCall[0] === currentUser.id) {
             endCall();
         }
-    }, [usersInCall, currentUser.id]);
-    const acceptCall = () => {
+    }, [usersInCall, currentUser]);
+    /*const acceptCall = () => {
         addUserToCall(currentUser.id)
         setCallAccepted(true);
         const peer = new Peer({
@@ -215,19 +258,19 @@ const CallMess = ({ setOpenCall, room, socket }) => {
             trickle: false,
             stream: stream,
         });
-
+    
         peer.on('signal', (data) => {
-            socket.emit('answer-call', { signal: data, to: caller, roomId: room.conversationId });
+            socket.emit('answer-call', { signal: data, to: caller, roomId: roomId });
         });
-
+    
         peer.on('stream', (stream) => {
             userAudio.current.srcObject = stream;
         });
-
+    
         connectionRef.current = peer;
-
+    
         peer.signal(callerSignal);
-    };
+    };*/
 
     const endCall = useCallback(() => {
         console.log("233")
@@ -246,7 +289,7 @@ const CallMess = ({ setOpenCall, room, socket }) => {
                 }
             });
 
-            socket.emit('end-call', { roomId: room.conversationId, userId: currentUser.id });
+            socket.emit('end-call', { roomId: roomId, userId: currentUser.id });
             Object.values(connectionRef.current).forEach(peer => {
                 if (peer && typeof peer.on === 'function') {
                     peer.on('close', () => {
@@ -258,15 +301,13 @@ const CallMess = ({ setOpenCall, room, socket }) => {
                 }
             });
             connectionRef.current = {};
-            setReceivingCall(false);
             setCaller('');
             setCallerSignal(null);
             setCallAccepted(false);
-            setOpenCall(false);
         }
         console.log("258")
 
-    }, [stream, socket, currentUser.id, room.conversationId]);
+    }, [stream, socket, currentUser, roomId]);
 
     console.log(usersInCall);
     return (
@@ -283,18 +324,13 @@ const CallMess = ({ setOpenCall, room, socket }) => {
                         End Call
                     </button>
                     <audio playsInline ref={userAudio} autoPlay />
-                </div> : <button onClick={() => callMessenger(room.conversationId)}>Call Messenger</button>}
+                </div> : <button onClick={() => callMessenger(roomId)}>Call Messenger</button>}
 
-                {receivingCall && !callAccepted && (
-                    <div>
-                        <h1>{caller} đang gọi...</h1>
-                        <button onClick={acceptCall}>Trả lời</button>
-                    </div>
-                )}
+
 
             </div>
         </div>
     );
 };
 
-export default CallMess;
+export default CallWindow;

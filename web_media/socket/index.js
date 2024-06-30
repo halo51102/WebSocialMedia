@@ -16,6 +16,7 @@ const io = require("socket.io")(8900, {
 let users = [];
 const rooms = {};
 const usersInRoom = {}
+const usersInCall = {}
 
 const addUser = (userId, socketId) => {
   !users.some((user) => user.userId === userId) &&
@@ -58,6 +59,24 @@ const handleUploadLocalFile = async (file, fileName, mimeType) => {
 };
 
 io.on("connection", (socket) => {
+  /*const { userId, socketId } = socket.handshake.query;
+  const user = users.find(user => user.userId === userId)
+  if (user) {
+    users[userId] = socket.id;
+
+    socket.on('sync-socket-id', ({ oldSocketId, newSocketId }) => {
+      if (users[userId] === oldSocketId) {
+        users[userId] = newSocketId;
+      }
+    });
+
+    socket.on('disconnect', () => {
+      if (users[userId] === socket.id) {
+        delete users[userId];
+      }
+    });
+  }*/
+
   const fetchAddUserInRoom = async (userId) => {
     try {
       const response = await axios.get('http://localhost:8800/api/conversations/allmembersroom'); // Địa chỉ API thay thế
@@ -218,36 +237,53 @@ io.on("connection", (socket) => {
   });
 
   socket.on('call-group', ({ signalData, roomId, from }) => {
+    console.log("240: ",typeof signalData,signalData)
+    console.log(socket.id)
     const room = rooms[roomId];
     const user = users.find(user => user.userId === from)
-    console.log("Đã tới 225 cùng "+user)
+    console.log(user.socketId)
     if (room && user) {
       if (!usersInRoom[roomId]) {
-        usersInRoom[roomId] = { roomId: roomId, users: [] };
+        const r = { roomId: roomId, users: [] };
+        usersInRoom[roomId] = r;
       }
-      usersInRoom[roomId].users.push(user);
-      console.log("228: " + usersInRoom);
+      console.log("249: ", usersInRoom);
+      if (!usersInRoom[roomId].users.find(user => user.userId === from)) usersInRoom[roomId].users.push({ userId: user.userId, socketId: socket.id });
+      console.log("251: ", usersInRoom[roomId].users);
       room.users.forEach(user => {
         if (user.userId !== from) {
-          console.log("229")
-          io.to(user.socketId).emit('group-call-made', { signal: signalData, from });
-          console.log("231")
+          console.log("254")
+          console.log(user.socketId)
+          io.to(user.socketId).emit('group-call-made', { signal: signalData, from: from, roomId: roomId });
+          console.log("257")
         }
       });
     }
   });
 
 
-  socket.on('answer-call', ({ signal, to, roomId }) => {
+  socket.on('answer-call', ({ signal, to, userId,roomId }) => {
+    console.log("266: ",typeof signal,signal)
     if (usersInRoom.hasOwnProperty(roomId)) {
+      console.log("266: ", usersInRoom[roomId].users.find(user => user.userId === to))
       const room = usersInRoom[roomId];
-      const index = users.findIndex(user => user.socketId === socket.id);
-      const user = users.find(user => user.userId === to)
-      if (user) {
+      console.log("267: ", socket.id)
+      console.log("268: ", to)
+      console.log(users)
+      const index = users.findIndex(user => user.userId === userId);
+      const indexTo = users.findIndex(user => user.userId === parseInt(to,10))
+      const userR =  usersInRoom[roomId].users.find(user => user.userId === parseInt(to,10))
+
+      console.log(users[indexTo])
+      console.log(userR)
+      console.log(users[index])
+
+      if (users[indexTo] && userR) {
         if (users[index]) {
-          room.users.push(user[index]);
-          console.log(users[index].userId + " đã chấp nhận cuộc gọi từ " + user.userId)
-          io.to(user.socketId).emit('call-accepted', { signal: signal, userId: users[index].userId });
+          if (!usersInRoom[roomId].users.find(user => user.userId === users[index].userId))  usersInRoom[roomId].users.push({ userId: users[index].userId, socketId: socket.id });
+          console.log(users[index].userId + " đã chấp nhận cuộc gọi từ " + users[indexTo].userId)
+          console.log("273: ", usersInRoom[roomId])
+          io.to(userR.socketId).emit('call-accepted', { signal: signal, userId: users[index].userId });
         }
       }
     }
@@ -263,7 +299,7 @@ io.on("connection", (socket) => {
           // Kiểm tra nếu user tồn tại và có thuộc tính userId
           return user && user.userId !== userId;
         });
-        console.log("268: " + usersInRoom[roomId]);
+        console.log("268: ", usersInRoom[roomId]);
         if (usersInRoom.hasOwnProperty(roomId) && Array.isArray(usersInRoom[roomId].users)) {
           usersInRoom[roomId].users.forEach(user => {
             // Check if user object exists and has a userId property
@@ -275,13 +311,95 @@ io.on("connection", (socket) => {
       } else {
         console.error(`usersInRoom[${roomId}].users is not an array or is undefined`);
       }
-      console.log("278: " + usersInRoom[roomId]);
       // Optional: If the room is empty, delete it
       if (usersInRoom[roomId].users.length === 0) {
         delete usersInRoom[roomId];
       }
+
+      console.log("278: ", usersInRoom[roomId]);
     }
   });
+  /*socket.on('join-call', ({ roomId, userId }) => {
+    if (!usersInCall[roomId]) {
+      usersInCall[roomId] = { roomId, users: [] };
+    }
+    usersInCall[roomId].users.push({ userId: userId, socketId: socket.id });
+
+    socket.join(roomId);
+    io.to(roomId).emit('user-joined', userId);
+  });
+  socket.on('leave-call', ({ roomId, userId }) => {
+    if (usersInCall[roomId]) {
+      usersInCall[roomId].users = usersInCall[roomId].users.filter(user => user.userId !== userId);
+      socket.leave(roomId);
+      io.to(roomId).emit('user-left', userId);
+    }
+  });
+
+
+  socket.on('call-user', (data) => {
+    io.to(data.to).emit('receive-call', { signal: data.signal, from: data.from });
+  });
+
+  socket.on('accept-call', (data) => {
+    io.to(data.to).emit('call-accepted', data.signal);
+  });
+
+  socket.on('end-call', (data) => {
+    io.to(data.to).emit('call-ended');
+  });*/
+
+  /*socket.on('join-call', ({ roomId, userId }) => {
+    socket.join(roomId);
+    if (!usersInRoom[roomId]) {
+      usersInRoom[roomId] = { roomId, users: [] };
+    }
+
+    // Check if the user is already in the room
+    const userAlreadyInRoom = usersInRoom[roomId].users.find(user => user.userId === userId);
+    if (!userAlreadyInRoom) {
+      usersInRoom[roomId].users.push({ userId, socketId: socket.id });
+    }
+
+    io.to(roomId).emit('user-joined', userId);
+    console.log(usersInRoom);
+  });
+
+  socket.on('group-call-made', ({ roomId, signal, from }) => {
+    const room = usersInRoom[roomId];
+    if (room) {
+      room.users.forEach(user => {
+        if (user.userId !== from) {
+          io.to(user.socketId).emit('group-call-made', { signal, from });
+        }
+      });
+    }
+  });
+
+  socket.on('call-accepted', ({ signal, to }) => {
+    const room = Object.values(usersInRoom).find(room => room.users.some(user => user.userId === to));
+    if (room) {
+      const user = room.users.find(user => user.userId === to);
+      if (user) {
+        io.to(user.socketId).emit('call-accepted', { signal, userId: to });
+      }
+    }
+  });
+
+  socket.on('leave-call', ({ roomId, userId }) => {
+    const room = usersInRoom[roomId];
+    if (room) {
+      room.users = room.users.filter(user => user.userId !== userId);
+      socket.leave(roomId);
+      io.to(roomId).emit('user-left', userId);
+
+      if (room.users.length === 0) {
+        delete usersInRoom[roomId];
+      }
+    }
+  });*/
+
+
   //when disconnect
   socket.on("disconnect", () => {
     for (const roomId in rooms) {
