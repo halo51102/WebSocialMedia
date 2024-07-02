@@ -19,14 +19,55 @@ const CallWindow = ({ socket, soketId, currentUser }) => {
     const isSignalListenerSetRef = useRef(false);
     const roomId = new URLSearchParams(window.location.search).get('roomId');
     const isRc = new URLSearchParams(window.location.search).get('isRc');
-    const from = new URLSearchParams(window.location.search).get('from');
+    const from = parseInt(new URLSearchParams(window.location.search).get('from')) ? parseInt(new URLSearchParams(window.location.search).get('from')) : currentUser.id;
+    const [callData, setCallData] = useState(null);
+    useEffect(() => {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+            setStream(stream);
+            if (userAudio.current) {
+                userAudio.current.srcObject = stream;
+            }
+            if (isRc == "true" && from) {
 
+                addUserToCall(currentUser.id);
+                setCallAccepted(true);
+
+                const peer = new Peer({
+                    initiator: false,
+                    trickle: false,
+                    stream: stream,
+                });
+
+                peer.on('signal', (data) => {
+                    socket?.emit('answer-call', { signal: data, to: from, userId: currentUser.id, roomId: roomId });
+                    console.log("data phát answer: ", data);
+                });
+
+                peer.on('stream', (stream) => {
+                    console.log('Received remote stream');
+                    if (userAudio.current) { console.log("88"); userAudio.current.srcObject = stream; }
+                });
+                connectionRef.current[currentUser.id] = peer;
+
+                console.log("userId: ", connectionRef.current[currentUser.id])
+                peer.signal(callerSignal);
+            }
+        });
+
+        return () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            if (typeof process !== 'undefined') { }
+            sessionStorage.removeItem('callSignal');
+        }
+    }, [])
     useEffect(() => {
         console.log(currentUser.id)
         console.log(from)
         console.log(socket)
 
-        const storedSignal = localStorage.getItem('callSignal');
+        const storedSignal = sessionStorage.getItem('callSignal');
         if (storedSignal) {
             const signalData = JSON.parse(storedSignal);
             console.log('Received signal:', signalData);
@@ -38,9 +79,11 @@ const CallWindow = ({ socket, soketId, currentUser }) => {
                         trickle: false,
                         stream: stream,
                     });
-
+                    console.log("from", connectionRef.current[from])
                     connectionRef.current[from].on('stream', (stream) => {
-                        if (userAudio.current && from.userId !== currentUser.id) {
+                        console.log(`Received remote stream from ${from}`);
+                        if (userAudio.current && from !== currentUser.id) {
+                            console.log("61: ", typeof from, from)
                             userAudio.current.srcObject = stream;
                         }
                     });
@@ -50,31 +93,71 @@ const CallWindow = ({ socket, soketId, currentUser }) => {
                 setCaller(from);
                 setCallerSignal(signalData);
 
-                if (isRc && from) {
 
-                    addUserToCall(currentUser.id);
-                    setCallAccepted(true);
-
-                    const peer = new Peer({
-                        initiator: false,
-                        trickle: false,
-                        stream: stream,
-                    });
-
-                    peer.on('signal', (data) => {
-                        socket?.emit('answer-call', { signal: data, to: from, userId: currentUser.id, roomId: roomId });
-                    });
-
-                    peer.on('stream', (stream) => {
-                        userAudio.current.srcObject = stream;
-                    });
-
-                    connectionRef.current = peer;
-                    peer.signal(signalData);
-                }
             }
         }
-    }, [socket, currentUser.id, isRc, from])
+    }, [socket, currentUser.id, isRc, from, stream])
+
+    /*useEffect(() => {
+        const handleIncomingMessage = (event) => {
+            if (event.data.type === 'incomingCall') {
+                setCallData(event.data);
+            }
+        };
+
+        window.addEventListener('message', handleIncomingMessage);
+
+        return () => {
+            window.removeEventListener('message', handleIncomingMessage);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (callData) {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+                setStream(stream);
+                if (userAudio.current) {
+                    userAudio.current.srcObject = stream;
+                }
+
+                // Set up peer connection
+                const peer = new Peer({
+                    initiator: false,
+                    trickle: false,
+                    stream: stream,
+                });
+
+                peer.on('signal', (data) => {
+                    console.log("Answering call signal");
+                    socket?.emit('answer-call', {
+                        signal: data,
+                        to: callData.from,
+                        userId: callData.currentUser.id,
+                        roomId: callData.roomId,
+                    });
+                });
+
+                peer.on('stream', (remoteStream) => {
+                    console.log('Received remote stream');
+                    userAudio.current.srcObject = remoteStream;
+                });
+
+                peer.signal(callData.signalData);
+                connectionRef.current[callData.from] = peer;
+
+                return () => {
+                    peer.destroy();
+                };
+            });
+
+            return () => {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            };
+        }
+    }, [callData]);*/
+
     const callMessenger = useCallback((roomId) => {
         setCaller(currentUser.id)
         const peer = new Peer({
@@ -89,6 +172,7 @@ const CallWindow = ({ socket, soketId, currentUser }) => {
             if (!isSignalListenerSetRef.current) {
                 console.log("tới emit call group")
                 socket.emit('call-group', { signalData: data, roomId: roomId, from: currentUser.id });
+                console.log("data from: ", data);
                 console.log("Đã phát call group")
                 isSignalListenerSetRef.current = true;
             }
@@ -105,23 +189,8 @@ const CallWindow = ({ socket, soketId, currentUser }) => {
         return () => {
             peer.destroy(); // Clean up when component unmounts
         };
-    }, [socket])
-    useEffect(() => {
+    }, [socket, stream])
 
-        navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-            setStream(stream);
-            if (userAudio.current) {
-                userAudio.current.srcObject = stream;
-            }
-        });
-        return () => {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
-            if (typeof process !== 'undefined') { }
-            localStorage.removeItem('callSignal');
-        }
-    }, [])
 
     //room: converId, name, member[]
     useEffect(() => {
@@ -141,49 +210,17 @@ const CallWindow = ({ socket, soketId, currentUser }) => {
         //thực hiện thao tác callmess tới tất cả user trong phòng
 
         console.log(socket)
-        /*socket?.on('group-call-made', ({ signal, from }) => {
-            console.log(from)
-            alert("Cuộc gọi nhóm từ người dùng " + from);
-    
-            if (from !== currentUser.id) {
-    
-                if (!connectionRef.current[from]) {
-                    connectionRef.current[from] = new Peer({
-                        initiator: false,
-                        trickle: false,
-                        stream: stream,
-                    });
-    
-    
-    
-                    connectionRef.current[from].on('signal', (data) => {
-                        socket.emit('call-accepted', { signal: data, to: from });
-                    });
-    
-                    connectionRef.current[from].on('stream', (stream) => {
-                        if (userAudio.current && from.userId !== currentUser.id) {
-                            userAudio.current.srcObject = stream;
-                        }
-                    });
-    
-                }
-    
-                connectionRef.current[from].signal(signal);
-                setReceivingCall(true);
-                setCaller(from);
-                console.log(caller)
-                setCallerSignal(signal);
-            }
-        });*/
         socket?.on('call-accepted', ({ signal, userId }) => {
             setCallAccepted(true);
-            const peer = connectionRef.current[caller];
             console.log(userId);
-            console.log(caller);
+            console.log(connectionRef.current[userId]);
+
+            console.log(connectionRef.current[currentUser.id])
+            console.log("data user: ", signal);
             addUserToCall(userId)
 
-            if (peer) {
-                peer.signal(signal);
+            if (connectionRef.current[userId]) {
+                connectionRef.current[userId].signal(signal);
                 console.log("167")
             }
             console.log("169")
@@ -250,27 +287,6 @@ const CallWindow = ({ socket, soketId, currentUser }) => {
             endCall();
         }
     }, [usersInCall, currentUser]);
-    /*const acceptCall = () => {
-        addUserToCall(currentUser.id)
-        setCallAccepted(true);
-        const peer = new Peer({
-            initiator: false,
-            trickle: false,
-            stream: stream,
-        });
-    
-        peer.on('signal', (data) => {
-            socket.emit('answer-call', { signal: data, to: caller, roomId: roomId });
-        });
-    
-        peer.on('stream', (stream) => {
-            userAudio.current.srcObject = stream;
-        });
-    
-        connectionRef.current = peer;
-    
-        peer.signal(callerSignal);
-    };*/
 
     const endCall = useCallback(() => {
         console.log("233")

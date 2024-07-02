@@ -27,6 +27,7 @@
     "multiselect-react-dropdown": "^2.0.25",
     "nodemailer": "^6.9.13",
     "normalize.css": "^8.0.1",
+    "peerjs": "^1.5.4",
     "react": "^18.0.0",
     "react-admin": "^4.16.4",
     "react-aws-s3": "^1.5.0",

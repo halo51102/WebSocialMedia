@@ -7,7 +7,6 @@ import { NotificationContext } from "../../context/notificationContext";
 import Peer from 'simple-peer';
 import { io } from "socket.io-client";
 import { AuthContext } from "../../context/authContext";
-import "./setup.js";
 
 const CallMess = ({ setOpenCall, room, socket }) => {
 

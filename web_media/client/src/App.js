@@ -17,10 +17,10 @@ import Messenger from "./pages/messenger/messenger"
 import SideBar from "./components/sideBar/SideBar";
 import Header from "./components/navBar-admin/Header";
 import HomeAdmin from "./pages/admin/home/HomeAdmin";
-import CallWindow from "./pages/callWindow/CallWindow";
+import CallVideo from "./pages/callVideo/CallVideo";
 import "./style.scss";
 import "./styleAdmin.scss"
-import { useContext, useEffect, useRef } from "react";
+import { useCallback, useContext, useEffect, useRef } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 import { AuthContext } from "./context/authContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -50,6 +50,7 @@ function App() {
   }
 
   const [incomingCall, setIncomingCall] = useState(null);
+  const callWindowRef = useRef(null);
   const broadcastChannel = useRef(new BroadcastChannel('socket_channel'));
   useEffect(() => {
     setSocket(io("http://localhost:8900"));
@@ -74,33 +75,54 @@ function App() {
   }, [])
 
   useEffect(() => {
-    
+
     if (socket) {
       console.log(socket)
       socket.emit("addUser", currentUser?.id);
 
 
-      socket.on('group-call-made', ({ signal, from, roomId }) => {
+      socket.on('group-call-made', ({ roomId, from, idpeer }) => {
         console.log(from)
 
         if (from !== currentUser.id) {
           if (window.confirm(`Incoming call from user ${from}. Do you want to accept?`)) {
-            const signalData = signal; // Lấy signal từ sự kiện hoặc từ state của bạn
-            localStorage.setItem('callSignal', JSON.stringify(signalData));
-            handleAcceptCall(from, roomId);
+            /*const signalData = signal; // Lấy signal từ sự kiện hoặc từ state của bạn
+            
+            setIncomingCall({ signalData: signalData, from: from, roomId: roomId });*/
+            sessionStorage.setItem('idpeer', JSON.stringify(idpeer));
+
+            handleAcceptCall(roomId, from, idpeer);
           }
+
         }
         console.log(socket.id)
+
       })
 
     }
   }, [socket, currentUser.id]);
 
-  const handleAcceptCall = (from, roomId) => {
+  const handleAcceptCall = (roomId, from, idpeer) => {
     //const { from } = incomingCall;
-    console.log(from)
+    //console.log(from)
 
     window.open(`/call?roomId=${roomId}&isRc=true&from=${from}`, 'Call Window', 'width=800,height=600');
+
+    /*const url = `/call?roomId=${roomId}&isRc=true&from=${from}`;
+    callWindowRef.current = window.open(url, '_blank', 'width=400,height=400');
+
+    // Send data to the new window
+    callWindowRef.current.onload = () => {
+      callWindowRef.current.postMessage({
+        type: 'incomingCall',
+        signalData: signalData,
+        from: from,
+        roomId: roomId,
+        currentUser: currentUser,
+      }, '*');
+    };
+
+    setIncomingCall({ signalData: signalData, from: from, roomId: roomId, isAccepted: true });*/
   };
   /*{incomingCall && (
             <div>
@@ -209,7 +231,7 @@ function App() {
     },
     {
       path: "/call",
-      element: <CallWindow socket={socket} soketId={socketId} currentUser={currentUser} />
+      element: <CallVideo socket={socket} currentUser={currentUser} />
 
     },
     {
