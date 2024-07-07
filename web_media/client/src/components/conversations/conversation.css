@@ -22,7 +22,7 @@
 }
 
 .conversationImg {
-  box-shadow: #e6e6e6 0px 0px 0px 1px inset;
+  box-shadow: black 0px 0px 0px 1px inset;
   width: 40px;
   height: 40px;
   border-radius: 50%;

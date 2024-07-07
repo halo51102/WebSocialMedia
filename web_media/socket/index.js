@@ -49,11 +49,11 @@ io.on("connection", (socket) => {
   })
 
   socket.on("sendMetadata", async ({ senderId, receiverId, text, type, file, fileName, mimeType }) => {
-    
+
     const user = getUser(receiverId);
     if (type === "video_link") {
       try {
-        const res = await getVideoMetada;ta(text);
+        const res = await getVideoMetada; ta(text);
         console.log("abcxyz" + res)
         videoMetadata = res;
         const thumbnail_res = await axios.get(videoMetadata.file_url, { responseType: 'arraybuffer' });
@@ -157,12 +157,14 @@ io.on("connection", (socket) => {
 
 
   socket.on("sendNotification", ({ senderId, receiverId, type }) => {
-    const receiver = getUser(receiverId);
-    console.log(receiver)
-    io.to(receiver?.socketId).emit("getNotification", {
-      senderId,
-      type,
-    });
+    if (senderId != receiverId) {
+      const receiver = getUser(receiverId);
+      console.log(receiver)
+      io.to(receiver?.socketId).emit("getNotification", {
+        senderId,
+        type,
+      });
+    }
   });
 
 

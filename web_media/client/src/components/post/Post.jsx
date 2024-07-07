@@ -17,6 +17,7 @@ import profileAlt from "../../assets/profileAlt.png"
 import { NotificationContext } from "../../context/notificationContext";
 import ReactPlayer from 'react-player';
 import { useRef } from "react";
+import { IoMdWarning } from "react-icons/io";
 
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
@@ -147,7 +148,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     const liked = data?.includes(currentUser.id)
     likeMutation.mutate(liked);
 
-    if (currentUser.id !== post.id) {
+    if (currentUser.id !== post.userId) {
       if (liked) {
         // Nếu đã thích, gửi socket thông báo unlike
         handleNotification(2);
@@ -208,8 +209,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
             <div className="button-option-post"
               onClick={() => {
                 setMenuOpen(!menuOpen);
-              }}
-            >
+              }}>
               <MoreHorizIcon />
               {menuOpen
                 &&
@@ -223,7 +223,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                 </div>
               }
             </div>
-
+            {post.status === "bad" && <IoMdWarning className='warning-icon' />}
             {
               (
                 menuOpen && gData?.some(
@@ -237,13 +237,13 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                   <span onClick={handleReport}>Báo cáo bài viết</span>
                   <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
                 </div>
-                : menuOpen && <div className="post-menu" >
-                  <span onClick={handleReport}>Báo cáo bài viết</span>
+                : menuOpen
+                && <div className="post-menu" >
                   {post.userId === currentUser.id &&
                     <span onClick={handleDelete}>Xóa bài viết</span>
                   }
+                  <span onClick={handleReport}>Báo cáo bài viết</span>
                 </div>
-
             }
             {menuOpen
               && post.userId === currentUser.id
@@ -263,123 +263,128 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
           </div>
 
           <div className="content">
-            {post.desc && <p>{post.desc}</p>}
+            {post.status === 'bad'
+              ? <p style={{ fontSize: '13px', fontStyle: 'italic' }}>Nội dung phản cảm đã được che giấu...</p>
+              : post.desc && <p style={{ fontSize: '14px' }}>{post.desc}</p>}
             {imagesError
               ? "erorr"
               : imagesIsLoading
                 ? "loading"
-                : Array.isArray(imagesData) && imagesData.length === 1
-                  ? imagesData.map((data) => (data.img.includes("mp4")
-                    ? <video width="100%" height="" controls>
-                      <source src={data.img} type="video/mp4" />
-                    </video>
-                    : <img src={data.img}
-                      alt="lỗi image"
-                      onClick={() => handleImageClick(data.img)} />
-                  ))
-                  : Array.isArray(imagesData) && imagesData.length === 2
-                    ? <div className="media">
-                      <div className="media-2">
-                        {imagesData[0]?.img.includes("mp4")
-                          ? <video width="100%" height="" controls>
-                            <source src={imagesData[0]?.img} type="video/mp4" />
-                          </video>
-                          : <img src={imagesData[0]?.img}
-                            alt="lỗi image"
-                            onClick={() => handleImageClick(imagesData[0]?.img)} />}
-                      </div>
-                      <div className="media-2">
-                        {imagesData[1]?.img.includes("mp4")
-                          ? <video width="100%" height="" controls>
-                            <source src={imagesData[1]?.img} type="video/mp4" />
-                          </video>
-                          : <img src={imagesData[1]?.img}
-                            alt="lỗi image"
-                            onClick={() => handleImageClick(imagesData[1]?.img)} />}
-                      </div>
-                    </div>
-                    : Array.isArray(imagesData) && imagesData.length === 3   //có 3 media
+                : imagesData.length === 0
+                  ? ""
+                  : Array.isArray(imagesData) && imagesData.length === 1
+                    ? imagesData.map((data) => (
+                      data.img.includes("mp4")
+                        ? <video width="100%" height="" controls>
+                          <source src={data.img} type="video/mp4" />
+                        </video>
+                        : <img src={data.img}
+                          alt="lỗi image"
+                          onClick={() => handleImageClick(data.img)} />
+                    ))
+                    : Array.isArray(imagesData) && imagesData.length === 2
                       ? <div className="media">
                         <div className="media-2">
-                          {
-                            imagesData[0]?.img.includes("mp4")
-                              ? <video width="100%" height="" controls>
-                                <source src={imagesData[0]?.img} type="video/mp4" />
-                              </video>
-                              : <img src={imagesData[0]?.img}
-                                alt="lỗi image"
-                                onClick={() => handleImageClick(imagesData[0]?.img)} />
-                          }
+                          {imagesData[0]?.img.includes("mp4")
+                            ? <video width="100%" height="" controls>
+                              <source src={imagesData[0]?.img} type="video/mp4" />
+                            </video>
+                            : <img src={imagesData[0]?.img}
+                              alt="lỗi image"
+                              onClick={() => handleImageClick(imagesData[0]?.img)} />}
                         </div>
                         <div className="media-2">
-                          <div className="media-3">
-                            {
-                              imagesData[1]?.img.includes("mp4")
-                                ? <video width="100%" height="" controls>
-                                  <source src={imagesData[1]?.img} type="video/mp4" />
-                                </video>
-                                : <img src={imagesData[1]?.img}
-                                  alt="lỗi image"
-                                  onClick={() => handleImageClick(imagesData[1]?.img)} />
-                            }
-                          </div>
-                          <div className="media-3">
-                            {
-                              imagesData[2]?.img.includes("mp4")
-                                ? <video width="100%" height="" controls>
-                                  <source src={imagesData[2]?.img} type="video/mp4" />
-                                </video>
-                                : <img src={imagesData[2]?.img}
-                                  alt="lỗi image"
-                                  onClick={() => handleImageClick(imagesData[2]?.img)} />
-                            }
-                          </div>
+                          {imagesData[1]?.img.includes("mp4")
+                            ? <video width="100%" height="" controls>
+                              <source src={imagesData[1]?.img} type="video/mp4" />
+                            </video>
+                            : <img src={imagesData[1]?.img}
+                              alt="lỗi image"
+                              onClick={() => handleImageClick(imagesData[1]?.img)} />}
                         </div>
                       </div>
-                      : Array.isArray(imagesData) //nhiều hơn 3 media
-                      &&
-                      <div className="media">
-                        <div className="media-2">
-                          {
-                            imagesData[0]?.img.includes("mp4")
-                              ? <video width="100%" height="" controls>
-                                <source src={imagesData[0]?.img} type="video/mp4" />
-                              </video>
-                              : <img src={imagesData[0]?.img}
-                                alt="lỗi image"
-                                onClick={() => handleImageClick(imagesData[0]?.img)} />
-                          }
-                        </div>
-                        <div className="media-2">
-                          <div className="media-3">
+                      : Array.isArray(imagesData) && imagesData.length === 3   //có 3 media
+                        ? <div className="media">
+                          <div className="media-2">
                             {
-                              imagesData[1]?.img.includes("mp4")
+                              imagesData[0]?.img.includes("mp4")
                                 ? <video width="100%" height="" controls>
-                                  <source src={imagesData[1]?.img} type="video/mp4" />
+                                  <source src={imagesData[0]?.img} type="video/mp4" />
                                 </video>
-                                : <img src={imagesData[1]?.img}
+                                : <img src={imagesData[0]?.img}
                                   alt="lỗi image"
-                                  onClick={() => handleImageClick(imagesData[1]?.img)} />
+                                  onClick={() => handleImageClick(imagesData[0]?.img)} />
                             }
                           </div>
-                          <div className="media-3">
-                            {
-                              imagesData[2]?.img.includes("mp4")
-                                ? <video width="100%" height="" controls>
-                                  <source src={imagesData[2]?.img} type="video/mp4" />
-                                </video>
-                                : <img src={imagesData[2]?.img}
-                                  alt="lỗi image"
-                                  onClick={() => handleImageClick(imagesData[2]?.img)} />
-                            }
-                          </div>
-                          <div className="media-3"
-                            style={{ position: 'absolute', zIndex: 1, width: '50%', top: '155px' }}
-                          >
-                            <span style={{alignSelf: 'center', fontSize: '100px'}}>+</span>
+                          <div className="media-2">
+                            <div className="media-3">
+                              {
+                                imagesData[1]?.img.includes("mp4")
+                                  ? <video width="100%" height="" controls>
+                                    <source src={imagesData[1]?.img} type="video/mp4" />
+                                  </video>
+                                  : <img src={imagesData[1]?.img}
+                                    alt="lỗi image"
+                                    onClick={() => handleImageClick(imagesData[1]?.img)} />
+                              }
+                            </div>
+                            <div className="media-3">
+                              {
+                                imagesData[2]?.img.includes("mp4")
+                                  ? <video width="100%" height="" controls>
+                                    <source src={imagesData[2]?.img} type="video/mp4" />
+                                  </video>
+                                  : <img src={imagesData[2]?.img}
+                                    alt="lỗi image"
+                                    onClick={() => handleImageClick(imagesData[2]?.img)} />
+                              }
+                            </div>
                           </div>
                         </div>
-                      </div>
+                        : Array.isArray(imagesData) //nhiều hơn 3 media
+                        &&
+                        <div className="media">
+                          <div className="media-2">
+                            {
+                              imagesData[0]?.img.includes("mp4")
+                                ? <video width="100%" height="" controls>
+                                  <source src={imagesData[0]?.img} type="video/mp4" />
+                                </video>
+                                : <img src={imagesData[0]?.img}
+                                  alt="lỗi image"
+                                  onClick={() => handleImageClick(imagesData[0]?.img)} />
+                            }
+                          </div>
+                          <div className="media-2">
+                            <div className="media-3">
+                              {
+                                imagesData[1]?.img.includes("mp4")
+                                  ? <video width="100%" height="" controls>
+                                    <source src={imagesData[1]?.img} type="video/mp4" />
+                                  </video>
+                                  : <img src={imagesData[1]?.img}
+                                    alt="lỗi image"
+                                    onClick={() => handleImageClick(imagesData[1]?.img)} />
+                              }
+                            </div>
+                            <div className="media-3">
+                              {
+                                imagesData[2]?.img.includes("mp4")
+                                  ? <video width="100%" height="" controls>
+                                    <source src={imagesData[2]?.img} type="video/mp4" />
+                                  </video>
+                                  : <img src={imagesData[2]?.img}
+                                    alt="lỗi image"
+                                    onClick={() => handleImageClick(imagesData[2]?.img)} />
+                              }
+                            </div>
+                            <div className="media-3"
+                              style={{ position: 'absolute', zIndex: 1, width: '50%', top: '155px' }}
+                            >
+                              <span style={{ alignSelf: 'center', fontSize: '100px' }}>+</span>
+                            </div>
+                          </div>
+                        </div>
             }
 
           </div>

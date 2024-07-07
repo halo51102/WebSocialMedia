@@ -5,6 +5,8 @@ import { AuthContext } from "../../context/authContext";
 import "./rightBar.scss";
 import { Link, useNavigate } from "react-router-dom";
 import profileAlt from "../../assets/profileAlt.png"
+import SuggestFollow from "../suggestFollow/SuggestFollow";
+import { FaUserFriends } from "react-icons/fa";
 
 const RightBar = ({ socket, user }) => {
   const { currentUser } = useContext(AuthContext)
@@ -17,8 +19,8 @@ const RightBar = ({ socket, user }) => {
   }, [socket])
 
 
-  const { isLoading: sgId, error: sgEr, data: sgdata } = useQuery(["allusers"], () =>
-    makeRequest.get("/users/").then((res) => {
+  const { isLoading: sgId, error: sgEr, data: sgdata } = useQuery(["suggest-follow"], () =>
+    makeRequest.get("/relationships/suggest-follow").then((res) => {
       return res.data
     }))
 
@@ -47,32 +49,18 @@ const RightBar = ({ socket, user }) => {
       <div className="container">
         <div className="item">
           <span>Đề xuất kết bạn</span>
-
-          {sgdata?.map((usersg) =>
-            (!relationshipData?.some(item => item.id === usersg.id)) && (currentUser.id !== usersg.id) &&
-            <div className="user" >
-              <Link to={"/profile/" + usersg.id} style={{ textDecoration: "none", color: "inherit" }}
-                onClick={() => {
-                  navigate(`/profile/${usersg.id}`);
-                  window.location.reload();
-                }}>
-                <div className="userInfo">
-                  <img
-                    src={usersg?.profilePic ? usersg.profilePic : profileAlt}
-                    alt=""
-                  />
-                  <span>{usersg.name} </span>
-                </div>
-              </Link>
-              <div className="buttons">
-                {!relationshipData?.some(item => item.id === usersg.id) && <button onClick={() => handleFollow(usersg.id)}>Follow</button>}
-
+          {
+            sgdata?.length === 0
+              ? <div className="no-suggest-friend">
+                <FaUserFriends className="icon-nsf" />
+                <p>Kết thêm bạn để hiện đề xuất</p>
               </div>
-            </div>
-
-          )}
+              : sgdata?.map((usersg) =>
+                (!relationshipData?.some(item => item.id === usersg.id)) && (currentUser.id !== usersg.id) &&
+                <SuggestFollow suggestUser={usersg} handleFollow={() => { handleFollow(usersg.id) }} />
+              )
+          }
         </div>
-
         <div className="item">
           <span>Đang theo dõi</span>
           {relationshipData?.map((user) =>

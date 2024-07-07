@@ -1,4 +1,5 @@
 import "./share.scss";
+import axios from "axios";
 import Image from "../../assets/img.png";
 import Map from "../../assets/map.png";
 import Friend from "../../assets/friend.png";
@@ -13,6 +14,7 @@ import profileAlt from "../../assets/profileAlt.png"
 import { NotificationContext } from "../../context/notificationContext";
 import { IoCloseCircle } from "react-icons/io5";
 import { uploadImagesToS3 } from "../../s3.config";
+import { IoMdWarning } from "react-icons/io";
 
 const Share = () => {
 
@@ -23,6 +25,7 @@ const Share = () => {
   const { currentUser } = useContext(AuthContext)
   const queryClient = useQueryClient()
   const { showNotification } = useContext(NotificationContext)
+  const [predict, setPredict] = useState('good');
 
   const { isLoading, error, data: findUser } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + currentUser.id).then((res) => {
@@ -30,13 +33,13 @@ const Share = () => {
     }))
 
   const upload = async (postId, file) => {
-      // const formData = new FormData()
-      // formData.append("file", file)
-      const res = await uploadImagesToS3(file)
-      console.log(res)
-      const imgRes = await makeRequest.post("/posts/images", { postId: postId, img: res })
-      console.log(imgRes)
-      return;
+    // const formData = new FormData()
+    // formData.append("file", file)
+    const res = await uploadImagesToS3(file)
+    console.log(res)
+    const imgRes = await makeRequest.post("/posts/images", { postId: postId, img: res })
+    console.log(imgRes)
+    return;
   }
 
   const newPostMutation = useMutation(async (newPost) => {
@@ -52,23 +55,53 @@ const Share = () => {
   )
 
   const handleNewPost = async (e) => {
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common['Accept'] = 'application/json';
+
     e.preventDefault()
+
     try {
       newPostMutation.mutateAsync({
         desc,
         group: groupId,
         sharePost: null,
-      }).then((data) => {
-        file.forEach(async (item) => {
+      }).then(async (data) => {
+        await file.forEach(async (item) => {
           upload(data.data.insertId, item)
-        })
+        }); //upload ảnh lên s3
+
+        const formData = new FormData();
+        formData.append('text', desc);
+        const prediction = await axios.post("http://127.0.0.1:8001/", formData);
+        console.log(prediction.data.result);
+        const result = prediction.data.result;
+        if (result != '0') {
+          const res = await makeRequest.put("/posts/report/" + data.data.insertId, { status: "bad" });
+          console.log(res);
+        }
+      }).then(async () => {
+        showNotification("Đăng bài viết thành công!!")
       })
       setDesc("")
       setFile([])
-      showNotification("Đăng bài viết thành công!!")
     }
     catch (err) {
       showNotification("Đăng bài viết thất bại!!")
+    }
+  }
+
+  const handleChangeDesc = async (e) => {
+    setDesc(e.target.value);
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common['Accept'] = 'application/json';
+    const formData = new FormData();
+    formData.append('text', e.target.value);
+    const prediction = await axios.post("http://127.0.0.1:8001/", formData);
+    const result = prediction.data.result;
+    if (result != '0') {
+      setPredict('bad');
+    } else {
+      setPredict('good');
     }
   }
 
@@ -78,12 +111,19 @@ const Share = () => {
         <div className="top">
           <div className="left">
             <img
-              src={findUser?.profilePic ?   findUser?.profilePic : profileAlt}
+              src={findUser?.profilePic ? findUser?.profilePic : profileAlt}
               alt=""
             />
             <input type="text" placeholder={`Bạn đang nghĩ gì vậy ${findUser?.name}...`}
-              onChange={(e) => setDesc(e.target.value)}
+              onChange={handleChangeDesc}
               value={desc} />
+            {
+            predict === 'bad' 
+            && <div className="warning">
+              <IoMdWarning style={{color: 'red', marginRight: '5px', fontSize: '15px'}}/>
+              <span>Chứa ngôn từ phản cảm</span>
+            </div>
+            }
           </div>
           <div className="right">
             {file && (file?.map((item) => (

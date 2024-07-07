@@ -22,7 +22,10 @@
           display: flex;
           padding: 3px;
           background: white;
-          position: relative;
+          position: absolute;
+          gap: 10px;
+          top: 0px;
+          right: 0px;
 
           &:hover {
             border-radius: 50%;
@@ -311,4 +314,13 @@
       background-color: rgba(240, 248, 255, 0);
     }
   }
+}
+
+.warning-icon {
+  color: red;
+  position: absolute;
+  left: 70%;
+  top: 15px;
+  font-size: 25px;
+
 }
