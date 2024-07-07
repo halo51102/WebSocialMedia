@@ -6,6 +6,7 @@ import "./rightBar.scss";
 import { Link, useNavigate } from "react-router-dom";
 import profileAlt from "../../assets/profileAlt.png"
 import SuggestFollow from "../suggestFollow/SuggestFollow";
+import { FaUserFriends } from "react-icons/fa";
 
 const RightBar = ({ socket, user }) => {
   const { currentUser } = useContext(AuthContext)
@@ -48,10 +49,17 @@ const RightBar = ({ socket, user }) => {
       <div className="container">
         <div className="item">
           <span>Đề xuất kết bạn</span>
-          {sgdata?.map((usersg) =>
-            (!relationshipData?.some(item => item.id === usersg.id)) && (currentUser.id !== usersg.id) &&
-            <SuggestFollow suggestUser={usersg} handleFollow={() => { handleFollow(usersg.id) }} />
-          )}
+          {
+            sgdata?.length === 0
+              ? <div className="no-suggest-friend">
+                <FaUserFriends className="icon-nsf" />
+                <p>Kết thêm bạn để hiện đề xuất</p>
+              </div>
+              : sgdata?.map((usersg) =>
+                (!relationshipData?.some(item => item.id === usersg.id)) && (currentUser.id !== usersg.id) &&
+                <SuggestFollow suggestUser={usersg} handleFollow={() => { handleFollow(usersg.id) }} />
+              )
+          }
         </div>
         <div className="item">
           <span>Đang theo dõi</span>

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CreateStory from "../createStory/CreateStory";
 import profileAlt from "../../assets/profileAlt.png"
+import imgAlt from "../../assets/img.png"
 
 const Stories = () => {
   const [openCreate, setOpenCreate] = useState(false);
@@ -102,7 +103,7 @@ const Stories = () => {
   return (
     <div className="stories">
       <div className="story">
-        <img src={findUser?.profilePic ?   findUser?.profilePic : profileAlt} alt="" />
+        <img src={findUser?.profilePic ? findUser?.profilePic : profileAlt} alt="" />
         <span>{findUser?.name}</span>
         <button onClick={() => setOpenCreate(true)}>+</button>
       </div>
@@ -112,14 +113,15 @@ const Stories = () => {
         ? "Không thể load dữ liệu"
         : isLoading
           ? "Đang tải..."
-          : !data ? (
-            <div className="story-empty">
-              Bạn đã xem hết story
-            </div>
-          )
+          : !data
+            ? (
+              <div className="story-empty">
+                Bạn đã xem hết story
+              </div>
+            )
             : filteredData.map((story) => (
               <div className="story" >
-                <img src={story.img ?   story.img : profileAlt} alt="" onClick={() => handleClickStory(story)} />
+                <img src={story.img ? story.img : imgAlt} alt='' onClick={() => handleClickStory(story)} />
                 <span>{story.name}</span>
               </div>
             ))
@@ -131,7 +133,7 @@ const Stories = () => {
             {/* {storyData?.map((item) =>
               <img src={  item.img} alt="" />
             )} */}
-            <img src={  selectedStory[currentStoryIndex].img} alt="" />
+            <img src={selectedStory[currentStoryIndex].img} alt="" />
           </div>
           <button onClick={handleCloseStory}>x</button>
 

@@ -225,6 +225,15 @@ export const getImagesOfPost = (req, res) => {
   })
 }
 
+export const getImagesOfUser = (req, res) => {
+  const q = `SELECT pi.* FROM posts AS p JOIN posts_images AS pi ON (p.id=pi.postId) WHERE p.userId=? order by postId asc;`
+
+  db.query(q, [req.query.userId], (err, data) => {
+    if (err) return res.status(500).json(err);
+    return res.status(200).json(data)
+  })
+}
+
 export const addImageOfPost = (req, res) => {
   const token = req.cookies.accessToken
   if (!token) return res.status(401).json("Not logged in!")

@@ -23,12 +23,15 @@ import { CiSearch } from "react-icons/ci";
 import { IoIosArrowRoundBack, IoIosPeople } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import ChatMembers from "../../components/chatMembers/ChatMembers";
+import { MdOutlineGroupOff } from "react-icons/md";
 
 export default function Messenger({ socket }) {
   const { currentUser } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [newConversation, setNewConversation] = useState(null);
+  const [isOpenChangeConversationNameForm, setIsOpenChangeConversationNameForm] = useState(false);
   const [currentChat, setCurrentChat] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -36,6 +39,7 @@ export default function Messenger({ socket }) {
   const [isOpenCurrentChatOption, setIsOpenCurrentChatOption] = useState(false)
   const [isOpenFormDeleteConversation, setIsOpenFormDeleteConversation] = useState(false)
   const [isOpenSearchConversation, setIsOpenSearchConversation] = useState(false);
+  const [openChatMembers, setOpenChatMembers] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [arrivalMessage, setArrivalMessage] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
@@ -257,73 +261,85 @@ export default function Messenger({ socket }) {
       })
       setFiles([]);
     }
-    else {    //Gửi tin nhắn text không có file đính kèm
-      let message = {
-        senderId: currentUser.id,
-        text: newMessage,
-        conversationId: currentChat.conversationId,
-        type: "text"
-      };
+    else {
+      if (newMessage != '') {    //Gửi tin nhắn text không có file đính kèm
+        let message = {
+          senderId: currentUser.id,
+          text: newMessage,
+          conversationId: currentChat.conversationId,
+          type: "text"
+        };
 
-      if (newMessage.includes("https://")) {
-        message["type"] = "video_link"
-        setMessages([...messages, message]);
-      }
-      await console.log(message)
-      const receiverId = currentChat.members.find(
-        (member) => member !== currentUser.id
-      );
+        if (newMessage.includes("https://")) {
+          message["type"] = "video_link"
+          setMessages([...messages, message]);
+        }
+        await console.log(message)
+        const receiverId = currentChat.members.find(
+          (member) => member !== currentUser.id
+        );
 
-      await socket?.emit("sendMetadata", {
-        senderId: currentUser.id,
-        receiverId,
-        text: newMessage,
-        type: message["type"],
-        file: null,
-        fileName: null,
-        mimeType: null
-      });
-
-      if (message["type"] !== "text") {
-        // Listen for the "getMetadata" event from the server
-        const metadataPromise = new Promise((resolve) => {
-          socket?.on("getMetadata", (data) => {
-            console.log("Received metadata:", data);
-            message["title"] = data.title;
-            message["file_url"] = data.file_url;
-            console.log("METADATA 2: " + message.file_url);
-            resolve(); // Resolve the promise when metadata is received
-          });
-        });
-
-        // Wait for the "getMetadata" event before sending the "post /messages" request
-        await metadataPromise;
-      }
-
-      try {
-        console.log(message)
-        const res = await makeRequest.post("/messages", message);
-        console.log(res.data)
-        await socket?.emit("sendMessage", {
-          messageId: res.data.id,
+        await socket?.emit("sendMetadata", {
           senderId: currentUser.id,
           receiverId,
           text: newMessage,
           type: message["type"],
           file: null,
           fileName: null,
-          mimeType: null,
-          title: message["title"],
-          file_url: message["file_url"],
+          mimeType: null
         });
 
+        if (message["type"] !== "text") {
+          // Listen for the "getMetadata" event from the server
+          const metadataPromise = new Promise((resolve) => {
+            socket?.on("getMetadata", (data) => {
+              console.log("Received metadata:", data);
+              message["title"] = data.title;
+              message["file_url"] = data.file_url;
+              console.log("METADATA 2: " + message.file_url);
+              resolve(); // Resolve the promise when metadata is received
+            });
+          });
 
-        res.data.file_url = message?.file_url
-        res.data.title = message?.title
-        setMessages([...messages, res.data]);
-        setNewMessage("");
-      } catch (err) {
-        console.log(err);
+          // Wait for the "getMetadata" event before sending the "post /messages" request
+          await metadataPromise;
+        }
+
+        try {
+          axios.defaults.headers.common['Content-Type'] = 'application/json';
+          axios.defaults.headers.common['Accept'] = 'application/json';
+
+          const formData = new FormData();
+          formData.append('text', newMessage);
+          const prediction = await axios.post("http://127.0.0.1:8001/", formData);
+          const result = prediction.data.result;
+          if (result != '0') {
+            message["text"] = "WebSocialMedia đã che tin nhắn vì ngôn từ phản cảm..."
+          }
+
+          const res = await makeRequest.post("/messages", message);
+          console.log(res.data)
+          await socket?.emit("sendMessage", {
+            messageId: res.data.id,
+            senderId: currentUser.id,
+            receiverId,
+            text: newMessage,
+            type: message["type"],
+            file: null,
+            fileName: null,
+            mimeType: null,
+            title: message["title"],
+            file_url: message["file_url"],
+          });
+
+
+          res.data.file_url = message?.file_url
+          res.data.title = message?.title
+          setMessages([...messages, res.data]);
+          setNewMessage("");
+        } catch (err) {
+          console.log(err);
+        }
       }
     }
   };
@@ -333,6 +349,10 @@ export default function Messenger({ socket }) {
       getConversations(); // Fetch conversations when the component mounts or whenever needed
     }
   }, [newConversation]);
+
+  useEffect(() => {
+    getConversations();
+  }, [messages]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -384,12 +404,23 @@ export default function Messenger({ socket }) {
     setSearchInput(e.target.value);
     if (e.target.value !== '') {
       const results = conversations.filter(conversation =>
-        conversation.name.toLowerCase().includes(e.target.value.trim())
+        conversation?.name?.toLowerCase().includes(e.target.value.trim())
       );
       setSearchResults(results);
     } else {
       setSearchResults([]);
     }
+  }
+
+  const handleOpenChatMembers = () => {
+    setOpenChatMembers(true);
+    setIsOpenCurrentChatOption(false);
+  }
+
+  const handleOpenOutGroupForm = () => {
+    makeRequest.delete("/conversations/" + currentChat.conversationId + "/" + currentUser.id);
+    setMessages(messages.filter(message => message.conversationId !== currentChat.conversationId));
+    setCurrentChat(messages[0]);
   }
 
   return (
@@ -406,7 +437,10 @@ export default function Messenger({ socket }) {
                 isOpenSearchConversation
                 &&
                 <div className="icon-back"
-                  onClick={() => { setIsOpenSearchConversation(false) }}>
+                  onClick={() => {
+                    setIsOpenSearchConversation(false);
+                    setSearchInput('');
+                  }}>
                   <IoIosArrowRoundBack />
                 </div>
               }
@@ -571,7 +605,9 @@ export default function Messenger({ socket }) {
               <div className="headerChat">
                 <div className="info" onClick={() => {
                   if (users.length == 1)
-                    navigate(`/profile/${users[0].id}`)
+                    navigate(`/profile/${users[0].id}`);
+                  else
+                    handleOpenChatMembers();
                 }}>
                   {(currentChat.members.length > 2)
                     ? <div className="conversationImg groupConversationImgs">
@@ -618,11 +654,15 @@ export default function Messenger({ socket }) {
                     </div>
                     {users.length === 1
                       ?
-                      <div className="current-chat-option">
+                      <div className="current-chat-option"
+                        onClick={() => setIsOpenChangeConversationNameForm(true)}>
                         <div className="icon">
                           <FaPencil />
                         </div>
                         <span>Đổi biệt danh</span>
+                        {
+                          isOpenChangeConversationNameForm && ''
+                        }
                       </div>
                       :
                       <div className="current-chat-option">
@@ -634,11 +674,20 @@ export default function Messenger({ socket }) {
                     }
                     {
                       users.length !== 1
-                      && <div className="current-chat-option">
+                      && <div className="current-chat-option" onClick={handleOpenChatMembers}>
                         <div className="icon">
                           <IoIosPeople />
                         </div>
                         <span>Xem thành viên đoạn chat</span>
+                      </div>
+                    }
+                    {
+                      users.length !== 1
+                      && <div className="current-chat-option" onClick={handleOpenOutGroupForm}>
+                        <div className="icon">
+                          <MdOutlineGroupOff />
+                        </div>
+                        <span>Rời nhóm</span>
                       </div>
                     }
                   </div>
@@ -722,6 +771,10 @@ export default function Messenger({ socket }) {
           </div>
         </div>
       </div>
+      {
+        openChatMembers
+        && <ChatMembers currentChat={currentChat} handleClose={() => setOpenChatMembers(false)} />
+      }
     </div >
   )
 }

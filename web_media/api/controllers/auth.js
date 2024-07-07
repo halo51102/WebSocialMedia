@@ -137,5 +137,5 @@ export const authorize = (req, res)=>{
         res.cookie("accessToken", token, {
             httpOnly: true,
         }).status(200).json(others)
-    })
+    }) 
 }

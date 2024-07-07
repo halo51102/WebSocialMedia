@@ -64,7 +64,6 @@ function App() {
     return (
       <QueryClientProvider client={queryClient}>
         <div className={`theme-${darkMode ? "dark" : "light"}`}>
-          ....
           <Navbar socket={socket} />
           <div style={{ display: "flex" }}>
             <LeftBar socket={socket} user={user} />

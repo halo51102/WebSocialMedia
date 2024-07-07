@@ -10,7 +10,8 @@ export default function Topbar() {
   const { currentUser } = useContext(AuthContext);
   const PF = process.env.REACT_APP_PUBLIC_FOLDER;
   const navigate = useNavigate();
-  const [profilePic, setProfilePic] = useState("")
+  const [profilePic, setProfilePic] = useState("");
+  const [isActive, setIsActive] = useState('');
 
   const getProfilePic = async () => {
     const res = await makeRequest.get("/users/find/" + currentUser.id);
@@ -27,11 +28,11 @@ export default function Topbar() {
         <Link
           to="http://localhost:3000"
           style={{ textDecoration: "none" }}
-          // onClick={() => {
-          //   navigate("/");
-          //   window.location.reload();
-          // }} 
-          >
+        // onClick={() => {
+        //   navigate("/");
+        //   window.location.reload();
+        // }} 
+        >
           <span className="logo">WebSocialMedia</span>
         </Link>
       </div>
@@ -40,9 +41,9 @@ export default function Topbar() {
       <div className="topbarRight">
         <Link
           onClick={() => {
-            // navigate(`/profile/${currentUser.id}`);
+            navigate(`/profile/${currentUser.id}`);
           }}
-          className="user"
+          className={`userPic ${isActive === 'userPic' ? 'active' : ''}`}
           style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "10px" }}
         >
           <span className="topbarUsername">{currentUser.name}</span>

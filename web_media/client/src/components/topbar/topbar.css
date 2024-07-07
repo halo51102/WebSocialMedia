@@ -98,10 +98,13 @@
 
 .topbarUsername {}
 
-.user{
+.userPic{
+  padding: 5px;
+  transition: background-color 0.3s ease;
 }
 
-.user:hover,&:active {
+.userPic:hover,
+.userPic.active {
   background: darkgray;
   border-radius: 20px;
 }

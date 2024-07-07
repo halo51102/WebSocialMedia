@@ -14,6 +14,7 @@ import profileAlt from "../../assets/profileAlt.png"
 import { NotificationContext } from "../../context/notificationContext";
 import { IoCloseCircle } from "react-icons/io5";
 import { uploadImagesToS3 } from "../../s3.config";
+import { IoMdWarning } from "react-icons/io";
 
 const Share = () => {
 
@@ -24,6 +25,7 @@ const Share = () => {
   const { currentUser } = useContext(AuthContext)
   const queryClient = useQueryClient()
   const { showNotification } = useContext(NotificationContext)
+  const [predict, setPredict] = useState('good');
 
   const { isLoading, error, data: findUser } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + currentUser.id).then((res) => {
@@ -88,6 +90,21 @@ const Share = () => {
     }
   }
 
+  const handleChangeDesc = async (e) => {
+    setDesc(e.target.value);
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common['Accept'] = 'application/json';
+    const formData = new FormData();
+    formData.append('text', e.target.value);
+    const prediction = await axios.post("http://127.0.0.1:8001/", formData);
+    const result = prediction.data.result;
+    if (result != '0') {
+      setPredict('bad');
+    } else {
+      setPredict('good');
+    }
+  }
+
   return (
     <div className="share">
       <div className="container">
@@ -98,8 +115,15 @@ const Share = () => {
               alt=""
             />
             <input type="text" placeholder={`Bạn đang nghĩ gì vậy ${findUser?.name}...`}
-              onChange={(e) => setDesc(e.target.value)}
+              onChange={handleChangeDesc}
               value={desc} />
+            {
+            predict === 'bad' 
+            && <div className="warning">
+              <IoMdWarning style={{color: 'red', marginRight: '5px', fontSize: '15px'}}/>
+              <span>Chứa ngôn từ phản cảm</span>
+            </div>
+            }
           </div>
           <div className="right">
             {file && (file?.map((item) => (
