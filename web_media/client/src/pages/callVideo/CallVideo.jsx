@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import Peer from 'peerjs';
 import "./callvideo.scss";
 
-const CallVideo = ({ socket, currentUser }) => {
+const CallVideo = ({ socket, currentUser, callData }) => {
 
     const videoGridRef = useRef();
     const myVideoRef = useRef(null);
@@ -36,13 +36,14 @@ const CallVideo = ({ socket, currentUser }) => {
             }
         };
     }, []);
+    
     useEffect(() => {
         if (socket) {
             const user = generateUniqueId();
             setUserId(user);
 
             const newPeer = new Peer(user, {
-                host: '127.0.0.1',
+                host: '192.168.1.189',
                 port: 3030,
                 path: '/',
                 secure: false,
@@ -89,15 +90,27 @@ const CallVideo = ({ socket, currentUser }) => {
             });
 
             const myVideo = myVideoRef.current;
-            if (myVideo) myVideo.muted = true;
+
+
+            if (myVideo) { myVideo.muted = true; console.log(myVideo.muted) }
             console.log(myVideo)
 
 
-            navigator.mediaDevices.getUserMedia({ audio: true, video: true, }).then((stream) => {
+            navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then((stream) => {
                 setMyVideoStream(stream);
                 console.log(stream);
-                addVideoStream(myVideo, stream);
+                if (isRc == "false") addVideoStream(myVideo, stream);
+                else {
+                    if (callData) {
+                        const { call, stream } = callData;
+                        call.answer(stream);
+                        const video = myVideoRef.current;
 
+                        call.on('stream', (userVideoStream) => {
+                            addVideoStream(video, userVideoStream);
+                        });
+                    }
+                }
                 newPeer.on("call", (call) => {
                     console.log('someone call me');
                     call.answer(stream);
@@ -109,14 +122,15 @@ const CallVideo = ({ socket, currentUser }) => {
 
                 socket?.on("user-connected", (userId) => {
                     console.log('I call someone ' + userId);
-                        const call = newPeer.call(userId, stream);
-                        const video = document.createElement("video");
-                        call.on("stream", (userVideoStream) => {
-                            addVideoStream(video, userVideoStream);
-                        });
+                    const call = newPeer.call(userId, stream);
+                    const video = document.createElement("video");
+                    call.on("stream", (userVideoStream) => {
+                        console.log("add video của đối phương vào client")
+                        addVideoStream(video, userVideoStream);
+                    });
                 });
 
-                
+
 
             }).catch((error) => {
                 console.log('Error accessing media devices: ', error);
@@ -127,7 +141,8 @@ const CallVideo = ({ socket, currentUser }) => {
             };
 
         }
-    }, [socket, isRc, roomId])
+    }, [socket, isRc, roomId, callData])
+
 
     const addVideoStream = (video, stream) => {
         if (!video) return;
@@ -156,25 +171,25 @@ const CallVideo = ({ socket, currentUser }) => {
 
     return (
         <div>
-            <div class="main">
-                <div class="main__left">
-                    <div class="videos__group">
+            <div className="main">
+                <div className="main__left">
+                    <div className="videos__group">
                         <div id="video-grid" ref={videoGridRef} >
                             <video playsInline autoPlay ref={myVideoRef} />
                         </div>
                     </div>
-                    <div class="options">
-                        <div class="options__left">
-                            <div id="stopVideo" class="options__button">
-                                <i class="fa fa-video-camera"></i>
+                    <div className="options">
+                        <div className="options__left">
+                            <div id="stopVideo" className="options__button">
+                                <i className="fa fa-video-camera"></i>
                             </div>
-                            <div id="muteButton" class="options__button">
-                                <i class="fa fa-microphone"></i>
+                            <div id="muteButton" className="options__button">
+                                <i className="fa fa-microphone"></i>
                             </div>
                         </div>
-                        <div class="options__right">
-                            <div id="inviteButton" class="options__button">
-                                <i class="fas fa-user-plus"></i>
+                        <div className="options__right">
+                            <div id="inviteButton" className="options__button">
+                                <i className="fas fa-user-plus"></i>
                             </div>
                         </div>
                     </div>

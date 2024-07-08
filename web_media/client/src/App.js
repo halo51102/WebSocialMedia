@@ -30,6 +30,7 @@ import { useState } from "react";
 import UserList from "./pages/admin/user-list/UserList";
 import PostList from "./pages/admin/post-list/PostList";
 import VerifyEmail from "./pages/verify-email/VerifyEmail";
+import Peer from "peerjs";
 
 function App() {
 
@@ -52,8 +53,9 @@ function App() {
   const [incomingCall, setIncomingCall] = useState(null);
   const callWindowRef = useRef(null);
   const broadcastChannel = useRef(new BroadcastChannel('socket_channel'));
+  const [callData, setCallData] = useState(null);
   useEffect(() => {
-    setSocket(io("http://localhost:8900"));
+    setSocket(io("http://192.168.1.189:8900"));
     // Kết nối đến server socket.io
     /*const socket = io('http://localhost:8900', {
       query: { socketId: localStorage.getItem('socketId') } // Lấy socketId từ localStorage nếu có
@@ -75,7 +77,12 @@ function App() {
   }, [])
 
   useEffect(() => {
+    const newPeer = new Peer();
 
+    newPeer.on('call', (call) => {
+      console.log('someone call me');
+      setCallData(call);
+    });
     if (socket) {
       console.log(socket)
       socket.emit("addUser", currentUser?.id);
@@ -84,7 +91,7 @@ function App() {
       socket.on('group-call-made', ({ roomId, from, idpeer }) => {
         console.log(from)
 
-        if (from !== currentUser.id) {
+        if (from !== currentUser?.id) {
           if (window.confirm(`Incoming call from user ${from}. Do you want to accept?`)) {
             /*const signalData = signal; // Lấy signal từ sự kiện hoặc từ state của bạn
             
@@ -100,7 +107,7 @@ function App() {
       })
 
     }
-  }, [socket, currentUser.id]);
+  }, [socket, currentUser]);
 
   const handleAcceptCall = (roomId, from, idpeer) => {
     //const { from } = incomingCall;
@@ -231,7 +238,7 @@ function App() {
     },
     {
       path: "/call",
-      element: <CallVideo socket={socket} currentUser={currentUser} />
+      element: <CallVideo socket={socket} currentUser={currentUser} callData={callData} />
 
     },
     {
