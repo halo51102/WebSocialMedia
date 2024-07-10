@@ -1,0 +1,133 @@
+.app {
+    display: flex;
+}
+
+canvas {
+    position: absolute;
+}
+
+.navbar {
+    height: 50px;
+    background-color: #4064ac;
+    display: flex;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    padding: 0px 100px;
+    font-size: 20px;
+}
+
+.newPostCard {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.addPost {
+    display: flex;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.addImg {
+    width: 25px;
+    cursor: pointer;
+}
+
+.postForm {
+    display: flex;
+    flex-direction: column;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+button {
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    background-color: teal;
+    cursor: pointer;
+}
+
+.postInput {
+    height: 30px;
+    border: none;
+    margin-bottom: 10px;
+}
+
+.container-new-post {
+    height: calc(100vh - 50px);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 90%;
+    background: white;
+    border-radius: 20px;
+    position: relative;
+}
+
+.cnp-left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.cnp-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 300;
+}
+
+.rightInput {
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.cnp-rightButton {
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+.friendInput {
+    position: absolute;
+    padding: 10px;
+    font-weight: bold;
+    border: none;
+}
+
+.cnp-friends {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.name {
+    font-weight: bold;
+}
+
+.cnp-closeButton{
+    padding: 7px 12px;
+    font-size: 18px;
+    border-radius: 50%;
+    position: absolute;
+    top: -15px;
+    right: -15px;
+}
+
+.imageButton{
+    position: absolute;
+    height: 100%;
+}

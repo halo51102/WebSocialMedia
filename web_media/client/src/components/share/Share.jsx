@@ -1,6 +1,6 @@
 import "./share.scss";
 import axios from "axios";
-import Image from "../../assets/img.png";
+import ImageIcon from "../../assets/img.png";
 import Map from "../../assets/map.png";
 import Friend from "../../assets/friend.png";
 import { useContext } from "react";
@@ -15,6 +15,7 @@ import { NotificationContext } from "../../context/notificationContext";
 import { IoCloseCircle } from "react-icons/io5";
 import { uploadImagesToS3 } from "../../s3.config";
 import { IoMdWarning } from "react-icons/io";
+import NewPost from "../newPost/NewPost";
 
 const Share = () => {
 
@@ -26,6 +27,8 @@ const Share = () => {
   const queryClient = useQueryClient()
   const { showNotification } = useContext(NotificationContext)
   const [predict, setPredict] = useState('good');
+  const [openImage, setOpenImage] = useState(false);
+  const [image, setImage] = useState();
 
   const { isLoading, error, data: findUser } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + currentUser.id).then((res) => {
@@ -105,6 +108,24 @@ const Share = () => {
     }
   }
 
+  const handleClickImage = async (item) => {
+    setOpenImage(true);    
+  }
+
+  const handleChooseImage = (item) => {
+    const img = new Image();
+    img.src = URL.createObjectURL(item);
+    img.onload = () => {
+      setImage({
+        url: img.src,
+        width: img.width,
+        height: img.height,
+      });
+    };
+  }
+
+  console.log(image);
+
   return (
     <div className="share">
       <div className="container">
@@ -118,19 +139,25 @@ const Share = () => {
               onChange={handleChangeDesc}
               value={desc} />
             {
-            predict === 'bad' 
-            && <div className="warning">
-              <IoMdWarning style={{color: 'red', marginRight: '5px', fontSize: '15px'}}/>
-              <span>Chứa ngôn từ phản cảm</span>
-            </div>
+              predict === 'bad'
+              && <div className="warning">
+                <IoMdWarning style={{ color: 'red', marginRight: '5px', fontSize: '15px' }} />
+                <span>Chứa ngôn từ phản cảm</span>
+              </div>
             }
           </div>
           <div className="right">
             {file && (file?.map((item) => (
               <div className="file">
                 <IoCloseCircle className="icon-remove" onClick={() => setFile((prevFiles) => prevFiles.filter((file) => file !== item))} />
-                <img className="file" alt="" src={URL.createObjectURL(item)} />
+                <img className="file" alt="" src={URL.createObjectURL(item)} onClick={async () => await handleClickImage(item)} onMouseEnter={() => handleChooseImage(item)} />
               </div>)))}
+            {openImage
+              && <div className="image-detail">
+                <NewPost
+                  images={file}
+                  handleCloseImage={() => { setOpenImage(false) }} />
+              </div>}
             {file.length !== 0 && <div className="file">
               <input type="file"
                 id="file"
@@ -156,7 +183,7 @@ const Share = () => {
               multiple />
             <label htmlFor="file">
               <div className="item">
-                <img src={Image} alt="" />
+                <img src={ImageIcon} alt="" />
                 <span>Hình ảnh</span>
               </div>
             </label>

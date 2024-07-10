@@ -6,7 +6,7 @@ import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { Link } from "react-router-dom";
 import Comments from "../comments/Comments";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import moment from "moment"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
@@ -18,7 +18,7 @@ import { NotificationContext } from "../../context/notificationContext";
 import ReactPlayer from 'react-player';
 import { useRef } from "react";
 import { IoMdWarning } from "react-icons/io";
-
+import axios from "axios";
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
 
@@ -31,6 +31,28 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { showNotification } = useContext(NotificationContext);
   const buttonOptionRef = useRef();
+  const [faces, setFaces] = useState([]);
+  const [containerSize, setContainerSize] = useState([]);
+  const [hoverFace, setHoverFace] = useState(false);
+  const [faceId, setFaceId] = useState('');
+  const [faceName, setFaceName] = useState('');
+  const [isRecognizing, setIsRecognizing] = useState(true);
+  const [naturalSize, setNaturalSize] = useState([]);
+  const [zoom, setZoom] = useState(0);
+
+  const divRef = useRef(null);
+
+  useEffect(() => {
+    if (divRef.current) {
+      console.log('inside')
+      console.log(divRef.current.offsetWidth, divRef.current.offsetHeight)
+      setContainerSize([divRef.current.offsetWidth, divRef.current.offsetHeight]);
+    }
+  }, [showImage]);
+
+  useEffect(() => {
+    setZoom(containerSize[0] / naturalSize[0]);
+  }, [containerSize, naturalSize]);
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
     makeRequest.get("/groups/" + post.groupId + "/members").then((res) => {
@@ -175,19 +197,49 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     showNotification("Bài viết đã được báo cáo, hãy chờ xử lý của ADMIN.")
   }
 
-  const handleImageClick = (image) => {
+  const handleImageClick = async (image) => {
     setSelectedImage(image);
     setShowImage(true);
+
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common['Accept'] = 'application/json';
+
+    const formData = new FormData();
+    formData.append("text", image);
+    try {
+      setIsRecognizing(true);
+      const res = await axios.post("http://localhost:8002/predict", formData);
+      if (res.data.results.length === 0) {
+        showNotification("Không phát hiện khuôn mặt");
+      }
+      setFaces(res.data.results);
+      setNaturalSize(res.data.size);
+      setIsRecognizing(false);
+      console.log(res.data)
+    }
+    catch (err) {
+      showNotification('Lỗi server');
+    }
   }
 
   const handleImageClose = () => {
     setShowImage(false);
     setSelectedImage('');
+    setFaces([]);
+  }
+
+  const handleHoverFace = async (e, faceId) => {
+    setHoverFace(true);
+    setFaceId(faceId);
+    if (faceId == 'unknown') {
+      setFaceName('Không rõ');
+    } else {
+      const res = await makeRequest.get("users/find/" + faceId);
+      setFaceName(res.data.name);
+    }
   }
 
   let profile = "/profile/" + post.userId;
-
-  console.log(imagesData)
 
   return (
     <div >
@@ -446,9 +498,32 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
           {shareOpen && <SharePost setShareOpen={setShareOpen} postShare={post} />}
         </div>
         {showImage && (
-          <div className="image-container">
-            <img src={selectedImage} alt="" />
-            <button onClick={handleImageClose}></button>
+          <div className="image-container" >
+            <div className="left" ref={divRef}>
+              <img className="image" src={selectedImage} alt="" />
+              <button onClick={handleImageClose}>x</button>
+              {isRecognizing
+                ? <span className="is-recognizing">Đang nhận diện khuôn mặt...</span>
+                : faces.length > 0
+                && faces.map((face) => (
+                  <div
+                    className="face"
+                    style={{
+                      position: 'absolute',
+                      width: `${(face[1][1] - face[1][3]) * zoom}px`,
+                      height: `${(face[1][2] - face[1][0]) * zoom}px`,
+                      top: `${face[1][0] * zoom}px`,
+                      left: `${face[1][3] * zoom}px`,
+                      border: `${hoverFace && faceId === face[0] ? '2px solid green' : 'none'}`
+                    }}
+                    onMouseEnter={(e) => handleHoverFace(e, face[0])}
+                    onMouseLeave={() => setHoverFace(false)}>
+                    {hoverFace && faceId === face[0]
+                      && <span className="face-name" style={{ position: 'absolute' }}>{faceName}</span>}
+                  </div>
+                ))}
+            </div>
+            <div className="right"></div>
           </div>
         )}
         {confirmDelete &&
