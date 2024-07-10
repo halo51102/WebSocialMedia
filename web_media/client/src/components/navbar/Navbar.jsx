@@ -113,7 +113,6 @@ const Navbar = ({ socket }) => {
     setOpenMenu(false);
   }
   const handleOpenChat = () => {
-    alert("chatbot")
     if (!openChat) setOpenChat(true)
     else setOpenChat(false)
   }
@@ -163,7 +162,7 @@ const Navbar = ({ socket }) => {
         <div className="icon" onClick={handleOpenChat}>
           <SearchOutlinedIcon />
         </div>
-        {openChat && <ChatBot />}
+        {openChat && <ChatBot setOpenChat={setOpenChat} />}
       </div>
       <div className="right" onClick={handleCloseSearchResults}>
         {darkMode ? (

@@ -4,7 +4,7 @@ import { sendMessageToCoze } from './sendMessageToCoze';
 import profileAlt from "../../assets/profileAlt.png"
 
 import { Link } from "react-router-dom";
-const ChatBot = () => {
+const ChatBot = ({ setOpenChat }) => {
   const [messages, setMessages] = useState([]); // Danh sách tin nhắn
   const [message, setMessage] = useState('')
   const msg = {
@@ -37,14 +37,14 @@ const ChatBot = () => {
   }
 
   const sendCoze = (message) => {
-    alert(message)
     sendMessageToCoze(message)
       .then((data) => {
         console.log(data)
         data.messages.map((message) => {
           if (message.type === "answer") {
-            const json = JSON.parse(message.content);
-            if (json) {
+
+            try {
+              const json = JSON.parse(message.content);
               const newMessage = {
                 type: "answer",
                 profilePic: json.profilePic,
@@ -57,9 +57,9 @@ const ChatBot = () => {
               console.log(data)
               setMessages((prev) => [...prev, newMessage]);
             }
-            else {
+            catch {
               const newMessage = {
-                type: "answer",
+                type: "unknown",
                 text: message.content,
                 fromUser: false
               };
@@ -79,14 +79,19 @@ const ChatBot = () => {
 
       })
       .catch((error) => {
-        setMessages((prev) => [...prev, "Không nhận được API"])
+
+        const newMessage = {
+          type: "error",
+          text: "Không nhận diện được yêu cầu",
+          fromUser: false
+        };
+        setMessages((prev) => [...prev, newMessage])
       });
   }
-
   console.log(messages)
   return (
     <div className="chatbot-container">
-      <button className="exitChatBot">x</button>
+      <button className="exitChatBot" onClick={() => setOpenChat(false)}>x</button>
       <div className="titleChatBot"> ChatBot
       </div>
       <div className="chatbot-messages">
@@ -97,16 +102,24 @@ const ChatBot = () => {
                 {message.text}
               </div>}
             {(!message.fromUser) && (message.type === "follow_up") && <div>
-              <div className={message.fromUser ? 'message user-message' : 'message bot-message'}>
+              <div className={message.fromUser ? 'message user-message' : 'message bot-message'} onClick={() => handleSendMessage(message.text)}>
                 {message.text}
               </div>
             </div>}
+            {(!message.fromUser) && (message.type === "error") &&
+              <div className={message.fromUser ? 'message user-message' : 'message bot-message'}>
+                {message.text}
+              </div>}
+              {(!message.fromUser) && (message.type === "unknown") &&
+              <div className={message.fromUser ? 'message user-message' : 'message bot-message'}>
+                {message.text}
+              </div>}
             {(!message.fromUser) && (message.type === "answer") && <div className='link'>
-              <Link to={message.link} style={{ textDecoration: "none", color: "inherit" }}> 
+              <Link to={message.link} style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="userInfoFind">
                   <img src={message.profilePic ? message.profilePic : profileAlt} alt="" />
                   <div className="details">
-                    <div                    
+                    <div
                     >
                       <div style={{ display: "flex", flexDirection: 'column' }}>
 
@@ -118,12 +131,12 @@ const ChatBot = () => {
                     </div>
                   </div>
                 </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>Trường SPKT, Thủ Đức</span>
-                <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>Hồ Chí Minh</span>
-                <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>fb.com</span>
-              </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>Trường SPKT, Thủ Đức</span>
+                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>Hồ Chí Minh</span>
+                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>fb.com</span>
+                </div>
               </Link>
             </div>}
           </div>
@@ -131,7 +144,7 @@ const ChatBot = () => {
         }
       </div >
       <div className="chatbot-input">
-        <textarea value={message} type="text" onChange={handleChange} placeholder="Nhập tin nhắn..." style={{width: '100%'}}/>
+        <textarea value={message} type="text" onChange={handleChange} placeholder="Nhập tin nhắn..." style={{ width: '100%' }} />
         <button onClick={() => handleSendMessage(message)}>Gửi</button>
       </div>
     </div >
