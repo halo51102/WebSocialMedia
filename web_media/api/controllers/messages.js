@@ -11,7 +11,7 @@ export const addMessage = (req, res) => {
         createdAt,
         updatedAt,
         req.body.file_url,
-        req.body.title
+        req.body.title,
     ]
     db.query(q1, [values], (err, data) => {
         if (err) return res.status(500).json(err)
@@ -22,7 +22,7 @@ export const addMessage = (req, res) => {
             text: req.body.text,
             type: req.body.type,
             createdAt: createdAt,
-            updatedAt: updatedAt
+            updatedAt: updatedAt,
         }
         return res.status(200).json(insertedData)
     })

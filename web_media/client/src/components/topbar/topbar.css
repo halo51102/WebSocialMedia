@@ -96,13 +96,21 @@
   cursor: pointer;
 }
 
-.topbarUsername{
+.topbarUsername {}
 
+.userPic{
+  padding: 5px;
+  transition: background-color 0.3s ease;
 }
 
+.userPic:hover,
+.userPic.active {
+  background: darkgray;
+  border-radius: 20px;
+}
 
-@media screen and (max-width: 768px)  {
-  .topbarLink{
+@media screen and (max-width: 768px) {
+  .topbarLink {
     display: none;
   }
 }

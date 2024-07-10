@@ -57,19 +57,35 @@ export const addRelationship = (req, res) => {
     })
 }
 
-export const suggestFollow=(req,res)=>{
+export const suggestFollow = (req, res) => {
+    // const userId = req.body.userId;
     const token = req.cookies.accessToken
     if (!token) return res.status(401).json("Not logged in!")
 
     jwt.verify(token, "secretkey", (err, userInfo) => {
-        if (err) return res.status(403).json("Token is not valid!")
-
+        if (err) return res.status(403).json("Token is not valid!");
+        const userId = userInfo.id;
         const q =
-            "SELECT u.* FROM users as u, relationships as r WHERE u.id!=? and r.followerUserId=? and r.followedUserId!=u.id order by rand() LIMIT 2";
-
-        db.query(q, [userInfo.id, userInfo.id], (err, data) => {
-            if (err) return res.status(500).json(err)
-            return res.status(200).json(data)
+            "select * from users where id in (SELECT r.followedUserId FROM socialmedia.users as u join relationships as r on u.id = r.followerUserId where u.id in (SELECT r.followedUserId FROM socialmedia.users as u join relationships as r on u.id = r.followerUserId where u.id = ?) and r.followedUserId != ? and r.followedUserId not in (SELECT r.followedUserId FROM socialmedia.users as u join relationships as r on u.id = r.followerUserId where u.id = ?))";
+        db.query(q, [userId, userId, userId], (err, data) => {
+            if (err) return res.status(500).json(err);
+            return res.status(200).json(data);
         })
     })
+}
+
+export const whoFollow = (req, res) => {
+    const token = req.cookies.accessToken;
+    const followedUserId = req.query.followedUserId;
+
+    if (!token) return res.status(401).json("Not logged in!");
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(500).json(err);
+        db.query("select * from users where id in (select r.followedUserId from users as u join relationships as r on u.id = r.followerUserId where r.followerUserId = ?) and id in (select r.followerUserId from users as u join relationships as r on u.id = r.followedUserId where r.followedUserId = ?)", 
+            [userInfo.id, followedUserId], (err0, data0) => {
+            if (err0) return res.status(400).json(err0);
+            return res.status(200).json(data0);
+        });
+    });
 }

@@ -22,7 +22,10 @@
           display: flex;
           padding: 3px;
           background: white;
-          position: relative;
+          position: absolute;
+          gap: 10px;
+          top: 0px;
+          right: 0px;
 
           &:hover {
             border-radius: 50%;
@@ -299,10 +302,35 @@
     justify-content: center;
     align-items: center;
 
-    img {
+    .left {
       width: auto;
       height: 95%;
+      position: relative;
+
+      .face-name {
+        position: absolute;
+        top: -30px;
+        background: white;
+        padding: 5px;
+        left: 0;
+        border-radius: 2px;
+      }
+
+      .is-recognizing {
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: white;
+        padding: 10px;
+        border-radius: 10px;
+      }
+
+      .image {
+        width: auto;
+        height: 100%;
+      }
     }
+
 
     button {
       position: fixed;
@@ -311,4 +339,13 @@
       background-color: rgba(240, 248, 255, 0);
     }
   }
+}
+
+.warning-icon {
+  color: red;
+  position: absolute;
+  left: 70%;
+  top: 15px;
+  font-size: 25px;
+
 }

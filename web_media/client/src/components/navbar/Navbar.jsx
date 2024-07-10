@@ -67,15 +67,9 @@ const Navbar = ({ socket }) => {
     fetch("http://localhost:8800/api/users")
       .then((response) => response.json())
       .then((json) => {
-        const results = json.filter((user) => {
-          return (
-            value &&
-            user &&
-            user.name &&
-            user.name.toLowerCase().includes(value) &&
-            user.username.toLowerCase().includes(value)
-          );
-        });
+        const results = json.filter(user =>
+          user.name.toLowerCase().includes(value) || user.username.toLowerCase().includes(value)
+        );
         setResults(results);
       });
   };
@@ -162,9 +156,9 @@ const Navbar = ({ socket }) => {
                 <IoCloseCircle />
               </div>}
           </div>
-          {results?.length > 0
+          {input !== ''
             && isOpenSearchResults
-            && <SearchResults results={results} />}
+            && <SearchResults results={results} input={input} />}
         </div>
         <div className="icon" onClick={handleOpenChat}>
           <SearchOutlinedIcon />
@@ -181,23 +175,16 @@ const Navbar = ({ socket }) => {
             <DarkModeOutlinedIcon onClick={toggle} />
           </div>
         )}
-        {/* <Link className='icon' to="/friend" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}>
+        {/* <div className="icon" onClick={() => navigate('/friend')}>
           <PersonOutlinedIcon />
-        </Link> */}
-        {/* <Link className='icon' to="/messenger" style={{ textDecoration: "none", color: "inherit", marginTop: "3px" }}>
-          <EmailOutlinedIcon />
-        </Link> */}
-        <div className="icon" onClick={() => navigate('/friend')}>
-          <PersonOutlinedIcon />
-        </div>
+        </div> */}
         <div className="icon" onClick={() => navigate('/messenger')}>
           <EmailOutlinedIcon />
         </div>
-        <div className="icon">
+        <div className="icon" ref={notiRef}>
           <NotificationsOutlinedIcon onClick={handleOpenNotifications} />
           {openNotications
-            &&
-            <div className="icon-click">
+            && <div className="icon-click">
               <NotificationsOutlinedIcon onClick={handleOpenNotifications} />
             </div>
           }
@@ -224,9 +211,6 @@ const Navbar = ({ socket }) => {
                 <span className="date">{moment(noti.create_at).fromNow()}</span>
               </span>)}
           </div>))
-        }
-        {
-
         }
         {openUpdate && <ChangePassword setOpenUpdate={setOpenUpdate} user={findUser} />}
         {openMenu

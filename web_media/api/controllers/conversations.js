@@ -1,3 +1,4 @@
+import { datacatalog } from "googleapis/build/src/apis/datacatalog/index.js"
 import { db } from "../connect.js"
 import jwt from "jsonwebtoken"
 
@@ -94,4 +95,23 @@ export const deleteConversation = (req, res) => {
         }
         return res.status(403);
     })
+}
+
+export const getConversationMembers = (req, res) => {
+    const cId = req.params.conversationId;
+    db.query("select * from users where id in (select userId from conversation_members where conversationId = ?)", [cId], (err, data) => {
+        if (err) return res.status(500);
+        return res.status(200).json(data);
+    })
+}
+
+export const deleteMember = (req, res) => {
+    const conversationId = req.params.conversationId;
+    const userId = req.params.userId;
+    db.query("delete from conversation_members where conversationId = ? and userId = ?",
+        [conversationId, userId], (err, data) => {
+            if (err) return res.status(500).json(err);
+            return res.status(200).json("Delete member successfully.")
+        }
+    );
 }

@@ -222,12 +222,14 @@ io.on("connection", (socket) => {
 
 
   socket.on("sendNotification", ({ senderId, receiverId, type }) => {
-    const receiver = getUser(receiverId);
-    console.log(receiver)
-    io.to(receiver?.socketId).emit("getNotification", {
-      senderId,
-      type,
-    });
+    if (senderId != receiverId) {
+      const receiver = getUser(receiverId);
+      console.log(receiver)
+      io.to(receiver?.socketId).emit("getNotification", {
+        senderId,
+        type,
+      });
+    }
   });
 
   socket.on("join-room", (roomId, id, userId) => {

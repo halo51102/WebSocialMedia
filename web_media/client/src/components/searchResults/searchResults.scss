@@ -13,6 +13,31 @@
         overflow-y: auto;
     }
 
+    .no-result{
+        padding: 10px 20px;
+        display: flex;
+
+
+        .info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+
+            img {
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            span{
+                font-size: 15px;
+                font-weight: normal;
+            }
+        }
+    }
+
     .result {
         padding: 10px 20px;
         display: flex;

@@ -121,3 +121,21 @@ export const sendEmail = async (req, res) => {
     const { email, emailToken } = req.body;
     sendVerifyEmail(email, emailToken);
 }
+
+export const authorize = (req, res)=>{
+    const q = "SELECT * FROM users WHERE username=?"
+    db.query(q, [req.body.username], (err, data) => {
+        if (err) return res.status(500).json(err)
+        if (data.length === 0) return res.status(404).json("Không tồn tại user trong hệ thống.")
+        // const checkPassword = bcrypt.compareSync(req.body.password, data[0].password)
+        // if (!checkPassword) return res.status(400).json("Sai tên tài khoản hoặc mật khẩu");
+        // if (data[0].isVerified == 'false') {
+        //     return res.status(400).json("Tài khoản chưa được xác thực. Vui lòng kiểm tra email đã được đăng ký để xác thực tài khoản");
+        // }
+        const token = jwt.sign({ id: data[0].id, role: data[0].role }, "secretkey")
+        const { password, ...others } = data[0]
+        res.cookie("accessToken", token, {
+            httpOnly: true,
+        }).status(200).json(others)
+    }) 
+}

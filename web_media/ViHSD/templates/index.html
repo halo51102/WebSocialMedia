@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="" method="post">
+        <span>Nhận diện văn ngôn phản cảm</span>
+        <input type="text" name="text" id="" placeholder="Nhập ở đây...">
+        <input type="submit">
+    </form>
+    {% if prediction %}
+        <span>{{prediction}}</span>
+    {% endif %}
+</body>
+
+</html>

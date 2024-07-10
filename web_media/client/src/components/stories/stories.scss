@@ -72,12 +72,18 @@
       z-index: 1000;
       position: absolute;
       right: 30px;
-      top: 400px;
+      top: 50%;
       font-size: 30px;
       color: white;
       border: none;
       background-color: transparent;
       cursor: pointer;
+      padding: 10px;
+
+      &:hover {
+        background: coral;
+        border-radius: 50%;
+      }
     }
   }
 
