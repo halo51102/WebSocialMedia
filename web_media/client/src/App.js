@@ -55,7 +55,7 @@ function App() {
   const broadcastChannel = useRef(new BroadcastChannel('socket_channel'));
   const [callData, setCallData] = useState(null);
   useEffect(() => {
-    setSocket(io("http://192.168.1.189:8900"));
+    setSocket(io("http://localhost:8900"));
     // Kết nối đến server socket.io
     /*const socket = io('http://localhost:8900', {
       query: { socketId: localStorage.getItem('socketId') } // Lấy socketId từ localStorage nếu có
@@ -79,10 +79,10 @@ function App() {
   useEffect(() => {
     const newPeer = new Peer();
 
-    newPeer.on('call', (call) => {
+    /*newPeer.on('call', (call) => {
       console.log('someone call me');
       setCallData(call);
-    });
+    });*/
     if (socket) {
       console.log(socket)
       socket.emit("addUser", currentUser?.id);
@@ -113,8 +113,8 @@ function App() {
     //const { from } = incomingCall;
     //console.log(from)
 
-    window.open(`/call?roomId=${roomId}&isRc=true&from=${from}`, 'Call Window', 'width=800,height=600');
-
+    window.open(`/call?roomId=${roomId}&isRc=true&from=${from}`, 'Call Window', 'width=900,height=600');
+console.log("callData ",callData)
     /*const url = `/call?roomId=${roomId}&isRc=true&from=${from}`;
     callWindowRef.current = window.open(url, '_blank', 'width=400,height=400');
 

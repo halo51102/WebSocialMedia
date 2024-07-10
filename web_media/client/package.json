@@ -19,6 +19,7 @@
     "@testing-library/react": "^13.1.1",
     "@testing-library/user-event": "^13.5.0",
     "@tippyjs/react": "^4.2.6",
+    "antd": "^5.19.1",
     "aws-sdk": "^2.1621.0",
     "axios": "^1.5.1",
     "classnames": "^2.3.2",

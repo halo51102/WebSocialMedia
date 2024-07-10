@@ -25,9 +25,12 @@ import { MdNotificationsActive } from "react-icons/md";
 import { GrLogout } from "react-icons/gr";
 import { IoCloseCircle } from "react-icons/io5";
 import { useRef } from "react";
+import ChatBot from "../chatbot/ChatBot";
+import "../chatbot/Chatbot.scss"
 
 const Navbar = ({ socket }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
+  const [openChat, setOpenChat] = useState(false);
   // const [notifications, setNotifications] = useState([]);
   const [results, setResults] = useState([]);
   const [input, setInput] = useState("");
@@ -115,7 +118,11 @@ const Navbar = ({ socket }) => {
     setOpenNotifications(!openNotications);
     setOpenMenu(false);
   }
-
+  const handleOpenChat = () => {
+    alert("chatbot")
+    if (!openChat) setOpenChat(true)
+    else setOpenChat(false)
+  }
   const handleLogOut = async (e) => {
     e.preventDefault()
     socket?.emit("removeUser", currentUser.id);
@@ -159,6 +166,10 @@ const Navbar = ({ socket }) => {
             && isOpenSearchResults
             && <SearchResults results={results} />}
         </div>
+        <div className="icon" onClick={handleOpenChat}>
+          <SearchOutlinedIcon />
+        </div>
+        {openChat && <ChatBot />}
       </div>
       <div className="right" onClick={handleCloseSearchResults}>
         {darkMode ? (

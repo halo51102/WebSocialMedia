@@ -11,7 +11,7 @@ import { useContext, useState } from "react";
 import axios from "axios"
 import { Link, useNavigate } from "react-router-dom";
 import { NotificationContext } from "../../context/notificationContext";
-
+import ChatBot from "../chatbot/ChatBot";
 const LeftBar = ({ socket, user }) => {
 
   const { currentUser } = useContext(AuthContext);
@@ -19,6 +19,7 @@ const LeftBar = ({ socket, user }) => {
   const navigate = useNavigate();
   const { showNotification } = useContext(NotificationContext)
 
+  const [openChat, setOpenChat] = useState(false);
   let group = "/group"
 
   const handleLogOut = async (e) => {
@@ -36,7 +37,7 @@ const LeftBar = ({ socket, user }) => {
       setErr(err.response.data)
     }
   }
-
+console.log(openChat)
   return (
     <div className="leftBar">
       <div className="container">
@@ -79,6 +80,7 @@ const LeftBar = ({ socket, user }) => {
               <span>Tin nhắn</span>
             </Link>
           </div>
+          
         </div>
         <hr />
         {err && err}

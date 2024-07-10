@@ -380,7 +380,7 @@ export default function Messenger({ socket }) {
   const handleCall = () => {
     console.log(socket?.id)
     alert('Đang làm!');
-    const callWindow = window.open(`/call?roomId=${currentChat.conversationId}&isRc=false`, 'Call Window', 'width=800,height=600');
+    const callWindow = window.open(`/call?roomId=${currentChat.conversationId}&isRc=false`, 'Call Window', 'width=900,height=600');
   }
   const handleClickCurrentChatOption = () => {
     setIsOpenCurrentChatOption(!isOpenCurrentChatOption);

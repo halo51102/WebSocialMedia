@@ -23,7 +23,7 @@
   background-color: var(--main-darklg);
 }
 
-.logo > h3 {
+.logo>h3 {
   color: var(--main-light);
 }
 
@@ -58,6 +58,7 @@ video {
   transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -moz-transform: rotateY(180deg);
+  box-shadow: 0 0 2px 2px white;
 }
 
 .options {
@@ -95,6 +96,7 @@ video {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+  overflow-y: auto;
 }
 
 
@@ -111,6 +113,7 @@ video {
   .main__right {
     display: none;
   }
+
   .main__left {
     width: 100%;
     flex: 1;
@@ -120,6 +123,7 @@ video {
     border: 2px solid white;
     height: auto;
     width: 100%;
+    box-shadow: 0 0 2px 2px white;
   }
 
 }

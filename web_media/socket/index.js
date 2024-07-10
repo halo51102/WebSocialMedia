@@ -25,7 +25,7 @@ const addUser = (userId, socketId) => {
 };
 const fetchRoomsFromAPI = async () => {
   try {
-    const response = await axios.get('http://192.168.1.189:8800/api/conversations/allmembersroom'); // Địa chỉ API thay thế
+    const response = await axios.get('http://localhost:8800/api/conversations/allmembersroom'); // Địa chỉ API thay thế
     const apiRooms = response.data;
 
     apiRooms.forEach(room => {
@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
 
   const fetchAddUserInRoom = async (userId) => {
     try {
-      const response = await axios.get('http://192.168.1.189:8800/api/conversations/allmembersroom'); // Địa chỉ API thay thế
+      const response = await axios.get('http://localhost:8800/api/conversations/allmembersroom'); // Địa chỉ API thay thế
       const apiRooms = response.data;
 
       apiRooms.forEach(room => {
@@ -469,6 +469,10 @@ io.on("connection", (socket) => {
         if (userCall) {
           usersInRoom[roomId].users = usersInRoom[roomId].users.filter(user => user.socketId !== socket.id);
           console.log("out phòng, còn: ", usersInRoom[roomId])
+          if (usersInRoom[roomId].users.length === 0) {
+            delete usersInRoom[roomId];
+            console.log(`Phòng ${roomId} đã bị xóa vì không còn người dùng.`);
+        }
         }
       }
       rooms[roomId].users = rooms[roomId].users.filter(user => user.socketId !== socket.id);
