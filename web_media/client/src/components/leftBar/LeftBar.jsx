@@ -12,13 +12,16 @@ import axios from "axios"
 import { Link, useNavigate } from "react-router-dom";
 import { NotificationContext } from "../../context/notificationContext";
 import ChatBot from "../chatbot/ChatBot";
+import { useLocation } from "react-router-dom";
+
 const LeftBar = ({ socket, user }) => {
 
   const { currentUser } = useContext(AuthContext);
   const [err, setErr] = useState(null)
   const navigate = useNavigate();
   const { showNotification } = useContext(NotificationContext)
-
+  const whichPage = useLocation().pathname.split("/")[1]
+  console.log(whichPage)
   const [openChat, setOpenChat] = useState(false);
   let group = "/group"
 
@@ -37,23 +40,40 @@ const LeftBar = ({ socket, user }) => {
       setErr(err.response.data)
     }
   }
-console.log(openChat)
+  console.log(openChat)
   return (
     <div className="leftBar">
       <div className="container">
         <div className="menu">
-          <Link
-            to={"/"}
-            style={{ textDecoration: "none", marginTop: "13px", color: "inherit" }}
-          >
-            <div className="item">
-              <img
-                src={Home}
-                alt=""
-              />
-              <span>Trang chủ</span>
-            </div>
-          </Link>
+          {whichPage === '/profile'
+            ?
+            <Link
+              to={`/profile/${currentUser.id}`}
+              style={{ textDecoration: "none", marginTop: "13px", color: "inherit" }}
+            >
+              <div className="item">
+                <div className="item-avatar">
+                  <img
+                    src={currentUser.profilePic}
+                    alt=""
+                  />
+                </div>
+                <span>{currentUser.name}</span>
+              </div>
+            </Link>
+            :
+            <Link
+              to={'/'}
+              style={{ textDecoration: "none", marginTop: "13px", color: "inherit" }}
+            >
+              <div className="item">
+                <img
+                  src={Home}
+                  alt=""
+                />
+                <span>Trang chủ</span>
+              </div>
+            </Link>}
           <div className="item">
             <Link
               className="link"
@@ -80,11 +100,11 @@ console.log(openChat)
               <span>Tin nhắn</span>
             </Link>
           </div>
-          
+
         </div>
         <hr />
         {err && err}
-        <button style={{display: "none"}} onClick={handleLogOut}>LogOut</button>
+        <button style={{ display: "none" }} onClick={handleLogOut}>LogOut</button>
       </div>
     </div>
   );

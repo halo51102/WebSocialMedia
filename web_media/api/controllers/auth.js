@@ -87,7 +87,7 @@ export const verifyEmail = async (req, res) => {
             if (data.length) {
                 const user = data[0];
                 const userId = user.id;
-                const query = "update socialmedia.users set emailToken = null, isVerified = true where id = ?"
+                const query = "update users set emailToken = null, isVerified = true where id = ?"
                 db.query(query, [userId], (err, data) => {
                     if (err) return res.status(500).json(err)
                     if (data.affectedRows == 0) return res.status(400).json("Xác thực chưa thành công.")

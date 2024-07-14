@@ -20,6 +20,11 @@ import ReactPlayer from 'react-player';
 import { useRef } from "react";
 import { IoMdWarning } from "react-icons/io";
 import axios from "axios";
+import AutoPlayVideo from "../autoPlayVideo/AutoPlayVideo";
+import {
+  LoadingOutlined
+} from '@ant-design/icons';
+import ImageWithLoader from "../imageWithLoader/ImageWithLoader";
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
 
@@ -32,7 +37,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { showNotification } = useContext(NotificationContext)
-  
+
   const [openTag, setOpenTag] = useState(false);
 
   const buttonOptionRef = useRef();
@@ -44,6 +49,10 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [isRecognizing, setIsRecognizing] = useState(true);
   const [naturalSize, setNaturalSize] = useState([]);
   const [zoom, setZoom] = useState(0);
+  const [weapons, setWeapons] = useState([]);
+  const [isDetectingWeapon, setIsDetectingWeapon] = useState(true);
+  const [hoverWeapon, setHoverWeapon] = useState(false);
+  const [selectedWeapon, setSelectedWeapon] = useState([]);
 
   const divRef = useRef(null);
 
@@ -56,7 +65,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   }, [showImage]);
 
   useEffect(() => {
-    setZoom(containerSize[0] / naturalSize[0]);
+    setZoom(containerSize[0] > naturalSize[0] ? containerSize[0] / naturalSize[0] : naturalSize[0] / containerSize[0]);
   }, [containerSize, naturalSize]);
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
@@ -215,12 +224,25 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     try {
       setIsRecognizing(true);
       const res = await axios.post("http://localhost:8002/predict", formData);
-      if (res.data.results.length === 0) {
-        showNotification("Không phát hiện khuôn mặt");
+      if (res.data.results.length > 0) {
+        setFaces(res.data.results);
+        setNaturalSize(res.data.size);
       }
-      setFaces(res.data.results);
-      setNaturalSize(res.data.size);
       setIsRecognizing(false);
+      console.log(res.data)
+    }
+    catch (err) {
+      showNotification('Lỗi server');
+    }
+
+    try {
+      setIsDetectingWeapon(true);
+      const res = await axios.post("http://localhost:8003/predict", formData);
+      if (res.data.results.length > 0) {
+        setWeapons(res.data.results);
+        setNaturalSize(res.data.size);
+      }
+      setIsDetectingWeapon(false);
       console.log(res.data)
     }
     catch (err) {
@@ -245,6 +267,11 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     }
   }
 
+  const handleHoverWeapon = (e, weapon) => {
+    setHoverWeapon(true);
+    setSelectedWeapon(weapon);
+  }
+
   let profile = "/profile/" + post.userId;
 
   return (
@@ -260,8 +287,8 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <span className="name">{post.name}</span>
-                  {post.quantityTag>=1&&<span> gắn thẻ cùng với <Link style={{ textDecoration: "none", fontSize: "12px" }} onClick={() => setOpenTag(true)}>{post.quantityTag} người khác</Link></span>
-                  
+                  {post.quantityTag >= 1 && <span> gắn thẻ cùng với <Link style={{ textDecoration: "none", fontSize: "12px" }} onClick={() => setOpenTag(true)}>{post.quantityTag} người khác</Link></span>
+
                   }</Link>
                 <span className="date">{moment(post.createdAt).fromNow()}</span>
               </div>
@@ -357,12 +384,8 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                   : Array.isArray(imagesData) && imagesData.length === 1
                     ? imagesData.map((data) => (
                       data.img.includes("mp4")
-                        ? <video width="100%" height="" controls>
-                          <source src={data.img} type="video/mp4" />
-                        </video>
-                        : <img src={data.img}
-                          alt="lỗi image"
-                          onClick={() => handleImageClick(data.img)} />
+                        ? <AutoPlayVideo src={data.img} />
+                        : <ImageWithLoader src={data.img} alt='' onClick={() => handleImageClick(data.img)} />
                     ))
                     : Array.isArray(imagesData) && imagesData.length === 2
                       ? <div className="media">
@@ -550,6 +573,28 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                     onMouseLeave={() => setHoverFace(false)}>
                     {hoverFace && faceId === face[0]
                       && <span className="face-name" style={{ position: 'absolute' }}>{faceName}</span>}
+                  </div>
+                ))}
+              {isDetectingWeapon
+                ? <span className="is-recognizing">Đang nhận diện vũ khí...</span>
+                : weapons.length > 0
+                && weapons.map((weapon) => (
+                  <div
+                    className="face"
+                    style={{
+                      position: 'absolute',
+                      width: `${weapon[1][2] * zoom}px`,
+                      height: `${weapon[1][3] * zoom}px`,
+                      top: `${weapon[1][1] * zoom}px`,
+                      left: `${weapon[1][0] * zoom}px`,
+                      border: `${hoverWeapon && selectedWeapon === weapon ? '2px solid green' : 'none'}`,
+                      background: 'black'
+                    }}
+                    onMouseEnter={(e) => handleHoverWeapon(e, weapon)}
+                    onMouseLeave={() => setHoverWeapon(false)}>
+                    {hoverWeapon && selectedWeapon === weapon
+                      && <span className="face-name" style={{ position: 'absolute' }}>{selectedWeapon[0]}</span>}
+                    {console.log(containerSize, naturalSize)}
                   </div>
                 ))}
             </div>

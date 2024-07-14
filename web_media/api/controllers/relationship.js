@@ -66,7 +66,7 @@ export const suggestFollow = (req, res) => {
         if (err) return res.status(403).json("Token is not valid!");
         const userId = userInfo.id;
         const q =
-            "select * from users where id in (SELECT r.followedUserId FROM socialmedia.users as u join relationships as r on u.id = r.followerUserId where u.id in (SELECT r.followedUserId FROM socialmedia.users as u join relationships as r on u.id = r.followerUserId where u.id = ?) and r.followedUserId != ? and r.followedUserId not in (SELECT r.followedUserId FROM socialmedia.users as u join relationships as r on u.id = r.followerUserId where u.id = ?))";
+            "select * from users where id in (SELECT r.followedUserId FROM users as u join relationships as r on u.id = r.followerUserId where u.id in (SELECT r.followedUserId FROM users as u join relationships as r on u.id = r.followerUserId where u.id = ?) and r.followedUserId != ? and r.followedUserId not in (SELECT r.followedUserId FROM users as u join relationships as r on u.id = r.followerUserId where u.id = ?))";
         db.query(q, [userId, userId, userId], (err, data) => {
             if (err) return res.status(500).json(err);
             return res.status(200).json(data);

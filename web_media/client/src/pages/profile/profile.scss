@@ -143,6 +143,7 @@
           align-items: center;
           cursor: pointer;
           height: fit-content;
+          padding: 10px;
 
           &:hover {
             background-color: lightgray;
@@ -154,7 +155,7 @@
         }
       }
 
-      .images {
+      .images-tab {
         display: flex;
         flex-wrap: wrap;
         gap: 3.5px;

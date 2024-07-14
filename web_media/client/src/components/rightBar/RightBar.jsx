@@ -43,7 +43,7 @@ const RightBar = ({ socket, user }) => {
     mutation.mutate(!relationshipData?.some(item => item.id === userId && item.id === currentUser.id) && userId)
   }
 
-  console.log(onlineUser)
+  console.log(sgdata)
   return (
     <div className="rightBar">
       <div className="container">

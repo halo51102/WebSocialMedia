@@ -100,7 +100,7 @@ export const changePasswordUser = (req, res) => {
 }
 
 export const countUsers = (req, res) => {
-    const q = "SELECT count(id) as count FROM socialmedia.users where role='user'"
+    const q = "SELECT count(id) as count FROM users where role='user'"
 
     db.query(q, (err, data) => {
         if (err) return res.status(500).json(err);

@@ -63,7 +63,7 @@ export const getStoriesOfUser = (req, res) => {
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!");
 
-    const q = "SELECT * FROM socialmedia.stories where userId=?;";
+    const q = "SELECT * FROM stories where userId=?;";
 
     db.query(q, [req.query.userId], (err, data) => {
       if (err) return res.status(500).json(err);

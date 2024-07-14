@@ -154,7 +154,7 @@ const Profile = ({ socket, user }) => {
             openMedias === ''
               ? <Posts userId={userId} whichPage={"profile"} socket={socket} user={user} />
               : openMedias === 'images'
-                ? <div className="images">
+                ? <div className="images-tab">
                   {
                     imagesData.length === 0
                       ? <div className="empty">
@@ -168,7 +168,7 @@ const Profile = ({ socket, user }) => {
                       ))
                   }
                 </div>
-                : <div className="images">
+                : <div className="images-tab">
                   {
                     videosData.length === 0
                       ? <div className="empty">

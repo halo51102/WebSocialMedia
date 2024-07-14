@@ -4,6 +4,7 @@ import Share from "../../components/share/Share"
 import "./home.scss"
 import { useContext } from "react"
 import { AuthContext } from "../../context/authContext"
+import { FloatButton } from 'antd';
 
 const Home = ({socket, user}) => {
   const { currentUser } = useContext(AuthContext)
@@ -14,6 +15,7 @@ const Home = ({socket, user}) => {
       <Stories />
       <Share />
       <Posts userId={currentUser.id} socket={socket} user={user} whichPage={"home"}/>
+      <FloatButton.BackTop />
     </div>
   )
 }

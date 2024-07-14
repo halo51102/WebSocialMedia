@@ -343,7 +343,7 @@ const CallVideo = ({ socket, currentUser, callData }) => {
                     </div>
                     <div className="videos__group">
                         <div id="video-grid" ref={videoGridRef} >
-                            <video playsInline autoPlay ref={myVideoRef} />
+                            <video className='video' playsInline autoPlay ref={myVideoRef} />
                         </div>
                     </div>
 

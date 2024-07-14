@@ -162,7 +162,7 @@ export const getPostsInGroup = (req, res) => {
 }
 
 export const countPosts = (req, res) => {
-  const q = "SELECT count(id) as count FROM socialmedia.posts"
+  const q = "SELECT count(id) as count FROM posts"
 
   db.query(q, (err, data) => {
     if (err) return res.status(500).json(err);
