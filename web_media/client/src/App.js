@@ -13,6 +13,7 @@ import Home from "./pages/home/Home";
 import Group from "./pages/group/Group"
 import Profile from "./pages/profile/Profile";
 import AllGroup from "./pages/allGroup/AllGroup"
+import Storage from "./pages/storage/Storage"
 import Messenger from "./pages/messenger/messenger"
 import SideBar from "./components/sideBar/SideBar";
 import Header from "./components/navBar-admin/Header";
@@ -209,6 +210,10 @@ function App() {
         {
           path: "/group/all",
           element: <AllGroup />,
+        },
+        {
+          path: "/storage",
+          element: <Storage />,
         },
         {
           path: "/group/:id",

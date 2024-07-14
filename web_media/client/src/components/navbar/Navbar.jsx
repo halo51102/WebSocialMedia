@@ -27,9 +27,11 @@ import { IoCloseCircle } from "react-icons/io5";
 import { useRef } from "react";
 import ChatBot from "../chatbot/ChatBot";
 import "../chatbot/Chatbot.scss"
+import PrivacyProfile from "../privacyProfile/PrivacyProfile";
 
 const Navbar = ({ socket }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
+  const [openPrivacy, setOpenPrivacy] = useState(false);
   const [openChat, setOpenChat] = useState(false);
   // const [notifications, setNotifications] = useState([]);
   const [results, setResults] = useState([]);
@@ -212,6 +214,7 @@ const Navbar = ({ socket }) => {
           </div>))
         }
         {openUpdate && <ChangePassword setOpenUpdate={setOpenUpdate} user={findUser} />}
+        {openPrivacy && <PrivacyProfile setOpenPrivacy={setOpenPrivacy} currentUser={currentUser}/>}
         {openMenu
           && <div className="menu">
             <div className="menu-item"
@@ -221,6 +224,14 @@ const Navbar = ({ socket }) => {
               }}>
               <CgProfile style={{ fontSize: "25px" }} />
               <span>Trang cá nhân</span>
+            </div>
+            <div className="menu-item"
+              onClick={() => {
+                setOpenPrivacy(true);
+                setOpenMenu(false)
+              }} >
+              <RiLockPasswordLine style={{ fontSize: "20px" }} />
+              <span>Quyền riêng tư</span>
             </div>
             <div className="menu-item"
               onClick={() => {
