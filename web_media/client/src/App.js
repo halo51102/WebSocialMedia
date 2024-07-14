@@ -76,7 +76,6 @@ function App() {
       localStorage.setItem('socketId', socket.id);
     });
     setSocket(socket)*/
-
   }, [])
 
   useEffect(() => {
@@ -117,7 +116,7 @@ function App() {
     //console.log(from)
 
     window.open(`/call?roomId=${roomId}&isRc=true&from=${from}`, 'Call Window', 'width=900,height=600');
-console.log("callData ",callData)
+    console.log("callData ", callData)
     /*const url = `/call?roomId=${roomId}&isRc=true&from=${from}`;
     callWindowRef.current = window.open(url, '_blank', 'width=400,height=400');
 

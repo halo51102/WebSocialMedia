@@ -24,6 +24,11 @@
     .container {
       padding: 20px;
 
+      .header-pend {
+        display: flex;
+        justify-content: space-between;
+      }
+
       .item {
         -webkit-box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);
         -moz-box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);

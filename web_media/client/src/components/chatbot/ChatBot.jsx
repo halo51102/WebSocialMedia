@@ -35,7 +35,14 @@ const ChatBot = ({ setOpenChat }) => {
   const handleChange = (e) => {
     setMessage(e.target.value)
   }
-
+  function isJSON(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
   const sendCoze = (message) => {
     sendMessageToCoze(message)
       .then((data) => {
@@ -44,18 +51,27 @@ const ChatBot = ({ setOpenChat }) => {
           if (message.type === "answer") {
 
             try {
-              const json = JSON.parse(message.content);
-              const newMessage = {
-                type: "answer",
-                profilePic: json.profilePic,
-                name: json.name,
-                text: null,
-                link: json.link,
-                city: json.city,
-                fromUser: false
-              };
-              console.log(data)
-              setMessages((prev) => [...prev, newMessage]);
+              const dataArray = message.content.split('\n');
+              const jsonData = dataArray.map(item => JSON.parse(item));
+              jsonData.forEach(json => {
+                const newMessage = {
+                  type: "answer",
+                  profilePic: json.profilePic,
+                  name: json.name,
+                  text: null,
+                  link: json.link,
+                  city: json.city,
+                  fromUser: false,
+                  favourite:json.favourite,
+                  school: json.school,
+                  career: json.career,
+                  talent: json.talent,
+                  website: json.website
+                };
+                console.log(data)
+                setMessages((prev) => [...prev, newMessage]);
+              });
+
             }
             catch {
               const newMessage = {
@@ -110,7 +126,7 @@ const ChatBot = ({ setOpenChat }) => {
               <div className={message.fromUser ? 'message user-message' : 'message bot-message'}>
                 {message.text}
               </div>}
-              {(!message.fromUser) && (message.type === "unknown") &&
+            {(!message.fromUser) && (message.type === "unknown") &&
               <div className={message.fromUser ? 'message user-message' : 'message bot-message'}>
                 {message.text}
               </div>}
@@ -125,7 +141,7 @@ const ChatBot = ({ setOpenChat }) => {
 
                         <span className="name">{message.name}</span>
                         <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>
-                          Sở thích</span>
+                          {message.favourite}</span>
                       </div>
 
                     </div>
@@ -133,9 +149,9 @@ const ChatBot = ({ setOpenChat }) => {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>Trường SPKT, Thủ Đức</span>
-                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>Hồ Chí Minh</span>
-                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>fb.com</span>
+                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>{message.school}</span>
+                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>{message.city}</span>
+                  <span style={{ fontSize: '12px', color: 'black', fontWeight: 100 }}>{message.website}</span>
                 </div>
               </Link>
             </div>}

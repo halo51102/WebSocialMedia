@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken"
 import { generateOTP, sendVerifyEmail } from "../utils/email-auth/verify.js";
 import cryto from 'crypto'
 import validator from "validator";
+import fs from "fs"
+
 
 const createToken = (_id) => {
     const jwtSecretKey = 'secretKey';
@@ -66,6 +68,7 @@ export const login = (req, res) => {
         res.cookie("accessToken", token, {
             httpOnly: true,
         }).status(200).json(others)
+
     })
 }
 
@@ -138,4 +141,8 @@ export const authorize = (req, res)=>{
             httpOnly: true,
         }).status(200).json(others)
     }) 
+}
+
+const log=()=>{
+
 }

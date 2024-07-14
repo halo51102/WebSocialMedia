@@ -9,17 +9,20 @@ export const getUser = (req, res) => {
 
     jwt.verify(token, "secretkey", (err, userInfo) => {
         if (err) return res.status(403).json("Token is not valid!")
-    const userId = req.params.userId
-    const q = "SELECT * FROM users WHERE id=?"
+        const userId = req.params.userId
+        const q = "SELECT * FROM users WHERE id=?"
 
-    db.query(q, [userId], (err, data) => {
-        if (err) return res.status(500).json(err)
-        if (data.lenght===0) return res.status(400).json("Not account!")
-        console.log(data)
-        try{const { password, ...info } = data[0]
-        return res.json(info)}catch(err){return res.status(400).json("Not account!")}
+        db.query(q, [userId], (err, data) => {
+            if (err) return res.status(500).json(err)
+            if (data.lenght === 0) return res.status(400).json("Not account!")
+            console.log(data)
+            try {
+                const { password, ...info } = data[0]
+                return res.json(info)
+            } catch (err) { return res.status(400).json("Not account!") }
+        })
     })
-})}
+}
 
 export const getUserByPostId = (req, res) => {
     const q = "SELECT distinct username from users as u join posts as p on(p.userId=u.id) where p.id=?"
@@ -122,5 +125,66 @@ export const deleteUser = (req, res) => {
                 return res.status(403).json("Bạn phải là admin để thực hiện việc này")
             });
         }
+    });
+};
+
+export const privacyProfile = (req, res) => {
+    const token = req.cookies.accessToken;
+    if (!token) return res.status(401).json("Not authenticated!");
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!");
+        const q =
+            "UPDATE users SET `privacyProfile`=? WHERE id=? ";
+        var privacy = "public"
+        switch (req.body.privacyProfile) {
+            case 0:
+                privacy = "public"
+                break;
+            case 1:
+                privacy = "private"
+                break;
+            case 2:
+                privacy = "myfollower"
+                break;
+            case 3:
+                privacy = "myfollowed"
+                break;
+            default:
+                console.log(typeof req.body.privacyProfile);
+                return res.status(404).json("Tôi đã bắt được 1 thiên thần xâm nhập dữ liệu với ý đồ xấu");
+        }
+        db.query(q, [privacy, userInfo.id], (err, data) => {
+            if (err) res.status(500).json(err);
+            return res.status(403).json("Successfull changed privacy profile!");
+        }
+        );
+    });
+};
+
+export const privacyFollowed = (req, res) => {
+    const token = req.cookies.accessToken;
+    if (!token) return res.status(401).json("Not authenticated!");
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!");
+        const q =
+            "UPDATE users SET `privacyProfile`=? WHERE id=? ";
+        var pending = "all"
+        switch (req.body.privacyFollowed) {
+            case 0:
+                privacy = "0"
+                break;
+            case 1:
+                privacy = "limit"
+                break;
+            default:
+                return res.status(404).json("Tôi đã bắt được 1 thiên thần xâm nhập dữ liệu với ý đồ xấu");
+        }
+        db.query(q, [pending, userInfo.id], (err, data) => {
+            if (err) res.status(500).json(err);
+            return res.status(403).json("Successfull changed privacy followed!");
+        }
+        );
     });
 };
