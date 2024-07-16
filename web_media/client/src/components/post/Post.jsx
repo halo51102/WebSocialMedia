@@ -25,6 +25,7 @@ import {
   LoadingOutlined
 } from '@ant-design/icons';
 import ImageWithLoader from "../imageWithLoader/ImageWithLoader";
+import { MdPostAdd } from "react-icons/md";
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
 
@@ -97,6 +98,11 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     makeRequest.get("/posts/images?postId=" + post.id).then((res) => {
       return res.data
     }))
+  const { isLoading: isSaveStorage, error: errorIsSave, data: dataStorage } = useQuery(["myStorage"], () =>
+    makeRequest.get("/storage").then((res) => {
+      return res.data;
+    })
+  );
 
   const notificationMutation = useMutation((type) => {
     return makeRequest.post("/notifications",
@@ -211,7 +217,34 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     setMenuOpen(false);
     showNotification("Bài viết đã được báo cáo, hãy chờ xử lý của ADMIN.")
   }
-
+  const saveMutation = useMutation(() => {
+    return makeRequest.post("/storage/add?postId=" + post.id);
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["myStorage"])
+      }
+    }
+  )
+  const handleSave = () => {
+    saveMutation.mutate();
+    setMenuOpen(false);
+    showNotification("Bài viết đã được thêm vào mục đã lưu.")
+  }
+  const removeSaveMutation = useMutation(() => {
+    return makeRequest.delete("/storage/remove?postId=" + post.id);
+  },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["myStorage"])
+      }
+    }
+  )
+  const handleRemoveSave = () => {
+    removeSaveMutation.mutate();
+    setMenuOpen(false);
+    showNotification("Bài viết đã được xóa ra khỏi mục đã lưu.")
+  }
   const handleImageClick = async (image) => {
     setSelectedImage(image);
     setShowImage(true);
@@ -311,27 +344,6 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
               }
             </div>
             {post.status === "bad" && <IoMdWarning className='warning-icon' />}
-            {
-              (
-                menuOpen && gData?.some(
-                  member => member.position === "admin" &&
-                    member.userId === currentUser.id &&
-                    member.groupId === post.groupId
-                )
-                && post.userId !== currentUser.id
-              )
-                ? <div className="post-menu" >
-                  <span onClick={handleReport}>Báo cáo bài viết</span>
-                  <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
-                </div>
-                : menuOpen
-                && <div className="post-menu" >
-                  {post.userId === currentUser.id &&
-                    <span onClick={handleDelete}>Xóa bài viết</span>
-                  }
-                  <span onClick={handleReport}>Báo cáo bài viết</span>
-                </div>
-            }
             {openTag && <ListTagPost setOpenTag={setOpenTag} postId={post.id} />}
             {
               (
@@ -347,7 +359,13 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                   <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
                 </div>
                 : menuOpen && <div className="post-menu" >
-                  <span onClick={handleReport}>Báo cáo bài viết</span>
+
+                  {dataStorage?.some(storage => storage.idpost === post.id) ?
+                    <span onClick={handleRemoveSave}>Bỏ lưu bài viết</span> : <span onClick={handleSave}>Lưu bài viết</span>}
+                  {post.userId !== currentUser.id &&
+                    <span onClick={handleReport}>Báo cáo bài viết PL</span>
+                  }
+
                   {post.userId === currentUser.id &&
                     <span onClick={handleDelete}>Xóa bài viết</span>
                   }

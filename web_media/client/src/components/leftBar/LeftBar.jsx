@@ -93,6 +93,14 @@ const LeftBar = ({ socket, user }) => {
             </Link>
           </div>
           <div className="item">
+            <img src={Groups} alt="" />
+            <Link
+              to="/storage"
+              style={{ textDecoration: "none", color: "inherit" }}>
+              <span>Lưu trữ</span>
+            </Link>
+          </div>
+          <div className="item">
             <img src={Messages} alt="" />
             <Link
               to='/messenger'

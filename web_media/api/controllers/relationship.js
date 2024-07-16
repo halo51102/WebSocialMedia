@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken"
 
 export const getRelationship = (req, res) => {
 
-    const q = "SELECT id, username, profilePic, name FROM users WHERE users.id IN (SELECT followerUserId FROM relationships WHERE followedUserId =?)"
-    db.query(q, [req.query.followedUserId], (err, data) => {
+    const q = "SELECT id, username, profilePic, name FROM users WHERE users.id IN (SELECT followerUserId FROM relationships WHERE followedUserId =? and pend=?)"
+    db.query(q, [req.query.followedUserId, "true"], (err, data) => {
         if (err) return res.status(500).json(err)
         return res.status(200).json(data)
     })
@@ -12,13 +12,28 @@ export const getRelationship = (req, res) => {
 
 export const getFollowEd = (req, res) => {
 
-    const q = "SELECT id, username, profilePic, name FROM users WHERE users.id IN (SELECT followedUserId FROM relationships WHERE followerUserId =?)"
-    db.query(q, [req.query.followerUserId], (err, data) => {
+    const q = "SELECT id, username, profilePic, name FROM users WHERE users.id IN (SELECT followedUserId FROM relationships WHERE followerUserId =? and pend=?)"
+    db.query(q, [req.query.followerUserId, "true"], (err, data) => {
         if (err) return res.status(500).json(err)
         return res.status(200).json(data)
     })
 }
+export const getPending = (req, res) => {
 
+    const q = "SELECT id, username, profilePic, name FROM users WHERE users.id IN (SELECT followedUserId FROM relationships WHERE followedUserId =? and pend=?)"
+    db.query(q, [userInfo.id, "false"], (err, data) => {
+        if (err) return res.status(500).json(err)
+        return res.status(200).json(data)
+    })
+}
+export const getPended = (req, res) => {
+
+    const q = "SELECT id, username, profilePic, name FROM users WHERE users.id IN (SELECT followedUserId FROM relationships WHERE followerUserId =? and pend=?)"
+    db.query(q, [userInfo.Id, "false"], (err, data) => {
+        if (err) return res.status(500).json(err)
+        return res.status(200).json(data)
+    })
+}
 export const deleteRelationship = (req, res) => {
     const token = req.cookies.accessToken
     if (!token) return res.status(401).json("Not logged in!")
@@ -43,17 +58,32 @@ export const addRelationship = (req, res) => {
     jwt.verify(token, "secretkey", (err, userInfo) => {
         if (err) return res.status(403).json("Token is not valid!")
 
-        const q =
-            "INSERT INTO relationships (`followerUserId`,`followedUserId`) VALUES (?)";
-        const values = [
-            userInfo.id,
-            req.body.userId
-        ]
 
-        db.query(q, [values], (err, data) => {
-            if (err) return res.status(500).json(err)
-            return res.status(200).json("Following")
-        })
+        const q =
+            "INSERT INTO relationships (`followerUserId`,`followedUserId`,`pend`) VALUES (?)";
+        if (req.body.pricavyUserId === "all") {
+            const values = [
+                userInfo.id,
+                req.body.userId,
+                "true"
+            ]
+
+            db.query(q, [values], (err, data) => {
+                if (err) return res.status(500).json(err)
+                return res.status(200).json("Following")
+            })
+        } else {
+            const values = [
+                userInfo.id,
+                req.body.userId,
+                "false"
+            ]
+
+            db.query(q, [values], (err, data) => {
+                if (err) return res.status(500).json(err)
+                return res.status(200).json("Pending")
+            })
+        }
     })
 }
 
@@ -82,10 +112,42 @@ export const whoFollow = (req, res) => {
 
     jwt.verify(token, "secretkey", (err, userInfo) => {
         if (err) return res.status(500).json(err);
-        db.query("select * from users where id in (select r.followedUserId from users as u join relationships as r on u.id = r.followerUserId where r.followerUserId = ?) and id in (select r.followerUserId from users as u join relationships as r on u.id = r.followedUserId where r.followedUserId = ?)", 
+        db.query("select * from users where id in (select r.followedUserId from users as u join relationships as r on u.id = r.followerUserId where r.followerUserId = ?) and id in (select r.followerUserId from users as u join relationships as r on u.id = r.followedUserId where r.followedUserId = ?)",
             [userInfo.id, followedUserId], (err0, data0) => {
-            if (err0) return res.status(400).json(err0);
-            return res.status(200).json(data0);
-        });
+                if (err0) return res.status(400).json(err0);
+                return res.status(200).json(data0);
+            });
     });
+}
+
+export const acceptFollowed = (req, res) => {
+    const token = req.cookies.accessToken
+    if (!token) return res.status(401).json("Not logged in!")
+
+    jwt.verify(token, "secretkey", (err, userInfo) => {
+        if (err) return res.status(403).json("Token is not valid!")
+        var pend = "false"
+        switch (req.body.pend) {
+            case 0:
+                pend = "false"
+                break;
+            case 1:
+                pend = "true"
+                break;
+            default:
+                return res.status(404).json("Tôi đã bắt được 1 thiên thần xâm nhập dữ liệu với ý đồ xấu");
+        }
+        const q =
+            `UPDATE relationships SET pend=? WHERE followedUserId=? and followerUserId=?`;
+        const values = [
+            pend,
+            userInfo.id,
+            req.body.followedUserId
+        ]
+
+        db.query(q, [values], (err, data) => {
+            if (err) return res.status(500).json(err)
+            return res.status(200).json("Succsessfull accept user followed")
+        })
+    })
 }

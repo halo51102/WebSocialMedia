@@ -3,7 +3,6 @@
 .friends {
   @include themify($themes) {
     flex: 3;
-    position: sticky;
     top: 70px;
     height: calc(100vh - 70px);
     overflow: scroll;
@@ -23,6 +22,11 @@
 
     .container {
       padding: 20px;
+
+      .header-pend {
+        display: flex;
+        justify-content: space-between;
+      }
 
       .item {
         -webkit-box-shadow: 0px 0px 15px 1px rgba(0, 0, 0, 0.09);
