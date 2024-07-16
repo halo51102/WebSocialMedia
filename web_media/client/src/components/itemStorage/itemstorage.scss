@@ -1,0 +1,97 @@
+.postStorage {
+    display: flex;
+
+    justify-content: space-between;
+
+    .containerStorage {
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+
+        .itemPost {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            color: black;
+
+
+            .imgPost1 {
+                width: 120px;
+                height: 120px;
+                object-fit: cover;
+            }
+
+            .descStorage {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                padding: 8px;
+                cursor: pointer;
+
+                .userPost {
+                    flex: 30%;
+
+                    font-size: 12px;
+                }
+
+                .descPost {
+                    flex: 70%;
+
+                    font-weight: 500;
+                }
+            }
+
+            button {
+                position: relative;
+                top: 30px;
+                right: 0;
+                border: none;
+                background-color: #f0544f;
+                padding: 5px;
+                cursor: pointer;
+                color: white;
+            }
+        }
+    }
+
+    .option-itemStorage {
+
+        .button-option-itemStorage {
+
+            display: flex;
+            padding: 3px;
+            gap: 10px;
+            top: 0px;
+            right: 0px;
+            height: 25px;
+
+            &:hover {
+                border-radius: 50%;
+                background: lightgray;
+            }
+
+
+
+        }
+
+        .post-storage-menu {
+            display: flex;
+            background-color: white;
+            border: 2px solid gray;
+            border-radius: 10px;
+            z-index: 1000;
+            top: 40px;
+            right: 0;
+            flex-direction: column;
+
+            span {
+                padding: 15px;
+
+                &:hover {
+                    background-color: rgba(128, 128, 128, 0.146);
+                }
+            }
+        }
+    }
+}

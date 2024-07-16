@@ -11,89 +11,91 @@ export const getUser = (req, res) => {
         if (err) return res.status(403).json("Token is not valid!")
         const userId = req.params.userId
         const q = "SELECT * FROM users WHERE id=?"
+        console.log("id",userId)
+        if (userId && userId!="undefined") {
+            db.query(q, [userId], (err, data) => {
+                if (err) return res.status(500).json(err)
+                if (data.lenght === 0) return res.status(400).json("Not account!")
+                const profile = {
+                    id: data[0].id,
+                    username: data[0].username,
+                    name: data[0].name,
+                    coverPic: data[0].coverPic,
+                    profilePic: data[0].profilePic
+                }
+                if (userId === userInfo.id) {
+                    try {
+                        const { password, ...info } = data[0]
+                        return res.json(info)
+                    } catch (err) { return res.status(400).json("Not account!") }
+                }
+                if (data[0].privacyProfile === "private") {
+                    return res.json(profile)
+                } else if (data[0] === "friend") {
+                    const q2 = `select pend from relationships where followerUserId=? and followedUserId=?`
+                    db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
+                        if (dataPend1 && Object.keys(dataPend1).length > 0) {
+                            if (dataPend1[0].pend === "true") {
+                                const q3 = `select pend from relationships where followerUserId=? and followedUserId=?`
+                                db.query(q3, [userInfo.id, userId], (err, dataPend2) => {
+                                    if (dataPend2 && dataPend2[0].pend === "true") {
+                                        try {
+                                            const { password, ...info } = data[0]
+                                            return res.json(info)
+                                        } catch (err) { return res.status(400).json("Not account!") }
+                                    } else { return res.json(profile) }
+                                })
+                            } else { return res.json(profile) }
+                        } else { return res.json(profile) }
+                    })
 
-        db.query(q, [userId], (err, data) => {
-            if (err) return res.status(500).json(err)
-            if (data.lenght === 0) return res.status(400).json("Not account!")
-            console.log(data)
-            const profile = {
-                id: data[0].id,
-                username: data[0].username,
-                name: data[0].name,
-                coverPic: data[0].coverPic,
-                profilePic: data[0].profilePic
-            }
-            if (userId === userInfo.id) {
-                try {
-                    const { password, ...info } = data[0]
-                    return res.json(info)
-                } catch (err) { return res.status(400).json("Not account!") }
-            }
-            if (data[0].privacyProfile === "private") {
-                return res.json(profile)
-            } else if (data[0] === "friend") {
-                const q2 = `select pend from relationships where followerUserId=? and followedUserId=?`
-                db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
-                    if (dataPend1 && Object.keys(dataPend1).length > 0) {
-                        if (dataPend1[0].pend === "true") {
-                            const q3 = `select pend from relationships where followerUserId=? and followedUserId=?`
-                            db.query(q3, [userInfo.id, userId], (err, dataPend2) => {
-                                if (dataPend2 && dataPend2[0].pend === "true") {
-                                    try {
-                                        const { password, ...info } = data[0]
-                                        return res.json(info)
-                                    } catch (err) { return res.status(400).json("Not account!") }
-                                } else { return res.json(profile) }
-                            })
+                } else if (data[0].privacyProfile === "follower") {
+                    const q2 = `select pend from relationships where followerUserId=? and followedUserId=?`
+                    db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
+                        console.log(dataPend1.lenght > 0)
+                        if (dataPend1 && Object.keys(dataPend1).length > 0) {
+                            if (dataPend1[0].pend === "true") {
+                                try {
+                                    const { password, ...info } = data[0]
+                                    return res.json(info)
+                                } catch (err) { return res.status(400).json("Not account!") }
+                            } else { return res.json(profile) }
                         } else { return res.json(profile) }
-                    } else { return res.json(profile) }
-                })
-
-            } else if (data[0].privacyProfile === "follower") {
-                const q2 = `select pend from relationships where followerUserId=? and followedUserId=?`
-                db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
-                    console.log(dataPend1.lenght > 0)
-                    if (dataPend1 && Object.keys(dataPend1).length > 0) {
-                        if (dataPend1[0].pend === "true") {
-                            try {
-                                const { password, ...info } = data[0]
-                                return res.json(info)
-                            } catch (err) { return res.status(400).json("Not account!") }
+                    })
+                } else if (data[0].privacyProfile === "followed") {
+                    const q2 = `select pend from relationships where followedUserId=? and followerUserId=?`
+                    db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
+                        if (dataPend1 && Object.keys(dataPend1).length) {
+                            if (dataPend1[0].pend === "true") {
+                                try {
+                                    const { password, ...info } = data[0]
+                                    return res.json(info)
+                                } catch (err) { return res.status(400).json("Not account!") }
+                            } else { return res.json(profile) }
                         } else { return res.json(profile) }
-                    } else { return res.json(profile) }
-                })
-            } else if (data[0].privacyProfile === "followed") {
-                const q2 = `select pend from relationships where followedUserId=? and followerUserId=?`
-                db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
-                    if (dataPend1 && Object.keys(dataPend1).length) {
-                        if (dataPend1[0].pend === "true") {
-                            try {
-                                const { password, ...info } = data[0]
-                                return res.json(info)
-                            } catch (err) { return res.status(400).json("Not account!") }
+                    })
+                } else if (data[0].privacyProfile === "follow") {
+                    const q2 = `select pend from relationships where (followedUserId=? and followerUserId=?) or (followedUserId=? and followerUserId=?)`
+                    db.query(q2, [userId, userInfo.id, userInfo.id, userId], (err, dataPend1) => {
+                        if (dataPend1 && Object.keys(dataPend1).length > 0) {
+                            if (!dataPend1.some(data => data.pend === "false")) {
+                                try {
+                                    const { password, ...info } = data[0]
+                                    return res.json(info)
+                                } catch (err) { return res.status(400).json("Not account!") }
+                            } else { return res.json(profile) }
                         } else { return res.json(profile) }
-                    } else { return res.json(profile) }
-                })
-            } else if (data[0].privacyProfile === "follow") {
-                const q2 = `select pend from relationships where (followedUserId=? and followerUserId=?) or (followedUserId=? and followerUserId=?)`
-                db.query(q2, [userId, userInfo.id, userInfo.id, userId], (err, dataPend1) => {
-                    if (dataPend1 && Object.keys(dataPend1).length > 0) {
-                        if (!dataPend1.some(data => data.pend === "false")) {
-                            try {
-                                const { password, ...info } = data[0]
-                                return res.json(info)
-                            } catch (err) { return res.status(400).json("Not account!") }
-                        } else { return res.json(profile) }
-                    } else { return res.json(profile) }
-                })
-            } else {
-                try {
-                    const { password, ...info } = data[0]
-                    return res.json(info)
-                } catch (err) { return res.status(400).json("Not account!") }
-            }
-        })
+                    })
+                } else {
+                    try {
+                        const { password, ...info } = data[0]
+                        return res.json(info)
+                    } catch (err) { return res.status(400).json("Not account!") }
+                }
+            })
+        }
     })
+
 }
 
 export const getUserByPostId = (req, res) => {
