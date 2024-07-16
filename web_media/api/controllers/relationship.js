@@ -87,32 +87,39 @@ export const addRelationship = (req, res) => {
     jwt.verify(token, "secretkey", (err, userInfo) => {
         if (err) return res.status(403).json("Token is not valid!")
 
-
-        const q =
-            "INSERT INTO relationships (`followerUserId`,`followedUserId`,`pend`) VALUES (?)";
-        if (req.body.pricavyUserId === "public") {
-            const values = [
-                userInfo.id,
-                req.body.userId,
-                "true"
-            ]
-
-            db.query(q, [values], (err, data) => {
+        const qb = "SELECT pendingFollowed from users where id=?"
+        if (req.body.userId) {
+            db.query(qb, [req.body.userId], (err, data) => {
                 if (err) return res.status(500).json(err)
-                return res.status(200).json("Following")
-            })
-        } else {
-            const values = [
-                userInfo.id,
-                req.body.userId,
-                "false"
-            ]
+                console.log(data)
+                const q =
+                    "INSERT INTO relationships (`followerUserId`,`followedUserId`,`pend`) VALUES (?)";
+                if (data[0].pendingFollowed == "public") {
+                    const values = [
+                        userInfo.id,
+                        req.body.userId,
+                        "true"
+                    ]
 
-            db.query(q, [values], (err, data) => {
-                if (err) return res.status(500).json(err)
-                return res.status(200).json("Pending")
+                    db.query(q, [values], (err, data) => {
+                        if (err) return res.status(500).json(err)
+                        return res.status(200).json("Following")
+                    })
+                } else {
+                    const values = [
+                        userInfo.id,
+                        req.body.userId,
+                        "false"
+                    ]
+
+                    db.query(q, [values], (err, data) => {
+                        if (err) return res.status(500).json(err)
+                        return res.status(200).json("Pending")
+                    })
+                }
             })
         }
+
     })
 }
 
