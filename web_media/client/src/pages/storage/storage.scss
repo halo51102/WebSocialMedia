@@ -1,0 +1,47 @@
+@import "../../style.scss";
+
+.storage {
+  @include themify($themes) {
+    background-color: themed("bgSoft");
+    padding-left: 20px;
+    .imagestorage {
+      width: 100%;
+      height: 80px;
+      position: relative;
+
+      .coverstorage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+    }
+    .storageContainer {
+      padding: 20px;
+      position: relative;
+      margin-bottom: 50px;
+      @include mobile{
+        padding: 10px;
+      }
+
+      @include tablet{
+        padding: 20px;
+      }
+      .centerStr{
+        display: flex;
+        // padding-left: 200px;
+
+        .infoStr{
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+          span {
+            font-weight: 800;
+            color: themed("textColor");
+          }
+        }
+      }
+      
+    }
+  }
+}

@@ -13,6 +13,7 @@ import Home from "./pages/home/Home";
 import Group from "./pages/group/Group"
 import Profile from "./pages/profile/Profile";
 import AllGroup from "./pages/allGroup/AllGroup"
+import Storage from "./pages/storage/Storage"
 import Messenger from "./pages/messenger/messenger"
 import SideBar from "./components/sideBar/SideBar";
 import Header from "./components/navBar-admin/Header";
@@ -76,7 +77,6 @@ function App() {
       localStorage.setItem('socketId', socket.id);
     });
     setSocket(socket)*/
-
   }, [])
 
   useEffect(() => {
@@ -117,7 +117,7 @@ function App() {
     //console.log(from)
 
     window.open(`/call?roomId=${roomId}&isRc=true&from=${from}`, 'Call Window', 'width=900,height=600');
-console.log("callData ",callData)
+    console.log("callData ", callData)
     /*const url = `/call?roomId=${roomId}&isRc=true&from=${from}`;
     callWindowRef.current = window.open(url, '_blank', 'width=400,height=400');
 
@@ -210,6 +210,10 @@ console.log("callData ",callData)
         {
           path: "/group/all",
           element: <AllGroup />,
+        },
+        {
+          path: "/storage",
+          element: <Storage />,
         },
         {
           path: "/group/:id",

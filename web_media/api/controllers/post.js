@@ -44,12 +44,88 @@ export const getPostsInProfile = (req, res) => {
     LEFT JOIN relationships AS r ON (p.userId=r.followedUserId) WHERE r.followerUserId=? OR p.userId=?
     ORDER BY p.createdAt DESC`
 
-
     const values = userId !== "undefined" ? [userId] : [userInfo.id, userInfo.id]
-    db.query(q, values, (err, data) => {
-      if (err) return res.status(500).json(err);
-      return res.status(200).json(data)
-    })
+
+    if (userId === userInfo.id) {
+      db.query(q, values, (err, data) => {
+        if (err) return res.status(500).json(err);
+        return res.status(200).json(data)
+      })
+    } else {
+      if (userId) {
+        const q0 = `Select privacyProfile from users where id=?`
+
+        db.query(q0, [userId], (err, data) => {
+          if (err) return res.status(500).json(err)
+          if (data.lenght === 0) return res.status(400).json("Not account!")
+          console.log(data)
+          if (data[0].privacyProfile === "private") {
+            return res.status(400).json("Privacy")
+          } else if (data[0] === "friend") {
+            const q2 = `select pend from relationships where followerUserId=? and followedUserId=?`
+            db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
+              if (dataPend1 && Object.keys(dataPend1).length > 0) {
+                if (dataPend1[0].pend === "true") {
+                  const q3 = `select pend from relationships where followerUserId=? and followedUserId=?`
+                  db.query(q3, [userInfo.id, userId], (err, dataPend2) => {
+                    if (dataPend2 && dataPend2[0].pend === "true") {
+                      db.query(q, values, (err, data) => {
+                        if (err) return res.status(500).json(err);
+                        return res.status(200).json(data)
+                      })
+                    } res.status(400).json("Privacy")
+                  })
+                } res.status(400).json("Privacy")
+              } res.status(400).json("Privacy")
+            })
+
+          } else if (data[0].privacyProfile === "follower") {
+            const q2 = `select pend from relationships where followerUserId=? and followedUserId=?`
+            db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
+              console.log(dataPend1.lenght > 0)
+              if (dataPend1 && Object.keys(dataPend1).length > 0) {
+                if (dataPend1[0].pend === "true") {
+                  db.query(q, values, (err, data) => {
+                    if (err) return res.status(500).json(err);
+                    return res.status(200).json(data)
+                  })
+                } else res.status(400).json("Privacy")
+              } else res.status(400).json("Privacy")
+            })
+          } else if (data[0].privacyProfile === "followed") {
+            const q2 = `select pend from relationships where followedUserId=? and followerUserId=?`
+            db.query(q2, [userId, userInfo.id], (err, dataPend1) => {
+              if (dataPend1 && Object.keys(dataPend1).length) {
+                if (dataPend1[0].pend === "true") {
+                  db.query(q, values, (err, data) => {
+                    if (err) return res.status(500).json(err);
+                    return res.status(200).json(data)
+                  })
+                } else res.status(400).json("Privacy")
+              } else res.status(400).json("Privacy")
+            })
+          } else if (data[0].privacyProfile === "follow") {
+            const q2 = `select pend from relationships where (followedUserId=? and followerUserId=?) or (followedUserId=? and followerUserId=?)`
+            db.query(q2, [userId, userInfo.id, userInfo.id, userId], (err, dataPend1) => {
+              if (dataPend1 && Object.keys(dataPend1).length > 0) {
+                if (!dataPend1.some(data => data.pend === "false")) {
+                  db.query(q, values, (err, data) => {
+                    if (err) return res.status(500).json(err);
+                    return res.status(200).json(data)
+                  })
+                } else res.status(400).json("Privacy")
+              } else res.status(400).json("Privacy")
+            })
+          } else {
+            db.query(q, values, (err, data) => {
+              if (err) return res.status(500).json(err);
+              return res.status(200).json(data)
+            })
+          }
+        })
+      }
+    }
+
   })
 
 }
