@@ -6,7 +6,7 @@ import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { Link } from "react-router-dom";
 import Comments from "../comments/Comments";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useDebugValue } from "react";
 import moment from "moment"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
@@ -26,6 +26,7 @@ import {
 } from '@ant-design/icons';
 import ImageWithLoader from "../imageWithLoader/ImageWithLoader";
 import { MdPostAdd } from "react-icons/md";
+import { BsBan } from "react-icons/bs";
 
 const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, whichPage }) => {
 
@@ -43,6 +44,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
 
   const buttonOptionRef = useRef();
   const [faces, setFaces] = useState([]);
+  const [faceNames, setFaceNames] = useState([]);
   const [containerSize, setContainerSize] = useState([]);
   const [hoverFace, setHoverFace] = useState(false);
   const [faceId, setFaceId] = useState('');
@@ -54,8 +56,76 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const [isDetectingWeapon, setIsDetectingWeapon] = useState(true);
   const [hoverWeapon, setHoverWeapon] = useState(false);
   const [selectedWeapon, setSelectedWeapon] = useState([]);
-
+  const [friendIds, setFriendIds] = useState([]);
+  const [autoTagFriends, setAutoTagFriends] = useState([]);
+  const [faceIds, setFaceIds] = useState([]);
+  const [tagData, setTagData] = useState([]);
   const divRef = useRef(null);
+
+  useEffect(() => {
+    const getTags = async () => {
+      try {
+        const res = await makeRequest.get('/posts/tag?postId=' + post.id);
+        setTagData(res.data);
+      } catch (err) {
+        showNotification("Lỗi axios")
+      }
+    }
+    getTags();
+  }, []);
+
+  // const { data: tagData } = useQuery(['tag'], () => {
+  //   makeRequest.get('/posts/tag?postId=' + post.id).then((res) => {
+  //     return res.data;
+  //   })
+
+  // })
+
+  useEffect(() => {
+    const getFriendIds = async () => {
+      try {
+        const res = await makeRequest.get("/relationships/friend?userId=" + currentUser.id);
+        setFriendIds(res.data);
+      } catch (err) {
+        showNotification("Lỗi server axios");
+      }
+    }
+    getFriendIds();
+  }, []);
+
+  useEffect(() => {
+    const getFaceIds = () => {
+      const arr = [];
+      if (faces.length > 0) {
+        faces.map((face) => {
+          if (face[0] != 'unknown')
+            arr.push(+face[0]);
+        })
+        setFaceIds(arr);
+      }
+    }
+    getFaceIds();
+  }, [faces]);
+
+  useEffect(() => {
+    const getAutoTagFriends = async () => {
+      setAutoTagFriends([]);
+      const autoTagIds = friendIds.filter((id) => faceIds.includes(id));
+      console.log(faceIds);
+      console.log(friendIds);
+      console.log(autoTagIds)
+      try {
+        autoTagIds.map(async (id) => {
+          const res = await makeRequest.get("/users/find/" + id);
+          setAutoTagFriends((prev) => [...prev, res.data]);
+        })
+      }
+      catch (err) {
+        showNotification("Lỗi server axios");
+      }
+    }
+    faceIds.length > 0 && getAutoTagFriends();
+  }, [faceIds]);
 
   useEffect(() => {
     if (divRef.current) {
@@ -66,8 +136,25 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   }, [showImage]);
 
   useEffect(() => {
-    setZoom(containerSize[0] > naturalSize[0] ? containerSize[0] / naturalSize[0] : naturalSize[0] / containerSize[0]);
+    setZoom(containerSize[0] / naturalSize[0]);
   }, [containerSize, naturalSize]);
+
+  useEffect(() => {
+    const getFaceNames = async () => {
+      setFaceNames([]);
+      faces.map(async (face) => {
+        if (face[0] != 'unknown') {
+          try {
+            const res = await makeRequest.get("users/find/" + +face[0]);
+            setFaceNames((prev) => [...prev, res.data.name]);
+          } catch (err) {
+            showNotification("Lỗi server axios");
+          }
+        }
+      });
+    }
+    getFaceNames();
+  }, [faces]);
 
   const { isLoading: gIsLoading, error: gError, data: gData } = useQuery(["membersgroup"], () =>
     makeRequest.get("/groups/" + post.groupId + "/members").then((res) => {
@@ -135,8 +222,10 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(["post"])
+        queryClient.invalidateQueries(["post", currentUser.id])
         queryClient.invalidateQueries(["postsInGroup"])
+        queryClient.invalidateQueries(["posts", currentUser.id])
+
       }
     }
   );
@@ -245,6 +334,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     setMenuOpen(false);
     showNotification("Bài viết đã được xóa ra khỏi mục đã lưu.")
   }
+
   const handleImageClick = async (image) => {
     setSelectedImage(image);
     setShowImage(true);
@@ -281,6 +371,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     catch (err) {
       showNotification('Lỗi server');
     }
+
   }
 
   const handleImageClose = () => {
@@ -295,7 +386,7 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
     if (faceId == 'unknown') {
       setFaceName('Không rõ');
     } else {
-      const res = await makeRequest.get("users/find/" + faceId);
+      const res = await makeRequest.get("users/find/" + +faceId);
       setFaceName(res.data.name);
     }
   }
@@ -303,6 +394,34 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
   const handleHoverWeapon = (e, weapon) => {
     setHoverWeapon(true);
     setSelectedWeapon(weapon);
+  }
+
+  // const tagMutation = useMutation(async (postId, userId) => {
+  //   const res = await makeRequest.post("/posts/tag", { postId: postId, userId: userId });
+  //   return res.data
+  // },
+  //   {
+  //     onSuccess: async (data) => {
+  //       queryClient.invalidateQueries(["posts", currentUser.id])
+  //       queryClient.invalidateQueries(["post", currentUser.id])
+
+  //     }
+  //   }
+  // )
+
+  const autoTag = async () => {
+    try {
+      if (autoTagFriends.length > 0) {
+        await autoTagFriends.map(async (user) => {
+          const res = await makeRequest.post("/posts/tag", { postId: post.id, userId: user.id });
+          console.log(res);
+        })
+        showNotification("Gắn thẻ tự động thành công")
+      }
+    } catch (err) {
+      showNotification("Gắn thẻ thất bại");
+    }
+    setShowImage(false);
   }
 
   let profile = "/profile/" + post.userId;
@@ -320,10 +439,18 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <span className="name">{post.name}</span>
-                  {post.quantityTag >= 1 && <span> gắn thẻ cùng với <Link style={{ textDecoration: "none", fontSize: "12px" }} onClick={() => setOpenTag(true)}>{post.quantityTag} người khác</Link></span>
-
-                  }</Link>
-                <span className="date">{moment(post.createdAt).fromNow()}</span>
+                  {tagData?.length === 1 &&
+                    <span> gắn thẻ cùng với
+                      <Link to={`/profile/${tagData[0].userId}`} style={{ textDecoration: "none", fontSize: "12px" }} >
+                      <span className="tag-name">{tagData[0].name}</span>
+                      </Link>
+                    </span>}
+                  {tagData?.length > 1 &&
+                    <span> gắn thẻ cùng với
+                      <Link style={{ textDecoration: "none", fontSize: "12px" }} onClick={() => setOpenTag(true)}>{tagData?.length} người khác</Link>
+                    </span>}
+                </Link>
+                <span className="date">{`${moment(post.createdAt).fromNow()}`}                </span>
               </div>
             </div>
             <div className="button-option-post"
@@ -396,14 +523,24 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
             {imagesError
               ? "erorr"
               : imagesIsLoading
-                ? "loading"
+                ? <div className="icon-loading">
+                  <LoadingOutlined />
+                </div>
                 : imagesData.length === 0
                   ? ""
                   : Array.isArray(imagesData) && imagesData.length === 1
                     ? imagesData.map((data) => (
                       data.img.includes("mp4")
                         ? <AutoPlayVideo src={data.img} />
-                        : <ImageWithLoader src={data.img} alt='' onClick={() => handleImageClick(data.img)} />
+                        : data?.isDangerous === 'true' ?
+                          <div style={{ position: 'relative' }}>
+                            <div className="hide-image">
+                              <BsBan style={{ fontSize: '30px', color: 'red' }} />
+                              <span>Hình ảnh đã bị che đi vì vi phạm nguyên tắc an toàn</span>
+                            </div>
+                            <img src={data.img} alt='' onClick={() => handleImageClick(data.img)} />
+                          </div> :
+                          <img src={data.img} alt='' onClick={() => handleImageClick(data.img)} />
                     ))
                     : Array.isArray(imagesData) && imagesData.length === 2
                       ? <div className="media">
@@ -412,18 +549,38 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                             ? <video width="100%" height="" controls>
                               <source src={imagesData[0]?.img} type="video/mp4" />
                             </video>
-                            : <img src={imagesData[0]?.img}
-                              alt="lỗi image"
-                              onClick={() => handleImageClick(imagesData[0]?.img)} />}
+                            : data?.isDangerous === 'true' ?
+                              <div style={{ position: 'relative' }}>
+                                <div className="hide-image">
+                                  <BsBan style={{ fontSize: '30px', color: 'red' }} />
+                                  <span>Hình ảnh đã bị che đi vì vi phạm nguyên tắc an toàn</span>
+                                </div>
+                                <img src={imagesData[0]?.img}
+                                  alt="lỗi image"
+                                  onClick={() => handleImageClick(imagesData[0]?.img)} />
+                              </div> :
+                              <img src={imagesData[0]?.img}
+                                alt="lỗi image"
+                                onClick={() => handleImageClick(imagesData[0]?.img)} />}
                         </div>
                         <div className="media-2">
                           {imagesData[1]?.img.includes("mp4")
                             ? <video width="100%" height="" controls>
                               <source src={imagesData[1]?.img} type="video/mp4" />
                             </video>
-                            : <img src={imagesData[1]?.img}
-                              alt="lỗi image"
-                              onClick={() => handleImageClick(imagesData[1]?.img)} />}
+                            : data?.isDangerous === 'true' ?
+                              <div style={{ position: 'relative' }}>
+                                <div className="hide-image">
+                                  <BsBan style={{ fontSize: '30px', color: 'red' }} />
+                                  <span>Hình ảnh đã bị che đi vì vi phạm nguyên tắc an toàn</span>
+                                </div>
+                                <img src={imagesData[1]?.img}
+                                  alt="lỗi image"
+                                  onClick={() => handleImageClick(imagesData[1]?.img)} />
+                              </div> :
+                              <img src={imagesData[1]?.img}
+                                alt="lỗi image"
+                                onClick={() => handleImageClick(imagesData[1]?.img)} />}
                         </div>
                       </div>
                       : Array.isArray(imagesData) && imagesData.length === 3   //có 3 media
@@ -570,11 +727,15 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
         </div>
         {showImage && (
           <div className="image-container" >
-            <div className="left" ref={divRef}>
-              <img className="image" src={selectedImage} alt="" />
+            <div className="left" >
+              <img className="image" ref={divRef} src={selectedImage} alt="" />
               <button onClick={handleImageClose}>x</button>
+
+              {/* Nhận dạng khuôn mặt */}
               {isRecognizing
-                ? <span className="is-recognizing">Đang nhận diện khuôn mặt...</span>
+                ? <div className="icon-loading" style={{ position: 'absolute', top: 0, left: '0' }}>
+                  <LoadingOutlined />
+                </div>
                 : faces.length > 0
                 && faces.map((face) => (
                   <div
@@ -589,12 +750,17 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                     }}
                     onMouseEnter={(e) => handleHoverFace(e, face[0])}
                     onMouseLeave={() => setHoverFace(false)}>
-                    {hoverFace && faceId === face[0]
-                      && <span className="face-name" style={{ position: 'absolute' }}>{faceName}</span>}
+                    {hoverFace && faceId === face[0] && faceId !== 'unknown'
+                      && <Link to={`/profile/${faceId}`}>
+                        <span className="face-name" style={{ position: 'absolute' }}>{faceName}</span>
+                      </Link>
+                    }
                   </div>
                 ))}
+
+              {/* Nhận dạng vũ khí */}
               {isDetectingWeapon
-                ? <span className="is-recognizing">Đang nhận diện vũ khí...</span>
+                ? ''
                 : weapons.length > 0
                 && weapons.map((weapon) => (
                   <div
@@ -616,7 +782,138 @@ const Post = ({ post, isCommentOpen, openComment, closeComment, socket, user, wh
                   </div>
                 ))}
             </div>
-            <div className="right"></div>
+
+            {/* Thông tin chi tiết bài viết */}
+            <div className="right">
+              <div className="user">
+                <div className="userInfo">
+                  <img src={post?.profilePic ? post?.profilePic : profileAlt} alt="" />
+                  <div className="details">
+                    <Link
+                      to={profile}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      <span className="name">{post.name}</span>
+                      {tagData?.length === 1 &&
+                        <span> gắn thẻ cùng với
+                          <Link to={`/profile/${tagData[0].userId}`} style={{ textDecoration: "none", fontSize: "12px" }} >{tagData[0].name}</Link>
+                        </span>}
+                      {tagData?.length > 1 &&
+                        <span> gắn thẻ cùng với
+                          <Link style={{ textDecoration: "none", fontSize: "12px" }} onClick={() => setOpenTag(true)}>{tagData?.length} người khác</Link>
+                        </span>}
+                    </Link>
+                    <span className="date">{`${moment(post.createdAt).fromNow()}`.replace(/years|days|months|hours|minutes|seconds|ago/g, (match) => {
+                      if (match === "years") return "năm";
+                      if (match === "months") return "tháng";
+                      if (match === "days") return "ngày";
+                      if (match === "hours") return "giờ";
+                      if (match === "minutes") return "phút";
+                      if (match === "seconds") return "giây";
+                      if (match === "ago") return "trước";
+                    })}
+
+                    </span>
+                  </div>
+                </div>
+                <div className="button-option-post"
+                  onClick={() => {
+                    setMenuOpen(!menuOpen);
+                  }}>
+                  <MoreHorizIcon />
+                  {menuOpen
+                    &&
+                    <div className="button-option-post"
+                      onClick={() => {
+                        setMenuOpen(!menuOpen);
+                      }}
+                      style={{ background: 'lightgray', borderRadius: '50%', position: 'absolute', top: 0, left: 0 }}
+                    >
+                      <MoreHorizIcon />
+                    </div>
+                  }
+                </div>
+
+                {post.status === "bad" && <IoMdWarning className='warning-icon' />}
+                {
+                  (
+                    menuOpen && gData?.some(
+                      member => member.position === "admin" &&
+                        member.userId === currentUser.id &&
+                        member.groupId === post.groupId
+                    )
+                    && post.userId !== currentUser.id
+                  )
+                    ? <div className="post-menu" >
+                      <span onClick={handleReport}>Báo cáo bài viết</span>
+                      <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
+                    </div>
+                    : menuOpen
+                    && <div className="post-menu" >
+                      {post.userId === currentUser.id &&
+                        <span onClick={handleDelete}>Xóa bài viết</span>
+                      }
+                      <span onClick={handleReport}>Báo cáo bài viết</span>
+                    </div>
+                }
+                {openTag && <ListTagPost setOpenTag={setOpenTag} postId={post.id} />}
+                {
+                  (
+                    menuOpen && gData?.some(
+                      member => member.position === "admin" &&
+                        member.userId === currentUser.id &&
+                        member.groupId === post.groupId
+                    )
+                    && post.userId !== currentUser.id
+                  )
+                    ? <div className="post-menu" >
+                      <span onClick={handleReport}>Báo cáo bài viết</span>
+                      <span onClick={handleDeleteG}>Xóa bài viết thành viên</span>
+                    </div>
+                    : menuOpen && <div className="post-menu" >
+                      <span onClick={handleReport}>Báo cáo bài viết</span>
+                      {post.userId === currentUser.id &&
+                        <span onClick={handleDelete}>Xóa bài viết</span>
+                      }
+                    </div>
+
+                }
+                {menuOpen
+                  && post.userId === currentUser.id
+                  && <button
+                    onClick={handleDelete}
+                    style={{ padding: "10px", borderRadius: "10px" }}>Delete</button>
+                }
+
+                {/* {menuOpen
+              && post.userId !== currentUser.id
+              && <div className="post-menu" onClick={handleReport}>
+                <span>Báo cáo bài viết</span>
+              </div>
+            } */}
+
+
+              </div>
+              <div className="face-recognition">
+                {!isRecognizing && (post.userId === currentUser.id ?
+                  <div className="auto-tag" onClick={autoTag}>
+                    {
+                      autoTagFriends.length > 0 &&
+                      <span>Gắn thẻ tự động:</span>
+                    }
+                    {
+                      autoTagFriends.length > 0 &&
+                      autoTagFriends.map((friend) => <span>{friend?.name}</span>)
+                    }
+                  </div> :
+                  <div className="suggest-follow">
+
+                    {faceNames?.length > 0 &&
+                      `Đề xuất người dùng
+                    ${faceNames.map((facename) => facename)}`}
+                  </div>)}
+              </div>
+            </div>
           </div>
         )}
         {confirmDelete &&

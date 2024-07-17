@@ -28,6 +28,7 @@ import { useRef } from "react";
 import ChatBot from "../chatbot/ChatBot";
 import "../chatbot/Chatbot.scss"
 import PrivacyProfile from "../privacyProfile/PrivacyProfile";
+import { TbMessageChatbot } from "react-icons/tb";
 
 const Navbar = ({ socket }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -161,12 +162,13 @@ const Navbar = ({ socket }) => {
             && isOpenSearchResults
             && <SearchResults results={results} input={input} />}
         </div>
-        <div className="icon" onClick={handleOpenChat}>
-          <SearchOutlinedIcon />
-        </div>
         {openChat && <ChatBot setOpenChat={setOpenChat} />}
       </div>
+
       <div className="right" onClick={handleCloseSearchResults}>
+        <div className='icon' >
+          <TbMessageChatbot style={{fontSize: '25px'}} onClick={handleOpenChat} />
+        </div>
         {darkMode ? (
           <div className='icon' >
             <WbSunnyOutlinedIcon onClick={toggle} />
@@ -214,7 +216,7 @@ const Navbar = ({ socket }) => {
           </div>))
         }
         {openUpdate && <ChangePassword setOpenUpdate={setOpenUpdate} user={findUser} />}
-        {openPrivacy && <PrivacyProfile setOpenPrivacy={setOpenPrivacy} currentUser={currentUser}/>}
+        {openPrivacy && <PrivacyProfile setOpenPrivacy={setOpenPrivacy} currentUser={currentUser} />}
         {openMenu
           && <div className="menu">
             <div className="menu-item"

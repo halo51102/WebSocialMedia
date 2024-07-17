@@ -5,6 +5,7 @@ import "./home.scss"
 import { useContext } from "react"
 import { AuthContext } from "../../context/authContext"
 import { FloatButton } from 'antd';
+import { useLocation } from "react-router-dom"
 
 const Home = ({socket, user}) => {
   const { currentUser } = useContext(AuthContext)

@@ -151,3 +151,20 @@ export const acceptFollowed = (req, res) => {
         })
     })
 }
+export const getFriend = (req, res) => {
+    const userId = req.query.userId;
+    db.query("SELECT r.followedUserId FROM users as u join relationships as r on u.id = r.followerUserId where u.id = ? ;",
+        [userId], (err0, data0) => {
+            if (err0) return res.status(400).json('lỗi 1');
+            const arr0 = []
+            data0.map((data) => { arr0.push(data.followedUserId) });
+            db.query("SELECT r.followerUserId FROM users as u join relationships as r on u.id = r.followedUserId where r.followedUserId = ? ;",
+                [userId], (err1, data1) => {
+                    if (err1) return res.status(400).json('lỗi 2');
+                    const arr1 = []
+                    data1.map((data) => { arr1.push(data.followerUserId) });
+                    const result = arr0.filter((item)=> arr1.includes(item));
+                    return res.status(200).json(result);
+                });
+        });
+}

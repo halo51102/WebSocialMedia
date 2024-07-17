@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import CreateStory from "../createStory/CreateStory";
 import profileAlt from "../../assets/profileAlt.png"
 import imgAlt from "../../assets/img.png"
+import { LoadingOutlined } from "@ant-design/icons";
 
 const Stories = () => {
   const [openCreate, setOpenCreate] = useState(false);
@@ -112,7 +113,9 @@ const Stories = () => {
       {error
         ? "Không thể load dữ liệu"
         : isLoading
-          ? "Đang tải..."
+          ? <div className="icon-loading">
+            <LoadingOutlined style={{ display: 'flex', alignItems: 'center', color: 'black' }} />
+          </div>
           : !data
             ? (
               <div className="story-empty">

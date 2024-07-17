@@ -1,4 +1,5 @@
 @import "../../style.scss";
+@import "../../components/post/post.scss";
 
 .profile {
   @include themify($themes) {
@@ -215,9 +216,16 @@
 
       button {
         position: fixed;
-        height: 100%;
-        width: 100%;
-        background-color: rgba(240, 248, 255, 0);
+        /* height: 100%; */
+        /* width: 100%; */
+        /* background-color: rgba(240, 248, 255, 0); */
+        top: 20px;
+        width: 30px;
+        height: 30px;
+        left: 20px;
+        background: white;
+        color: black;
+        border-radius: 50%;
       }
     }
   }

@@ -13,6 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { NotificationContext } from "../../context/notificationContext";
 import ChatBot from "../chatbot/ChatBot";
 import { useLocation } from "react-router-dom";
+import profileAlt from "../../assets/profileAlt.png"
 
 const LeftBar = ({ socket, user }) => {
 
@@ -20,7 +21,7 @@ const LeftBar = ({ socket, user }) => {
   const [err, setErr] = useState(null)
   const navigate = useNavigate();
   const { showNotification } = useContext(NotificationContext)
-  const whichPage = useLocation().pathname.split("/")[1]
+  const whichPage = useLocation().pathname;
   console.log(whichPage)
   const [openChat, setOpenChat] = useState(false);
   let group = "/group"
@@ -45,7 +46,7 @@ const LeftBar = ({ socket, user }) => {
     <div className="leftBar">
       <div className="container">
         <div className="menu">
-          {whichPage === '/profile'
+          {!whichPage?.includes('profile')
             ?
             <Link
               to={`/profile/${currentUser.id}`}
@@ -54,7 +55,7 @@ const LeftBar = ({ socket, user }) => {
               <div className="item">
                 <div className="item-avatar">
                   <img
-                    src={currentUser.profilePic}
+                    src={currentUser?.profilePic ? currentUser.profilePic : profileAlt}
                     alt=""
                   />
                 </div>
@@ -93,7 +94,7 @@ const LeftBar = ({ socket, user }) => {
             </Link>
           </div>
           <div className="item">
-            <img src={Groups} alt="" />
+            <img src={'https://png.pngtree.com/png-clipart/20200224/original/pngtree-cloud-hosting-storage-icon-design-for-web-png-image_5225669.jpg'} alt="" />
             <Link
               to="/storage"
               style={{ textDecoration: "none", color: "inherit" }}>

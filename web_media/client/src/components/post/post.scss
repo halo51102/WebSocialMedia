@@ -9,7 +9,8 @@
     background-color: themed("bg");
     color: themed("textColor");
 
-    .container {
+    .container,
+    .right {
       padding: 20px;
 
       .user {
@@ -122,11 +123,11 @@
           }
         }
 
-        .loading{
-          width: 100%;
+        .icon-loading {
+          font-size: 40px;
+          padding: 10px;
           display: flex;
           justify-content: center;
-          align-items: center;
         }
 
         img {
@@ -313,6 +314,10 @@
       width: auto;
       height: 95%;
       position: relative;
+      flex: 2;
+      display: flex;
+      /* align-items: center; */
+      // justify-content: center;
 
       .face-name {
         position: absolute;
@@ -338,12 +343,24 @@
       }
     }
 
+    .right {
+      flex: 1 1;
+      background: white;
+      height: 100%;
+    }
 
     button {
       position: fixed;
-      height: 100%;
-      width: 100%;
-      background-color: rgba(240, 248, 255, 0);
+      /* height: 100%; */
+      /* width: 100%; */
+      /* background-color: rgba(240, 248, 255, 0); */
+      top: 20px;
+      width: 30px;
+      height: 30px;
+      left: 20px;
+      background: white;
+      color: black;
+      border-radius: 50%;
     }
   }
 }
@@ -355,4 +372,36 @@
   top: 15px;
   font-size: 25px;
 
+}
+
+.hide-image {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  background: gray;
+  display: flex;
+  font-size: 15px;
+  color: white;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.auto-tag {
+  display: flex;
+  gap: 5px;
+  border: 1px solid;
+  width: fit-content;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 20px;
+  font-size: 15px;
+}
+
+.tag-name {
+  font-size: 16px;
+  padding-left: 5px;
+  font-weight: 600;
+  color: black;
 }

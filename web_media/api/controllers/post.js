@@ -12,15 +12,11 @@ export const getPosts = (req, res) => {
   jwt.verify(token, "secretkey", (err, userInfo) => {
     if (err) return res.status(403).json("Token is not valid!")
 
-    const q = userId !== "undefined" ?
+    const q = userId === "undefined" ?
       `select p.*, u.username, u.name, u.profilePic, r.followedUserId, r.followerUserId from posts as p join users as u on(p.userId=u.id) left join relationships as r
     on (u.id=r.followedUserId) where r.followerUserId=? ORDER BY p.createdAt DESC;`
-      : `SELECT p.*,u.id AS userId,name,username,profilePic FROM posts AS p JOIN users AS u ON(u.id=p.userId)
-    LEFT JOIN relationships AS r ON (p.userId=r.followedUserId) WHERE r.followerUserId=? OR p.userId=?
-    ORDER BY p.createdAt DESC`
-
-
-    const values = userId !== "undefined" ? [userId] : [userInfo.id, userInfo.id]
+      : `SELECT p.*, u.username, u.name, u.profilePic FROM posts as p join users as u on p.userId=u.id  where p.userId = ? or p.userId in (select followedUserId from relationships where followerUserId = ?) order by createdAt desc;`
+    const values = userId === "undefined" ? [userId] : [userInfo.id, userInfo.id]
     db.query(q, values, (err, data) => {
       if (err) return res.status(500).json(err);
       return res.status(200).json(data)
@@ -318,15 +314,37 @@ export const addImageOfPost = (req, res) => {
     if (err) return res.status(403).json("Token is not valid!")
 
     const q =
-      "INSERT INTO posts_images(`postId`, `img`) VALUES (?)"
+      "INSERT INTO posts_images(`postId`, `img`,`isDangerous`) VALUES (?)"
     const values = [
       req.body.postId,
-      req.body.img
+      req.body.img,
+      req.body.isDangerous
     ]
 
     db.query(q, [values], (err, data) => {
       if (err) return res.status(500).json(err)
       return res.status(200).json({ msg: "Image of post has been created.", data: data })
+    })
+  })
+}
+
+export const updateImageOfPost = (req, res) => {
+  const token = req.cookies.accessToken
+  if (!token) return res.status(401).json("Not logged in!")
+
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!")
+
+    const q =
+      "update posts_images set isDangerous = ? where postId = ?"
+    const values = [
+      req.body.isDangerous,
+      req.body.postId,
+    ]
+
+    db.query(q, [values], (err, data) => {
+      if (err) return res.status(500).json(err)
+      return res.status(200).json(data)
     })
   })
 }
@@ -355,4 +373,39 @@ export const checkToxicStatus = (req, res) => {
     }
   })
 };
+
+export const tag = (req, res) => {
+
+  const { postId, userId } = req.body;
+  const token = req.cookies.accessToken;
+  if (!token) return res.status(401).json("Not logged in!")
+
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!")
+    db.query("select * from tagofpost where idpost = ? and userId = ?", [postId, userId], (err, data) => {
+      if (err) return res.status(500).json(err);
+      if (data.length > 0) return res.status(400).json("Đã tag")
+      const q =
+        'insert into tagofpost (idpost, userId) values(?, ?);'
+      db.query(q, [postId, userId], (err, data) => {
+        if (err) return res.status(500).json(err);
+        return res.status(200).json(data)
+      })
+    })
+  })
+}
+
+export const getTagOfPost = (req, res) => {
+  const postId = req.query.postId;
+  const token = req.cookies.accessToken;
+  if (!token) return res.status(401).json("Not logged in!")
+
+  jwt.verify(token, "secretkey", (err, userInfo) => {
+    if (err) return res.status(403).json("Token is not valid!")
+    db.query("SELECT * FROM users as u join tagofpost as t on u.id = t.userId where idpost= ?", [postId], (err, data) => {
+      if (err) return res.status(500).json(err);
+      return res.status(200).json(data)
+    })
+  })
+}
 

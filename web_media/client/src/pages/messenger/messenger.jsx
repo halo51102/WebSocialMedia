@@ -314,16 +314,6 @@ export default function Messenger({ socket }) {
         }
 
         try {
-          axios.defaults.headers.common['Content-Type'] = 'application/json';
-          axios.defaults.headers.common['Accept'] = 'application/json';
-
-          const formData = new FormData();
-          formData.append('text', newMessage);
-          const prediction = await axios.post("http://127.0.0.1:8001/", formData);
-          const result = prediction.data.result;
-          if (result != '0') {
-            message["text"] = "WebSocialMedia đã che tin nhắn vì ngôn từ phản cảm..."
-          }
 
           const res = await makeRequest.post("/messages", message);
           console.log(res.data)

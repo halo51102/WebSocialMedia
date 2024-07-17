@@ -3,7 +3,7 @@ import axios from "axios";
 import ImageIcon from "../../assets/img.png";
 import Map from "../../assets/map.png";
 import Friend from "../../assets/friend.png";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../../context/authContext";
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { makeRequest } from "../../axios";
@@ -16,6 +16,8 @@ import { IoCloseCircle } from "react-icons/io5";
 import { uploadImagesToS3 } from "../../s3.config";
 import { IoMdWarning } from "react-icons/io";
 import NewPost from "../newPost/NewPost";
+import { LoadingOutlined } from "@ant-design/icons";
+import { MdOutlineGppGood } from "react-icons/md";
 
 const Share = () => {
 
@@ -29,6 +31,10 @@ const Share = () => {
   const [predict, setPredict] = useState('good');
   const [openImage, setOpenImage] = useState(false);
   const [image, setImage] = useState();
+  const [isPosting, setIsPosting] = useState(false);
+  const [weapons, setWeapons] = useState([]);
+  const [isPredicting, setIsPredicting] = useState(false);
+
 
   const { isLoading, error, data: findUser } = useQuery(["user"], () =>
     makeRequest.get("/users/find/" + currentUser.id).then((res) => {
@@ -36,13 +42,36 @@ const Share = () => {
     }))
 
   const upload = async (postId, file) => {
-    // const formData = new FormData()
-    // formData.append("file", file)
-    const res = await uploadImagesToS3(file)
-    console.log(res)
-    const imgRes = await makeRequest.post("/posts/images", { postId: postId, img: res })
-    console.log(imgRes)
-    return;
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common['Accept'] = 'application/json';
+
+    try {
+
+      // const formData = new FormData()
+      // formData.append("file", file)
+      const res = await uploadImagesToS3(file)
+
+      const formData = new FormData();
+      formData.append("text", res);
+
+      const predict = await axios.post("http://localhost:8003/predict", formData);
+      console.log(predict)
+      if (predict.data.results.length > 0) {
+        const imgRes = await makeRequest.post("/posts/images", { postId: postId, img: res, isDangerous: 'true' })
+        // await imagePostMutation.mutate(postId, res, 'true');
+        // console.log(imgRes)
+      } else {
+        const imgRes = await makeRequest.post("/posts/images", { postId: postId, img: res, isDangerous: 'false' })
+        // await imagePostMutation.mutate(postId, res, 'false');
+
+        // console.log(imgRes)
+      }
+
+      console.log('đã up ảnh vô post')
+    } catch (err) {
+      console.log(err)
+    }
+
   }
 
   const newPostMutation = useMutation(async (newPost) => {
@@ -53,63 +82,119 @@ const Share = () => {
       onSuccess: async (data) => {
         queryClient.invalidateQueries(["postsInGroup"]);
         queryClient.invalidateQueries(["imagesOfPost"]);
+
       }
     }
   )
 
-  const handleNewPost = async (e) => {
+  const imagePostMutation = useMutation(async (postId, img, isDangerous) => {
+    const imgRes = await makeRequest.post("/posts/images", { postId: postId, img: img, isDangerous: isDangerous })
+    return imgRes;
+  },
+    {
+      onSuccess: async (data) => {
+        queryClient.invalidateQueries(["postsInGroup"]);
+        queryClient.invalidateQueries(["imagesOfPost"]);
+      }
+    }
+  )
+
+  const weapon_detect = async (file) => {
     axios.defaults.headers.common['Content-Type'] = 'application/json';
     axios.defaults.headers.common['Accept'] = 'application/json';
-
-    e.preventDefault()
-
+    console.log('detecting')
+    const isDangerous = 'false';
+    const formData = new FormData();
+    formData.append("file", file);
     try {
-      newPostMutation.mutateAsync({
-        desc,
-        group: groupId,
-        sharePost: null,
-      }).then(async (data) => {
-        await file.forEach(async (item) => {
-          upload(data.data.insertId, item)
-        }); //upload ảnh lên s3
-
-        const formData = new FormData();
-        formData.append('text', desc);
-        const prediction = await axios.post("http://127.0.0.1:8001/", formData);
-        console.log(prediction.data.result);
-        const result = prediction.data.result;
-        if (result != '0') {
-          const res = await makeRequest.put("/posts/report/" + data.data.insertId, { status: "bad" });
-          console.log(res);
-        }
-      }).then(async () => {
-        showNotification("Đăng bài viết thành công!!")
-      })
-      setDesc("")
-      setFile([])
+      const r = await axios.post("http://localhost:8003/predict", formData);
+      if (r.data.results.length > 0) {
+        isDangerous = 'true';
+      }
+      console.log(isDangerous)
+      return isDangerous;
     }
     catch (err) {
-      showNotification("Đăng bài viết thất bại!!")
+      showNotification('Lỗi server');
+    }
+  }
+
+  const handleNewPost = async (e) => {
+    console.log('in posting')
+    setIsPosting(true);
+
+    axios.defaults.headers.common['Content-Type'] = 'application/json';
+    axios.defaults.headers.common['Accept'] = 'application/json';
+    e.preventDefault();
+
+    try {
+      // Check toxic
+      const formData = new FormData();
+      formData.append('text', desc);
+      const prediction = await axios.post("http://127.0.0.1:8001/", formData);
+      console.log(prediction.data.result);
+      const result = prediction.data.result;
+      console.log('đã check toxic')
+      try {
+        newPostMutation.mutateAsync({
+          desc,
+          group: groupId,
+          sharePost: null,
+        }).then(async (data) => {
+
+          console.log('đã add post')
+
+          await file.forEach(async (item) => {
+            await upload(data.data.insertId, item);
+          });
+
+          if (result != '0') {
+            const res = await makeRequest.put("/posts/report/" + data.data.insertId, { status: "bad" });
+            console.log(res);
+          }
+        })
+        setDesc("")
+        setFile([])
+        setIsPosting(false);
+        setPredict('good');
+        showNotification("Đăng bài viết thành công");
+      }
+      catch (err) {
+        showNotification("Đăng bài viết thất bại!!")
+      }
+    }
+    catch (err) {
+      showNotification('Không thể phán đoán ngôn từ phản cảm');
     }
   }
 
   const handleChangeDesc = async (e) => {
+    setIsPredicting(true);
+
     setDesc(e.target.value);
     axios.defaults.headers.common['Content-Type'] = 'application/json';
     axios.defaults.headers.common['Accept'] = 'application/json';
-    const formData = new FormData();
-    formData.append('text', e.target.value);
-    const prediction = await axios.post("http://127.0.0.1:8001/", formData);
-    const result = prediction.data.result;
-    if (result != '0') {
-      setPredict('bad');
-    } else {
-      setPredict('good');
+    try {
+      const formData = new FormData();
+      formData.append('text', e.target.value);
+      const prediction = await axios.post("http://127.0.0.1:8001/", formData);
+
+      const result = prediction.data.result;
+      if (result != '0') {
+        setPredict('bad');
+      } else {
+        setPredict('good');
+      }
+
+    } catch (err) {
+      return
     }
+    setIsPredicting(false);
+
   }
 
   const handleClickImage = async (item) => {
-    setOpenImage(true);    
+    setOpenImage(true);
   }
 
   const handleChooseImage = (item) => {
@@ -124,10 +209,20 @@ const Share = () => {
     };
   }
 
-  console.log(image);
+  const handleUploadFile = async (e) => {
+    setFile((prevFiles) => [...prevFiles, (e.target.files[0])]);
+    // const result = await weapon_detect(e.target.files[0]);
+    // console.log(result);
+  }
+
+  console.log(file);
 
   return (
     <div className="share">
+      {isPosting &&
+        <div className="posting">
+          <LoadingOutlined />
+        </div>}
       <div className="container">
         <div className="top">
           <div className="left">
@@ -138,32 +233,45 @@ const Share = () => {
             <input type="text" placeholder={`Bạn đang nghĩ gì vậy ${findUser?.name}...`}
               onChange={handleChangeDesc}
               value={desc} />
-            {
-              predict === 'bad'
-              && <div className="warning">
-                <IoMdWarning style={{ color: 'red', marginRight: '5px', fontSize: '15px' }} />
-                <span>Chứa ngôn từ phản cảm</span>
-              </div>
+            { }
+            {isPredicting ?
+              <div className="warning">
+                <LoadingOutlined style={{ color: 'blue', marginRight: '5px', fontSize: '15px' }} />
+                <span>Đang kiểm tra...</span>
+              </div> :
+              predict === 'bad' ?
+                <div className="warning">
+                  <IoMdWarning style={{ color: 'red', marginRight: '5px', fontSize: '15px' }} />
+                  <span>Chứa ngôn từ phản cảm</span>
+                </div> :
+                desc !== "" &&
+                <div className="warning">
+                  <MdOutlineGppGood style={{ color: 'green', marginRight: '5px', fontSize: '15px' }} />
+                  <span>Đoạn văn bình thường</span>
+                </div>
             }
           </div>
           <div className="right">
             {file && (file?.map((item) => (
               <div className="file">
-                <IoCloseCircle className="icon-remove" onClick={() => setFile((prevFiles) => prevFiles.filter((file) => file !== item))} />
+                <IoCloseCircle className="icon-remove" onClick={() => {
+                  setFile((prevFiles) => prevFiles.filter((file) => file !== item));
+
+                }} />
                 <img className="file" alt="" src={URL.createObjectURL(item)} onClick={async () => await handleClickImage(item)} onMouseEnter={() => handleChooseImage(item)} />
               </div>)))}
-            {openImage
+            {/* {openImage
               && <div className="image-detail">
                 <NewPost
                   images={file}
                   handleCloseImage={() => { setOpenImage(false) }} />
-              </div>}
+              </div>} */}
             {file.length !== 0 && <div className="file">
               <input type="file"
                 id="file"
                 style={{ display: "none" }}
-                onChange={(e) => setFile((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])}
-                multiple />
+                onChange={(e) => { handleUploadFile(e) }}
+              />
               <label htmlFor="file">
                 <img className="icon-add"
                   alt=""
@@ -179,7 +287,7 @@ const Share = () => {
             <input type="file"
               id="file"
               style={{ display: "none" }}
-              onChange={(e) => setFile((prevFiles) => [...prevFiles, ...Array.from(e.target.files)])}
+              onChange={(e) => { handleUploadFile(e); }}
               multiple />
             <label htmlFor="file">
               <div className="item">

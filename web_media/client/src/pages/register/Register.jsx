@@ -49,6 +49,7 @@ const Register = () => {
         </div>
         <div className="right">
           <h1>Đăng ký</h1>
+          <span>{err}</span>
           <form>
             <input type="text" placeholder="Username" name="username" onChange={handleChange} />
             <input type="email" placeholder="Email" name="email" onChange={handleChange} />

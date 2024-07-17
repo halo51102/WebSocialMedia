@@ -1,5 +1,5 @@
 import express from 'express'
-import { getRelationship, addRelationship, deleteRelationship, suggestFollow, getFollowEd, whoFollow, getPending, getPended, acceptFollowed } from '../controllers/relationship.js'
+import { getRelationship, addRelationship, deleteRelationship, suggestFollow, getFollowEd, whoFollow, getPending, getPended, acceptFollowed, getFriend } from '../controllers/relationship.js'
 const routes = express.Router()
 
 routes.get("/suggest-follow", suggestFollow)
@@ -11,5 +11,6 @@ routes.get("/acceptFollowed",acceptFollowed)
 routes.get("/", getRelationship)
 routes.post("/", addRelationship)
 routes.delete("/", deleteRelationship)
+routes.get("/friend", getFriend)
 
 export default routes

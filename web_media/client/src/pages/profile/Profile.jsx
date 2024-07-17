@@ -1,4 +1,5 @@
 import "./profile.scss";
+import "../../components/posts/posts.scss"
 import PlaceIcon from "@mui/icons-material/Place";
 import LanguageIcon from "@mui/icons-material/Language";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -6,7 +7,7 @@ import Posts from "../../components/posts/Posts"
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { makeRequest } from "../../axios";
 import { useLocation } from "react-router-dom";
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { AuthContext } from "../../context/authContext";
 import Update from "../../components/update/Update";
 import { useEffect } from "react";
@@ -14,6 +15,8 @@ import profileAlt from "../../assets/profileAlt.png"
 import coverAlt from "../../assets/coverAlt.png"
 import { MdOutlineImageNotSupported } from "react-icons/md";
 import { FcNoVideo } from "react-icons/fc";
+import { FloatButton } from 'antd';
+
 
 const Profile = ({ socket, user }) => {
   const [openUpdate, setOpenUpdate] = useState(false);
@@ -25,8 +28,11 @@ const Profile = ({ socket, user }) => {
   const [selectedComponent, setSelectedComponent] = useState('');
   const [imagesData, setImagesData] = useState([]);
   const [videosData, setVideosData] = useState([]);
-
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  })
 
   useEffect(() => {
     const getImagesOfUser = async () => {
@@ -41,7 +47,7 @@ const Profile = ({ socket, user }) => {
 
   console.log(user)
 
-  const { isLoading, error, data } = useQuery(["user", userId], () =>
+  const { isLoading, error, data } = useQuery(["getUser", userId], () =>
     makeRequest.get("/users/find/" + userId).then((res) => {
       return res.data
     }))
@@ -194,6 +200,7 @@ const Profile = ({ socket, user }) => {
           <button onClick={handleImageClose}></button>
         </div>
       )}
+      <FloatButton.BackTop />
     </div>
 
   );
