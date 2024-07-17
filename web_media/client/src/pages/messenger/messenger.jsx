@@ -387,7 +387,7 @@ export default function Messenger({ socket }) {
       alert(err);
     }
   }
-  
+
   const handleCall = () => {
     console.log(socket?.id)
     alert('Đang làm!');
@@ -455,7 +455,11 @@ export default function Messenger({ socket }) {
                   type="text"
                   value={searchInput}
                   placeholder="Nhập từ khóa..."
-                  onClick={() => { setIsOpenSearchConversation(true) }}
+                  onClick={() => {
+                    setIsOpenSearchConversation(true);
+                    setSearchInput('');
+
+                  }}
                   onChange={handleSearch}
                   style={{ border: 'none', marginTop: '0' }} />
               </div>

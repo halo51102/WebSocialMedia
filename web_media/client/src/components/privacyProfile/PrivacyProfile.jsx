@@ -60,8 +60,8 @@ const PrivacyProfile = ({ setOpenPrivacy, currentUser }) => {
         <div className="div-select">
           <label className="div-privacy" htmlFor="mySelect">Phê duyệt người có thể theo dõi bạn</label>
           <select className="div-option" id="mySelect" value={privacyPendValue} onChange={handleChangeFollow}>
-            <option value="public">Bật</option>
-            <option value="limit">Tắt</option>
+            <option value="public">Tắt</option>
+            <option value="limit">Bật</option>
           </select>
         </div>
         <button className="close" onClick={() => setOpenPrivacy(false)}>
