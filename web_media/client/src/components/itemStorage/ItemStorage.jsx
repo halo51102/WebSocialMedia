@@ -15,6 +15,7 @@ const ItemStorage = ({ postId, callback }) => {
 
     const [menuOpen, setMenuOpen] = useState(false)
 
+    const queryClient = useQueryClient()
     const { showNotification } = useContext(NotificationContext)
     const { isLoading: isL, error: er, data: pic } = useQuery(["imagesInPost", postId], () =>
         makeRequest.get("/posts/images?postId=" + postId).then((res) => {
@@ -37,8 +38,8 @@ const ItemStorage = ({ postId, callback }) => {
     },
         {
             onSuccess: () => {
-                useQueryClient.invalidateQueries(["postStorage", postId, currentUser.id])
-                useQueryClient.invalidateQueries(["myStorage"])
+                queryClient.invalidateQueries(["postStorage", postId, currentUser.id])
+                queryClient.invalidateQueries(["myStorage"])
             }
         }
     )

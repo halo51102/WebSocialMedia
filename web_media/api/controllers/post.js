@@ -42,7 +42,7 @@ export const getPostsInProfile = (req, res) => {
 
     const values = userId !== "undefined" ? [userId] : [userInfo.id, userInfo.id]
 
-    if (userId === userInfo.id) {
+    if (userId == userInfo.id) {
       db.query(q, values, (err, data) => {
         if (err) return res.status(500).json(err);
         return res.status(200).json(data)
